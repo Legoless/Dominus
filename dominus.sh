@@ -1,0 +1,396 @@
+#!/bin/bash
+
+# UTF-8
+export LANG=en_US.UTF-8
+
+# exit on failure
+set -e
+
+#
+# Usage
+#
+
+usage() {
+  cat << EOF
+
+Usage: $0 <action> <command>
+
+A command line interface for iOS workflow.
+
+Commands:
+   version         Displays script version
+   help            Displays this message
+
+   update          Downloads latest scripts from GitHub repository
+   install         Loads all gems and tools needed to use this tool
+
+   setup           Executes setup command
+   deploy          Executes deploy command
+
+EOF
+
+  setupinfo
+  deployinfo
+  about
+}
+
+#
+# Help
+#
+
+about()
+{
+  cat << EOF
+Author:
+   Dal Rupnik <legoless@gmail.com>
+
+Website:
+   http://www.arvystate.net
+
+EOF
+}
+
+setupinfo()
+{
+  cat << EOF
+Setup commands:
+   project         Creates and configures a new project
+   travis          Creates .travis.yml file with correct parameters
+   certificate     Creates a development certificate and adds it to all provisioning profiles
+
+EOF
+}
+
+deployinfo()
+{
+  cat << EOF
+Deployment commands:
+   init            Installs prerequisites for building Xcode project
+   pod             Finds podfile and installs pods
+   prepare         Downloads and installs provisioning profiles and certificates
+   build           Builds the application from source
+   send            Created build, is signed and sent
+   clean           Cleans all created files by other commands
+
+   auto            Runs entire deploy process: init, pod, profile, build, send, clean
+
+EOF
+}
+
+#
+# Version
+#
+
+version()
+{
+  echo '[DOMINUS]: Dominus Script Version:' $SCRIPT_VERSION
+}
+
+#
+# Update
+#
+
+update()
+{
+  echo '[DOMINUS]: Updating scripts in' $SCRIPT_PATH
+  echo '[DOMINUS]: Not implemented'
+}
+
+#
+# Install
+#
+
+install()
+{
+  echo '[DOMINUS]: Not implemented'
+}
+
+#
+# Setup
+#
+
+setup()
+{
+  case "$1" in
+    project) project;;
+    travis) travis;;
+    certificate) certificate;;
+    *) setupinfo
+    exit 1
+    ;;
+  esac
+}
+
+#
+# Deploy
+#
+
+deploy()
+{
+  case "$1" in
+    init) init;;
+    pod) pod;;
+    prepare) prepare;;
+    build) build;;
+    send) send;;
+    clean) clean;;
+    *) deployinfo
+  exit 1
+  ;;
+  esac
+}
+
+#
+# Project
+#
+
+project()
+{
+  echo '[DOMINUS]: Project Not implemented'
+}
+
+#
+# Travis
+#
+
+travis()
+{
+  echo '[DOMINUS]: Travis Not implemented'
+}
+
+#
+# Certificate
+#
+
+certificate()
+{
+  echo '[DOMINUS]: Certificate Not implemented'
+}
+
+#
+# Init
+#
+
+init()
+{
+  #
+  # Init script here
+  #
+
+  if [[ -f $SCRIPT_PATH'deploy/init.sh' ]]; then
+    $SCRIPT_PATH'deploy/init.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'init' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Pod
+#
+
+pod()
+{
+  if [[ -f $SCRIPT_PATH'deploy/pods.sh' ]]; then
+    $SCRIPT_PATH'deploy/pods.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'pods' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Profile
+#
+
+prepare()
+{
+  if [[ -f $SCRIPT_PATH'deploy/prepare.sh' ]] && [[ -f $SCRIPT_PATH'deploy/cert.sh' ]]; then
+    $SCRIPT_PATH'deploy/prepare.sh' -a $ATLANTIS_PATH -c $CUPERTINO_PATH
+    $SCRIPT_PATH'deploy/cert.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'prepare' scripts. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Build
+#
+
+build()
+{
+  if [[ -f $SCRIPT_PATH'deploy/build.sh' ]]; then
+    BUILD_SCRIPT_PATH=$SCRIPT_PATH'deploy/build.sh'
+
+    #
+    # Need provisioning profile name
+    #
+
+    if [[ ! -z $DEVELOPER_PROVISIONING ]]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -f \"$DEVELOPER_PROVISIONING\""
+    fi
+
+    #
+    # Add Build SDK
+    #
+
+    if [[ ! -z $BUILD_SDK ]]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -k $BUILD_SDK"
+    fi
+
+    #
+    # Add Travis CI build number
+    #
+    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER"
+    fi
+
+    eval $BUILD_SCRIPT_PATH
+  else
+    echo '[DOMINUS]: Unable to find 'build' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Send
+#
+
+send()
+{
+  if [[ -f $SCRIPT_PATH'deploy/send.sh' ]]; then
+    SEND_SCRIPT_PATH=$SCRIPT_PATH'deploy/send.sh'
+
+    if [[ ! -z $DEVELOPER_PROVISIONING ]]; then
+      SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -f \"$DEVELOPER_PROVISIONING\""
+    fi
+
+    if [[ ! -z $TESTFLIGHT_API_TOKEN ]]; then
+      SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -a $TESTFLIGHT_API_TOKEN"
+    fi
+
+    if [[ ! -z $TESTFLIGHT_TEAM_TOKEN ]]; then
+      SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -t $TESTFLIGHT_TEAM_TOKEN"
+    fi
+
+    #
+    # If we are on CI, this variable is likely full, we watch it for [DEPLOY
+    #
+
+#if [[ ! -z $TRAVIS_COMMIT ]]; then
+#SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -d $TESTFLIGHT_DISTRIBUTION_LIST"
+#fi
+
+    if [[ ! -z $TESTFLIGHT_DISTRIBUTION_LIST ]]; then
+       SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -d \"$TESTFLIGHT_DISTRIBUTION_LIST\""
+    fi
+
+
+    #If a commit message
+    #is provided, script will search for [DEPLOY:<lists>]
+
+
+    eval $SEND_SCRIPT_PATH
+  else
+    echo '[DOMINUS]: Unable to find 'send' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Clean
+#
+
+clean()
+{
+  if [[ -f $SCRIPT_PATH'deploy/clean.sh' ]]; then
+    $SCRIPT_PATH'deploy/clean.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'clean' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
+# Auto
+#
+
+auto()
+{
+  echo '[DOMINUS]: Running entire deploy process. Please stand by...'
+
+  init
+  pod
+  prepare
+  build
+  send
+  clean
+
+  echo '[DOMINUS]: Deploy is successfully finished.'
+}
+
+message()
+{
+  #
+  # Find notify script
+  #
+
+  NOTIFY_SCRIPT=`find . -name notify.sh | head -n1`
+
+  IFS=$'\n'
+
+  if [[ -f $NOTIFY_SCRIPT ]]; then
+    $NOTIFY_SCRIPT -m $1 -l $2 -t $3
+  fi
+}
+
+#
+# Global settings
+#
+
+VARIABLE_PATH='./dominus.cfg'
+ATLANTIS_PATH='testflight'
+CUPERTINO_PATH='iospro'
+SCRIPT_PATH='./scripts/'
+
+SCRIPT_VERSION='0.1.0'
+
+#
+# Protect against pull requests on CI
+#
+if [[ ! -z "$TRAVIS_PULL_REQUEST" ]] && [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+  echo "[DOMINUS]: This is a pull request. No deployment will be done."
+  exit 0
+fi
+
+#
+# Load environment variables from file, if it exists, otherwise they should be loaded
+# in environment by CI itself, to make it secure.
+#
+
+set -a
+
+if [ -f $VARIABLE_PATH ]; then
+  test -f $VARIABLE_PATH && . $VARIABLE_PATH
+fi
+
+set +a
+
+#set -o
+
+#
+# Check if there was any command provided, otherwise display usage
+#
+
+case "$1" in
+  help) usage;;
+  version) version;;
+  update) update;;
+  install) install;;
+  setup) setup $2;;
+  deploy) deploy $2;;
+  *) usage
+  exit 1
+  ;;
+esac
