@@ -360,7 +360,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-echo "[DOMINUS]: Script location: $SCRIPT_PATH"
+#echo "[DOMINUS]: Script location: $SCRIPT_PATH"
 
 SCRIPT_VERSION='0.1.0'
 
