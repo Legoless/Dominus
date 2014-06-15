@@ -20,6 +20,6 @@ To add Dominus to a project just add a Git submodule.
 
 To integrate run the next command:
 
-dominus.sh setup travis
+`dominus.sh setup travis`
 
-This command will generate .travis.yml file which is then easily commited to your repository.
+This command will generate `.travis.yml` file which is then easily commited to your repository.
