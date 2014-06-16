@@ -374,7 +374,7 @@ if [ $TEST == "yes" ]; then
     $($RAKE_SCRIPT test)
   else
     eval $TEST_COMMAND
-  do
+  fi
 
   echo '[BUILD]: Test complete:' $SCHEME
   message "Test complete: <b>$SCHEME</b>" info success
