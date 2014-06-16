@@ -240,16 +240,19 @@ build()
     fi
 
     #
+    # Add Build SDK
+    #
+
+    if [[ ! -z $TEST_SDK ]]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -t $TEST_SDK"
+    fi
+
+    #
     # Add Travis CI build number
     #
     if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
       BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER"
     fi
-
-    #
-    # Run tests
-    #
-    BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH' -t'
 
     eval $BUILD_SCRIPT_PATH
   else
