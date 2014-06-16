@@ -39,6 +39,7 @@ OPTIONS:
    -f <profile>        Provisioning profile to sign executable
    -n <identity>       Code Sign Identity
    -b <build>          Desired build number
+   -t                  Run test scripts
 EOF
 }
 
@@ -51,8 +52,9 @@ SDK=""
 PROFILE=""
 CODE_SIGN=""
 BUILD_NUMBER=""
+TEST="no"
 
-while getopts “h:d:w:p:s:c:k:f:n:b:” OPTION; do
+while getopts “h:d:w:p:s:c:k:f:n:b:t” OPTION; do
   case $OPTION in
     h) usage; exit 1;;
     d) DIR_PATH=$OPTARG;;
@@ -64,6 +66,7 @@ while getopts “h:d:w:p:s:c:k:f:n:b:” OPTION; do
     f) PROFILE=$OPTARG;;
     n) CODE_SIGN=$OPTARG;;
     b) BUILD_NUMBER=$OPTARG;;
+    t) TEST="yes";;
     [?]) usage; exit;;
   esac
 done
@@ -313,6 +316,7 @@ else
   echo '[BUILD]: No code signing identity found. Building with default...'
 fi
 
+TEST_COMMAND=$BUILD_COMMAND' test'
 BUILD_COMMAND=$BUILD_COMMAND' build'
 
 #echo $BUILD_COMMAND
@@ -349,4 +353,29 @@ eval $BUILD_COMMAND
 
 message "Build complete: <b>$SCHEME</b>" info success
 
-echo '[BUILD]: Build completed.' $SCHEME
+echo '[BUILD]: Build completed:' $SCHEME
+
+#
+# Testing
+#
+
+if [ $TEST == "yes" ]; then
+  echo '[BUILD]: Testing created build...'
+
+  message "Testing build..." debug normal
+
+  #
+  # Check for Rakefile, run rake test command, otherwise run xctool test
+  #
+
+  RAKE_SCRIPT=`find . -name Rakefile | head -n1`
+
+  if [[ -f $RAKE_SCRIPT ]]; then
+    $($RAKE_SCRIPT test)
+  else
+    eval $TEST_COMMAND
+  do
+
+  echo '[BUILD]: Test complete:' $SCHEME
+  message "Test complete: <b>$SCHEME</b>" info success
+fi

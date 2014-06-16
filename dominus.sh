@@ -246,6 +246,11 @@ build()
       BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER"
     fi
 
+    #
+    # Run tests
+    #
+    BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH' -t'
+
     eval $BUILD_SCRIPT_PATH
   else
     echo '[DOMINUS]: Unable to find 'build' script. Try to run' \"$0 update\"'.'
