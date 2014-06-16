@@ -35,11 +35,11 @@ OPTIONS:
    -p <project>        Specific project
    -s <scheme>         Specific scheme
    -c <config>         Build Configuration (default: Debug)
-   -k <sdk>            SDK to build with (default:)
+   -k <sdk>            Build SDK
    -f <profile>        Provisioning profile to sign executable
    -n <identity>       Code Sign Identity
    -b <build>          Desired build number
-   -t                  Run test scripts
+   -t <test>           Testing SDK
 EOF
 }
 
@@ -52,9 +52,9 @@ SDK=""
 PROFILE=""
 CODE_SIGN=""
 BUILD_NUMBER=""
-TEST="no"
+TEST_SDK=""
 
-while getopts “h:d:w:p:s:c:k:f:n:b:t” OPTION; do
+while getopts “h:d:w:p:s:c:k:f:n:b:t:” OPTION; do
   case $OPTION in
     h) usage; exit 1;;
     d) DIR_PATH=$OPTARG;;
@@ -66,7 +66,7 @@ while getopts “h:d:w:p:s:c:k:f:n:b:t” OPTION; do
     f) PROFILE=$OPTARG;;
     n) CODE_SIGN=$OPTARG;;
     b) BUILD_NUMBER=$OPTARG;;
-    t) TEST="yes";;
+    t) TEST_SDK=$OPTARG;;
     [?]) usage; exit;;
   esac
 done
@@ -311,12 +311,13 @@ if [[ ! -z $CODE_SIGN ]]; then
 
   BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
 else
-  message "FNo code signing identity found. Building with default..." warn warning
+  message "No code signing identity found. Building with default..." warn warning
 
   echo '[BUILD]: No code signing identity found. Building with default...'
 fi
 
-TEST_COMMAND=$BUILD_COMMAND' test'
+# Prepare test command
+TEST_COMMAND=$BUILD_COMMAND
 BUILD_COMMAND=$BUILD_COMMAND' build'
 
 #echo $BUILD_COMMAND
@@ -356,25 +357,35 @@ message "Build complete: <b>$SCHEME</b>" info success
 echo '[BUILD]: Build completed:' $SCHEME
 
 #
-# Testing
+# Testing, always run rake script, no matter the situation
 #
 
-if [ $TEST == "yes" ]; then
+RAKE_SCRIPT=`find . -name Rakefile | head -n1`
+
+if [[ -f $RAKE_SCRIPT ]]; then
+  echo '[BUILD]: Running Rake script...'
+
+  message "Running Rake script..." debug normal
+
+  $($RAKE_SCRIPT test)
+
+  echo '[BUILD]: Rake testing finished.'
+fi
+
+#
+# Executing built in Xcode tests...
+#
+
+if [[ ! -z $TEST_SDK ]]; then
   echo '[BUILD]: Testing created build...'
 
+  TEST_COMMAND=$TEST_COMMAND" -test-sdk $TEST_SDK test"
   message "Testing build..." debug normal
 
   #
   # Check for Rakefile, run rake test command, otherwise run xctool test
   #
-
-  RAKE_SCRIPT=`find . -name Rakefile | head -n1`
-
-  if [[ -f $RAKE_SCRIPT ]]; then
-    $($RAKE_SCRIPT test)
-  else
-    eval $TEST_COMMAND
-  fi
+  eval $TEST_COMMAND
 
   echo '[BUILD]: Test complete:' $SCHEME
   message "Test complete: <b>$SCHEME</b>" info success

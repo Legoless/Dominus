@@ -61,3 +61,16 @@ message "Installing CocoaPods gem..." debug normal
 gem install cocoapods --no-rdoc --no-ri --no-document --quiet
 
 message "Gems installed." debug normal
+
+#
+# Update submodules
+#
+
+echo [INIT]: Updating submodules...'
+
+message "Updating submodules..." debug normal
+
+git pull --recurse-submodules
+git submodule update --recursive
+
+message "Submodules updated." debug normal
