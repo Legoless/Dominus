@@ -66,7 +66,7 @@ message "Gems installed." debug normal
 # Update submodules
 #
 
-echo [INIT]: Updating submodules...'
+echo '[INIT]: Updating submodules...'
 
 message "Updating submodules..." debug normal
 
