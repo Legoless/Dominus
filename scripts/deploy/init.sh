@@ -26,18 +26,18 @@ else
   message "Initializing repository: $CURRENT_DIR" warn warning
 fi
 
-#echo '[INIT]: Updating Homebrew'
+echo '[INIT]: Updating Homebrew...'
 
-#brew update
+brew update
 
 #
 # We need XCTool to build
 #
 
-#echo '[INIT]: Installing XCTool...'
+echo '[INIT]: Installing XCTool...'
 
-#brew uninstall xctool
-#brew install xctool
+brew uninstall xctool
+brew install xctool
 
 #
 # We need our gems to run the script
