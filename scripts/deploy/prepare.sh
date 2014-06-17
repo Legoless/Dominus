@@ -258,7 +258,7 @@ message "Downloading new provisioning profile..." debug normal
 
 echo '[PREPARE]: Downloading new provisioning profile...'
 
-$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD >/dev/null 2>&1)
+$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
 #DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
 
 #echo [PREPARE]: $DOWNLOAD
