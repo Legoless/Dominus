@@ -22,7 +22,6 @@ Commands:
    help            Displays this message
 
    update          Downloads latest scripts from GitHub repository
-   install         Loads all gems and tools needed to use this tool
 
    setup           Executes setup command
    deploy          Executes deploy command
@@ -54,6 +53,7 @@ setupinfo()
 {
   cat << EOF
 Setup commands:
+   environment     Installs all gems and tools required for Dominus
    project         Creates and configures a new project
    travis          Creates .travis.yml file with correct parameters
    certificate     Creates a development certificate and adds it to all provisioning profiles
@@ -97,21 +97,13 @@ update()
 }
 
 #
-# Install
-#
-
-install()
-{
-  echo '[DOMINUS]: Not implemented'
-}
-
-#
 # Setup
 #
 
 setup()
 {
   case "$1" in
+    environment) environment;;
     project) project;;
     travis) travis;;
     certificate) certificate;;
@@ -141,6 +133,20 @@ deploy()
 }
 
 #
+# Environment
+#
+
+environment()
+{
+  if [[ -f $SCRIPT_PATH'setup/environment.sh' ]]; then
+    $SCRIPT_PATH'setup/environment.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'environment' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
+}
+
+#
 # Project
 #
 
@@ -155,7 +161,12 @@ project()
 
 travis()
 {
-  echo '[DOMINUS]: Travis Not implemented'
+  if [[ -f $SCRIPT_PATH'setup/travis.sh' ]]; then
+    $SCRIPT_PATH'setup/travis.sh'
+  else
+    echo '[DOMINUS]: Unable to find 'travis' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
 }
 
 #
@@ -370,7 +381,7 @@ SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
 #echo "[DOMINUS]: Script location: $SCRIPT_PATH"
 
-SCRIPT_VERSION='0.1.0'
+SCRIPT_VERSION='0.2.0'
 
 #
 # Protect against pull requests on CI
@@ -403,7 +414,6 @@ case "$1" in
   help) usage;;
   version) version;;
   update) update;;
-  install) install;;
   setup) setup $2;;
   deploy) deploy $2;;
   *) usage
