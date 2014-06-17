@@ -379,7 +379,7 @@ fi
 if [[ ! -z $TEST_SDK ]]; then
   echo '[BUILD]: Testing created build...'
 
-  TEST_COMMAND=$TEST_COMMAND" -test-sdk $TEST_SDK test"
+  TEST_COMMAND=$TEST_COMMAND" test -test-sdk $TEST_SDK"
   message "Testing build..." debug normal
 
   #
