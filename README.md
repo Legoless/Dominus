@@ -23,3 +23,17 @@ To integrate run the next command:
 `dominus.sh setup travis`
 
 This command will generate `.travis.yml` file which is then easily commited to your repository.
+
+Contact
+======
+
+Dal Rupnik
+
+- [legoless](https://github.com/legoless) on **GitHub**
+- [@thelegoless](https://twitter.com/thelegoless) on **Twitter**
+- [legoless@arvystate.net](mailto:legoless@arvystate.net)
+
+License
+======
+
+Dominus is available under the MIT license. See [LICENSE](https://github.com/Legoless/Dominus/blob/master/LICENSE) file for more information.
