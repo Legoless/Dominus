@@ -10,7 +10,7 @@ Dominus is a world class command line tool to improve workflow with iOS projects
 
 # Installation
 
-To add Dominus to a project just add a Git submodule.
+To add Dominus to a project just add a Git submodule. Make sure you update it before launching.
 
 # Configuration file
 
