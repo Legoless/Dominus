@@ -7,7 +7,7 @@ Dominus is a world class command line tool to improve workflow with iOS projects
 
 - Loading new devices from TestFlight to Apple Developer Portal
 - Updating provisioning profiles
-- Building and testing application
+- Building and testing application with automatic scheme detection
 - Deployment to TestFlight
 
 In addition to features available on Travis CI, Dominus can also help with:
