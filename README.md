@@ -1,7 +1,7 @@
 Dominus
 =======
 
-Dominus is a world class command line tool to improve workflow with iOS projects. It allows completely automated deployment from console and is fully integrated with [Travis CI](https://travis-ci.com).
+Dominus is a world class command line tool to improve workflow with iOS projects. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely.
 
 # Features
 
