@@ -110,10 +110,10 @@ update()
   # Get directory of Dominus script and attempt to up
   #
 
-  DOMINUS_DIR=`basename $DOMINUS_SCRIPT`
+  DOMINUS_DIR=`dirname $DOMINUS_SCRIPT`
 
-  if [[ -d $DOMINUS_DIR'.git' ]]; then
-    echo '[DOMINUS]: Found Dominus .git directory. Updating...'
+  if [[ -f $DOMINUS_DIR'/.git' ]]; then
+    echo '[DOMINUS]: Found Dominus .git reposistory. Updating...'
 
     PREVIOUS_DIR=`pwd`
 
@@ -124,15 +124,8 @@ update()
     echo '[DOMINUS]: Successfully updated Dominus code from GitHub.'
 
   else
-    echo '[DOMINUS]: Cannot find Dominus Git repository, unable to update. Skipping...'
+    echo '[DOMINUS]: Cannot find Dominus .git repository:' $DOMINUS_DIR'/.git, unable to update. Skipping...'
   fi
-
-
-  #
-  # Updating submodules
-  #
-
-  git submodule foreach git pull origin master
 }
 
 #
