@@ -15,6 +15,7 @@ echo '[TRAVIS]: Creating .travis.yml file...'
 echo 'language: objective-c' >> .travis.yml
 echo 'before_install:' >> .travis.yml
 echo '- chmod +x ./Dominus/dominus.sh' >> .travis.yml
+echo '- ./Dominus/dominus.sh update' >> .travis.yml
 echo '- ./Dominus/dominus.sh deploy init' >> .travis.yml
 echo 'install:' >> .travis.yml
 echo '- ./Dominus/dominus.sh deploy pod' >> .travis.yml
