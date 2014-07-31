@@ -350,11 +350,16 @@ fi
 # Run build command
 #
 
-eval $BUILD_COMMAND
+if eval $BUILD_COMMAND; then
+  message "Build complete: <b>$SCHEME</b>" info success
 
-message "Build complete: <b>$SCHEME</b>" info success
+  echo '[BUILD]: Build completed:' $SCHEME
+else
+  message "Build failed: <b>$SCHEME</b>" warn error
 
-echo '[BUILD]: Build completed:' $SCHEME
+  echo '[BUILD]: Build failed:' $SCHEME
+  exit 1
+fi
 
 #
 # Testing, always run rake script, no matter the situation
@@ -385,8 +390,16 @@ if [[ ! -z $TEST_SDK ]]; then
   #
   # Check for Rakefile, run rake test command, otherwise run xctool test
   #
-  eval $TEST_COMMAND
 
-  echo '[BUILD]: Test complete:' $SCHEME
-  message "Test complete: <b>$SCHEME</b>" info success
+  if eval $TEST_COMMAND; then
+    echo '[BUILD]: Test complete:' $SCHEME
+    message "Test complete: <b>$SCHEME</b>" info success
+  else
+    echo '[BUILD]: Test failed:' $SCHEME
+    message "Test failed: <b>$SCHEME</b>" info error
+
+    exit 1
+  fi
+
+
 fi
