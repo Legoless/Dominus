@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Check if Travis CLI is available
+# Check if Travis CLI is available, we require it
 #
 
 command -v travis >/dev/null 2>&1 || { echo >&2 "[TRAVIS]: Travis CLI not installed. Aborting..."; exit 1; }
