@@ -100,7 +100,7 @@ update()
 
   DOMINUS_SCRIPT=`find . -name dominus.sh | head -n1`
 
-  if [[ -f $DOMINUS_SCRIPT ]]; then
+  if [[ ! -f $DOMINUS_SCRIPT ]]; then
     echo '[DOMINUS]: Running myself, but no script:' $DOMINUS_SCRIPT 'Aborting...'
 
     exit 1;
