@@ -211,7 +211,7 @@ if [[ -z $SCHEME ]]; then
   message "No scheme found in project. Aborting..." warn error
 
   echo '[BUILD]: No scheme found in project (did you set it as shared?). Aborting...'
-  exit 0
+  exit 1
 fi
 
 if [[ -z BUILD_CONFIG ]]; then

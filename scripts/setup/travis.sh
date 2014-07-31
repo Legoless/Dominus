@@ -12,9 +12,6 @@ command -v travis >/dev/null 2>&1 || { echo >&2 "[TRAVIS]: Travis CLI not instal
 
 echo '[TRAVIS]: Creating .travis.yml file...'
 
-echo 'branches:' > .travis.yml
-echo '  only:' >> .travis.yml
-echo '  - test' >> .travis.yml
 echo 'language: objective-c' >> .travis.yml
 echo 'before_install:' >> .travis.yml
 echo '- chmod +x ./Dominus/dominus.sh' >> .travis.yml

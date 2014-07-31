@@ -93,7 +93,18 @@ version()
 update()
 {
   echo '[DOMINUS]: Updating scripts in' $SCRIPT_PATH
-  echo '[DOMINUS]: Not implemented'
+
+  #
+  # Find Dominus.sh script
+  #
+
+  DOMINUS_SCRIPT=`find . -name dominus.sh | head -n1`
+
+  if [[ -f $DOMINUS_SCRIPT ]]; then
+    echo '[DOMINUS]: Running myself, but not finding the script? Aborting...'
+
+    exit 1;
+  fi
 }
 
 #
@@ -251,7 +262,7 @@ build()
     fi
 
     #
-    # Add Build SDK
+    # Add Test SDK
     #
 
     if [[ ! -z $TEST_SDK ]]; then
@@ -381,7 +392,7 @@ SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
 #echo "[DOMINUS]: Script location: $SCRIPT_PATH"
 
-SCRIPT_VERSION='0.2.0'
+SCRIPT_VERSION='0.3.0'
 
 #
 # Protect against pull requests on CI
