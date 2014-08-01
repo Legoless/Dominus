@@ -113,7 +113,7 @@ update()
   DOMINUS_DIR=`dirname $DOMINUS_SCRIPT`
 
   if [[ -f $DOMINUS_DIR'/.git' ]]; then
-    echo '[DOMINUS]: Found Dominus .git reposistory. Updating...'
+    echo '[DOMINUS]: Found Dominus .git repository. Updating...'
 
     PREVIOUS_DIR=`pwd`
 
@@ -329,6 +329,8 @@ send()
     # If we are on CI, this variable is likely full, we watch it for [DEPLOY
     #
 
+
+
 #if [[ ! -z $TRAVIS_COMMIT ]]; then
 #SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -d $TESTFLIGHT_DISTRIBUTION_LIST"
 #fi
@@ -341,8 +343,16 @@ send()
     #If a commit message
     #is provided, script will search for [DEPLOY:<lists>]
 
+    #
+    # Deploy if we are on defined deploy branch or not on Travis
+    #
 
-    eval $SEND_SCRIPT_PATH
+    if [ $TRAVIS_BRANCH == $DEPLOY_BRANCH ] || [[ -z $TRAVIS_BRANCH ]]; then
+      eval $SEND_SCRIPT_PATH
+    else
+      echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH ' not deployment:' $DEPLOY_BRANCH
+    fi
+
   else
     echo '[DOMINUS]: Unable to find 'send' script. Try to run' \"$0 update\"'.'
     exit 1

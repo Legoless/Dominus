@@ -393,7 +393,7 @@ if [[ ! -z $TEST_SDK ]]; then
 
   if eval $TEST_COMMAND; then
     echo '[BUILD]: Test complete:' $SCHEME
-    message "Test complete: <b>$SCHEME</b>" info success
+    message "Test successful: <b>$SCHEME</b>" info success
   else
     echo '[BUILD]: Test failed:' $SCHEME
     message "Test failed: <b>$SCHEME</b>" info error
