@@ -1,7 +1,7 @@
 Dominus
 =======
 
-Dominus is a world class command line tool to improve workflow with iOS projects. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely.
+Dominus is a world class command line tool to improve workflow with developing iOS projects. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely.
 
 # Features
 
@@ -13,12 +13,15 @@ Dominus is a world class command line tool to improve workflow with iOS projects
 In addition to features available on Travis CI, Dominus can also help with:
 
 - Project creation
+- Quality control
 
 # Installation
 
 The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. Dominus has an automatic updating mechanism, that will always bring the script up to date.
 
 # Configuration file
+
+The file dominus.cfg is so called configuration file, it stores all project related information locally.
 
 **Make sure to add configuration file to .gitignore, so it is not commited to the repository as it can contain sensitive data.** On Travis always use encrypted environment variables (can be done with travis encrypt command) instead.
 
