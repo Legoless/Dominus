@@ -49,8 +49,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 # TODO
 
-- Automatically updating Dominus submodule with latest version
-- Loading Git history when deploying and adding it to message
+- Loading Git history (from Travis Environment Variables) when deploying and adding it to message
 - Configuration for different branches for testing and deploying
 
 Contact
