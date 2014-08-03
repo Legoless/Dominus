@@ -31,7 +31,7 @@ To see all commands available, just run the help command:
 
 `dominus.sh help`
 
-# Structure
+# Architecture
 
 Dominus is separated into three modules, which are composited mostly from Bash scripts.
 
