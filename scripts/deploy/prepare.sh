@@ -203,7 +203,7 @@ if [ "$FOUND_PROFILE" != "" ]; then
   FOUND_UUID=${FOUND_PROFILE%,*}
   FOUND_UUID=${FOUND_UUID##*,}
 
-  message "Using profile: $FOUND_UUID <b>($FOUND_PROFILE)</b>" info success
+  message "Using profile: $FOUND_UUID <b>($DEVELOPER_PROVISIONING)</b>" info success
 
   echo '[PREPARE]: Using profile: '$FOUND_UUID
 else

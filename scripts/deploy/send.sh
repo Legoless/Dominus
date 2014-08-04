@@ -312,7 +312,7 @@ message "Signing $APPNAME with $IDENTITY..." debug normal
 echo '[SEND]: Signing and packaging the' $APPNAME 'build...'
 xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
-echo '[SEND]: Creating dSYM symbol package...'
+echo '[SEND]: Creating dSYM symbol ZIP package...'
 
 zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
 
@@ -326,15 +326,19 @@ fi
 
 echo '[SEND]: Uploading package to TestFlight...'
 
+#
+# Upload to TestFlight
+#
+
 message "Uploading package to TestFlight..." debug normal
 
-curl http://testflightapp.com/api/builds.json \
+TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
 -F file="@$BUILD_PATH/$APPNAME.ipa" \
 -F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
 -F api_token="$API_TOKEN" \
 -F team_token="$TEAM_TOKEN" \
 -F distribution_lists="$DISTRIBUTION_LISTS" \
 -F notes="$RELEASE_NOTES" -v \
--F notify="TRUE"
+-F notify="TRUE" -w "%{http_code}"`
 
 message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
