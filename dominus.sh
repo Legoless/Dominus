@@ -347,10 +347,10 @@ send()
     # Deploy if we are on defined deploy branch or not on Travis
     #
 
-    if [ $TRAVIS_BRANCH == $DEPLOY_BRANCH ] || [[ -z $TRAVIS_BRANCH ]]; then
+    if [[ $TRAVIS_BRANCH == $DEPLOY_BRANCH ]] || [[ -z $TRAVIS_BRANCH ]]; then
       eval $SEND_SCRIPT_PATH
     else
-      echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH ' not deployment:' $DEPLOY_BRANCH
+      echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH 'branch not deployed (requires:' $DEPLOY_BRANCH').'
     fi
 
   else
