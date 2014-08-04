@@ -222,8 +222,8 @@ fi
 # Build path
 #
 
-BUILD_PATH="$BUILD_PATH/build/"
 TEST_PATH="$BUILD_PATH/test/"
+BUILD_PATH="$BUILD_PATH/build/"
 
 BUILD_COMMAND=""
 

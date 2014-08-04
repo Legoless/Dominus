@@ -70,6 +70,19 @@ if [[ ! -z $TEST_SDK ]]; then
 fi
 
 #
+# Deploy Branch
+#
+
+if [[ -z $DEPLOY_BRANCH ]]; then
+  echo '[TRAVIS]: Enter branch name that will trigger deploymnet: '
+  read BUILD_SDK
+fi
+
+if [[ ! -z $DEPLOY_BRANCH ]]; then
+  echo "  - DEPLOY_BRANCH='$DEPLOY_BRANCH'" >> .travis.yml
+fi
+
+#
 # TestFlight Team
 #
 

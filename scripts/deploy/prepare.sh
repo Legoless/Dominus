@@ -207,7 +207,7 @@ if [ "$FOUND_PROFILE" != "" ]; then
 
   echo '[PREPARE]: Using profile: '$FOUND_UUID
 else
-  message "Provisioning profile not found. Aborting" warn error
+  message "Provisioning profile not found. Aborting..." warn error
 
   echo '[PREPARE]: Provisioning profile not found. Aborting...'
   exit 1
