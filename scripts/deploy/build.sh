@@ -223,6 +223,7 @@ fi
 #
 
 BUILD_PATH="$BUILD_PATH/build/"
+TEST_PATH="$BUILD_PATH/test/"
 
 BUILD_COMMAND=""
 
@@ -232,7 +233,7 @@ elif [[ ! -z $PROJECT ]]; then
   BUILD_COMMAND="xctool -project $PROJECT"
 fi
 
-BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG CONFIGURATION_BUILD_DIR=$BUILD_PATH"
+BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
 
 #
 # Find provisioning profile UUID from existing provisioning profiles and check with name,
@@ -316,9 +317,10 @@ else
   echo '[BUILD]: No code signing identity found. Building with default...'
 fi
 
-# Prepare test command
-TEST_COMMAND=$BUILD_COMMAND
-BUILD_COMMAND=$BUILD_COMMAND' build'
+# Prepare commands
+
+TEST_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
+BUILD_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$BUILD_PATH build"
 
 #echo $BUILD_COMMAND
 #exit 0
@@ -400,6 +402,5 @@ if [[ ! -z $TEST_SDK ]]; then
 
     exit 1
   fi
-
 
 fi
