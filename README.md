@@ -51,6 +51,11 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 - Loading Git history (from Travis Environment Variables) when deploying and adding it to message
 - Configuration for different branches for testing and deploying
+- Displaying build warnings notification
+- Code formatting checker
+- Static code analysis
+- Push notification support
+- TestFlight bug fix
 
 Contact
 ======
