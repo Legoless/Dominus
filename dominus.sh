@@ -158,6 +158,7 @@ deploy()
     build) build;;
     send) send;;
     clean) clean;;
+    auto) auto;;
     *) deployinfo
   exit 1
   ;;
@@ -326,6 +327,101 @@ send()
     fi
 
     #
+    # Create release notes for deployment
+    #
+
+    RELEASE_NOTES=''
+
+    #
+    # Append app name
+    #
+
+    XCODE_PROJECT=`$(find . -iname *.xcodeproj) | head -1`
+
+    if [[ ! -z $XCODE_PROJECT ]]; then
+      PROJECT_NAME = `xcodebuild -project $XCODE_PROJECT -showBuildSettings | grep PRODUCT_NAME | grep FULL --invert-match | head -1`
+
+      if [[ ! -z $PROJECT_NAME ]]; then
+        PROJECT_NAME = ${PROJECT_NAME#PRODUCT_NAME =}
+
+        RELEASE_NOTES=$PROJECT_NAME
+      fi
+    fi
+
+    # Find a correct property list
+    PROPERTY_LIST=''
+
+    for filename in $(find . -iname *-Info.plist);
+    do
+
+      #
+      # Select property list if it does not contain Tests or Pods
+      #
+
+      if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]]; then
+        PROPERTY_LIST=$filename
+        break
+      fi
+    done
+
+    #
+    # Append version and build to release notes
+    #
+
+    if [[ ! -z $PROPERTY_LIST ]]; then
+      echo '[DOMINUS]: Creating release notes from property list:' $PROPERTY_LIST
+
+      APP_VERSION=`/usr/libexec/plistbuddy -c Print:CFBundleShortVersionString: $PROPERTY_LIST`
+
+      RELEASE_NOTES=$RELEASE_NOTES '('$APP_VERSION
+
+      if [[ -z $TRAVIS_BUILD_NUMBER ]]; then
+        RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
+      else
+        PLIST_BUILD_NUMBER=`/usr/libexec/plistbuddy -c Print:CFBundleVersion: $PROPERTY_LIST`
+        RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
+      fi
+
+      RELEASE_NOTES=$RELEASE_NOTES')'
+    fi
+
+    #
+    # Append branch
+    #
+
+    BUILD_BRANCH=''
+
+    if [[ ! -z $TRAVIS_BRANCH ]]; then
+      BUILD_BRANCH=$TRAVIS_BRANCH
+    else
+      BUILD_BRANCH=`git rev-parse --abbrev-ref HEAD`
+    fi
+
+    BUILD_BRANCH=${BUILD_BRANCH,,}
+    BUILD_BRANCH=${BUILD_BRANCH^}
+
+    if [[ ! -z $BUILD_BRANCH ]]; then
+      RELEASE_NOTES=$RELEASE_NOTES 'automated build.'
+    fi
+
+    #
+    # Check for Travis CI history
+    #
+
+    if [[ ! -z $TRAVIS_COMMIT_RANGE ]]; then
+      RELEASE_NOTES=$RELEASE_NOTES 'Changes from last version:\n'
+
+      GIT_HISTORY=`git log $TRAVIS_COMMIT_RANGE --no-merges --format="%s"`
+
+      IFS=$'\n'
+
+      for history in $GIT_HISTORY;
+      do
+        RELEASE_NOTES=$RELEASE_NOTES' - '$history$'\n'
+      done
+    fi
+
+    #
     # If we are on CI, this variable is likely full, we watch it for [DEPLOY
     #
 
@@ -346,6 +442,10 @@ send()
     #
     # Deploy if we are on defined deploy branch or not on Travis
     #
+
+    echo $RELEASE_NOTES
+
+    exit 1
 
     if [[ $TRAVIS_BRANCH == $DEPLOY_BRANCH ]] || [[ -z $TRAVIS_BRANCH ]] || [[ -z $DEPLOY_BRANCH ]]; then
       eval $SEND_SCRIPT_PATH
