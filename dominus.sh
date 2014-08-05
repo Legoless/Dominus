@@ -312,6 +312,17 @@ build()
 send()
 {
   if [[ -f $SCRIPT_PATH'deploy/send.sh' ]]; then
+
+    #
+    # Check if we should deploy
+    #
+
+    if [[ $TRAVIS_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $TRAVIS_BRANCH ]] && [[ !-z $DEPLOY_BRANCH ]]; then
+      echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH 'branch not deployed (requires:' $DEPLOY_BRANCH').'
+
+      exit 0
+    fi
+
     SEND_SCRIPT_PATH=$SCRIPT_PATH'deploy/send.sh'
 
     if [[ ! -z $DEVELOPER_PROVISIONING ]]; then
@@ -455,13 +466,7 @@ send()
 
     echo $RELEASE_NOTES
 
-    exit 1
-
-    if [[ $TRAVIS_BRANCH == $DEPLOY_BRANCH ]] || [[ -z $TRAVIS_BRANCH ]] || [[ -z $DEPLOY_BRANCH ]]; then
-      eval $SEND_SCRIPT_PATH
-    else
-      echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH 'branch not deployed (requires:' $DEPLOY_BRANCH').'
-    fi
+    eval $SEND_SCRIPT_PATH
 
   else
     echo '[DOMINUS]: Unable to find 'send' script. Try to run' \"$0 update\"'.'
