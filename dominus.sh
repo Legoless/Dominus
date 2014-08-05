@@ -375,7 +375,7 @@ send()
 
       RELEASE_NOTES=$RELEASE_NOTES '('$APP_VERSION
 
-      if [[ -z $TRAVIS_BUILD_NUMBER ]]; then
+      if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
         RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
       else
         PLIST_BUILD_NUMBER=`/usr/libexec/plistbuddy -c Print:CFBundleVersion: $PROPERTY_LIST`
