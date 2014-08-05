@@ -336,16 +336,17 @@ send()
     # Append app name
     #
 
-    XCODE_PROJECT=`$(find . -iname *.xcodeproj) | head -1`
+    XCODE_PROJECT=`find . -iname *.xcodeproj -type d -maxdepth 2 | head -1`
 
     if [[ ! -z $XCODE_PROJECT ]]; then
-      PROJECT_NAME = `xcodebuild -project $XCODE_PROJECT -showBuildSettings | grep PRODUCT_NAME | grep FULL --invert-match | head -1`
+      PROJECT_NAME=`xcodebuild -project $XCODE_PROJECT -showBuildSettings | grep PRODUCT_NAME | grep FULL --invert-match | head -1 | sed -e 's/^ *//' -e 's/ *$//'`
+    fi
 
-      if [[ ! -z $PROJECT_NAME ]]; then
-        PROJECT_NAME = ${PROJECT_NAME#PRODUCT_NAME =}
+    if [[ ! -z $PROJECT_NAME ]]; then
+      PREFIX='PRODUCT_NAME = '
+      PROJECT_NAME=${PROJECT_NAME#$PREFIX}
 
-        RELEASE_NOTES=$PROJECT_NAME
-      fi
+      RELEASE_NOTES=$PROJECT_NAME
     fi
 
     # Find a correct property list
@@ -373,7 +374,17 @@ send()
 
       APP_VERSION=`/usr/libexec/plistbuddy -c Print:CFBundleShortVersionString: $PROPERTY_LIST`
 
-      RELEASE_NOTES=$RELEASE_NOTES '('$APP_VERSION
+      #
+      # Override bundle name here if we have it
+      #
+
+      BUNDLE_NAME=`/usr/libexec/plistbuddy -c Print:CFBundleDisplayName: $PROPERTY_LIST`
+
+      if [[ ! -z $BUNDLE_NAME ]]; then
+        RELEASE_NOTES=$BUNDLE_NAME
+      fi
+
+      RELEASE_NOTES="$RELEASE_NOTES ($APP_VERSION"
 
       if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
         RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
@@ -397,11 +408,10 @@ send()
       BUILD_BRANCH=`git rev-parse --abbrev-ref HEAD`
     fi
 
-    BUILD_BRANCH=${BUILD_BRANCH,,}
-    BUILD_BRANCH=${BUILD_BRANCH^}
+    BUILD_BRANCH="$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_BRANCH:0:1})${BUILD_BRANCH:1}"
 
     if [[ ! -z $BUILD_BRANCH ]]; then
-      RELEASE_NOTES=$RELEASE_NOTES 'automated build.'
+      RELEASE_NOTES=$RELEASE_NOTES' automated build.'
     fi
 
     #
@@ -409,7 +419,7 @@ send()
     #
 
     if [[ ! -z $TRAVIS_COMMIT_RANGE ]]; then
-      RELEASE_NOTES=$RELEASE_NOTES 'Changes from last version:\n'
+      RELEASE_NOTES=$RELEASE_NOTES' Changes from last version:\n'
 
       GIT_HISTORY=`git log $TRAVIS_COMMIT_RANGE --no-merges --format="%s"`
 
