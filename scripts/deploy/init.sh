@@ -18,7 +18,7 @@ message()
 }
 
 if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-  message "Deploying branch: <b>$TRAVIS_BRANCH</b>." warn warning
+  message "Building branch: <b>$TRAVIS_BRANCH</b>." warn warning
 else
   CURRENT_DIR=$(pwd)
   CURRENT_DIR=$(basename $CURRENT_DIR)
