@@ -317,7 +317,7 @@ send()
     # Check if we should deploy
     #
 
-    if [[ $TRAVIS_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $TRAVIS_BRANCH ]] && [[ !-z $DEPLOY_BRANCH ]]; then
+    if [[ $TRAVIS_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $TRAVIS_BRANCH ]] && [[ ! -z $DEPLOY_BRANCH ]]; then
       echo '[DOMINUS]: Skipping deployment:' $TRAVIS_BRANCH 'branch not deployed (requires:' $DEPLOY_BRANCH').'
 
       exit 0
