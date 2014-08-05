@@ -422,6 +422,8 @@ send()
     BUILD_BRANCH="$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_BRANCH:0:1})${BUILD_BRANCH:1}"
 
     if [[ ! -z $BUILD_BRANCH ]]; then
+      RELEASE_NOTES=$RELEASE_NOTES' '$BUILD_BRANCH' automated build.'
+    else
       RELEASE_NOTES=$RELEASE_NOTES' automated build.'
     fi
 
