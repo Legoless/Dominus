@@ -298,6 +298,14 @@ build()
       BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER"
     fi
 
+    #
+    # Build with warnings
+    #
+
+    if [[ ! -z $ALLOW_WARNING_BUILDS ]] && [ "$ALLOW_WARNING_BUILDS" = true ]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -a"
+    fi
+
     eval $BUILD_SCRIPT_PATH
   else
     echo '[DOMINUS]: Unable to find 'build' script. Try to run' \"$0 update\"'.'

@@ -19,6 +19,21 @@ message()
 }
 
 #
+# Outputs reporter script location
+#
+
+reporter()
+{
+  REPORTER_SCRIPT=`find . -name reporter.rb | head -n1`
+
+  IFS=$'\n'
+
+  if [[ -f $REPORTER_SCRIPT ]]; then
+    echo $REPORTER_SCRIPT
+  fi
+}
+
+#
 # Script usage
 #
 usage()
@@ -40,6 +55,7 @@ OPTIONS:
    -n <identity>       Code Sign Identity
    -b <build>          Desired build number
    -t <test>           Testing SDK
+   -a                  Allow building with warnings
 EOF
 }
 
@@ -53,8 +69,9 @@ PROFILE=""
 CODE_SIGN=""
 BUILD_NUMBER=""
 TEST_SDK=""
+ALLOW_WARNINGS=false
 
-while getopts “h:d:w:p:s:c:k:f:n:b:t:” OPTION; do
+while getopts “h:d:w:p:s:c:k:f:n:b:t:a” OPTION; do
   case $OPTION in
     h) usage; exit 1;;
     d) DIR_PATH=$OPTARG;;
@@ -67,6 +84,7 @@ while getopts “h:d:w:p:s:c:k:f:n:b:t:” OPTION; do
     n) CODE_SIGN=$OPTARG;;
     b) BUILD_NUMBER=$OPTARG;;
     t) TEST_SDK=$OPTARG;;
+    a) ALLOW_WARNINGS=true;;
     [?]) usage; exit;;
   esac
 done
@@ -219,11 +237,11 @@ if [[ -z BUILD_CONFIG ]]; then
 fi
 
 #
-# Build path
+# Build and test paths need to go under build directory, which is usually under .gitignore
 #
 
-TEST_PATH="$BUILD_PATH/test/"
-BUILD_PATH="$BUILD_PATH/build/"
+TEST_PATH="$BUILD_PATH/build/test/"
+BUILD_PATH="$BUILD_PATH/build/app/"
 
 BUILD_COMMAND=""
 
@@ -320,10 +338,17 @@ fi
 # Prepare commands
 
 TEST_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
-BUILD_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$BUILD_PATH build"
+BUILD_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$BUILD_PATH"
 
-#echo $BUILD_COMMAND
-#exit 0
+REPORTER=$(reporter);
+
+if [[ ! -z $REPORTER ]]; then
+  BUILD_COMMAND_REPORTER=$BUILD_COMMAND" -reporter $REPORTER"
+  TEST_COMMAND_REPORTER=$TEST_COMMAND" -reporter $REPORTER"
+else
+  BUILD_COMMAND_REPORTER=$BUILD_COMMAND
+  TEST_COMMAND_REPORTER=$TEST_COMMAND
+fi
 
 #
 # Sort out build number
@@ -349,17 +374,64 @@ if [[ ! -z $BUILD_NUMBER ]]; then
 fi
 
 #
+# Check if we need to clean
+#
+
+BUILD_CLEAN_COMMAND=$BUILD_COMMAND" clean"
+TEST_CLEAN_COMMAND=$TEST_COMMAND" clean"
+
+if [[ -d $BUILD_PATH ]]; then
+  echo '[BUILD]: Build already exists. Cleaning...'
+
+  eval $BUILD_CLEAN_COMMAND > /dev/null
+fi
+
+#
 # Run build command
 #
 
-if eval $BUILD_COMMAND; then
-  message "Build complete: <b>$SCHEME</b>" info success
+BUILD_COMMAND=$BUILD_COMMAND" build"
+BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build"
 
-  echo '[BUILD]: Build completed:' $SCHEME
+BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+
+#
+# Check the build status
+#
+
+NO_ERRORS=`echo $BUILD_EXECUTE | grep ' 0 errors' | head -1`
+NO_WARNINGS=`echo $BUILD_EXECUTE | grep ' 0 warnings' | head -1`
+
+BUILD_EXECUTE=`echo $BUILD_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
+
+#
+# Build succeeded if there are no warnings or we allow warnings
+#
+if [[ ! -z $NO_ERRORS ]] && ([[ ! -z $NO_WARNINGS ]] || [ "$ALLOW_WARNINGS" = true ]); then
+  if [[ ! -z $NO_WARNINGS ]]; then
+    message "Build completed: <b>$SCHEME</b> ($BUILD_EXECUTE)" info success
+  else
+    message "Build completed with warnings: <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
+  fi
+
+  echo '[BUILD]: Build completed:' $SCHEME '('$BUILD_EXECUTE')'
 else
-  message "Build failed: <b>$SCHEME</b>" warn error
+  if [[ ! -z $NO_ERRORS ]] && [ "$ALLOW_WARNINGS" = false ]; then
+    message "Build failed (<b>warnings not allowed</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
+  else
+    message "Build failed: <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
+  fi
 
-  echo '[BUILD]: Build failed:' $SCHEME
+  echo '[BUILD]: Build failed:' $SCHEME '('$BUILD_EXECUTE')'
+
+  #
+  # Rerun build script with normal formatter, so we get a nice, clean output with exact error,
+  # But first we must clean, to make sure all warnings appear correctly
+  #
+
+  eval $BUILD_CLEAN_COMMAND > /dev/null
+  eval $BUILD_COMMAND
+
   exit 1
 fi
 
@@ -386,19 +458,36 @@ fi
 if [[ ! -z $TEST_SDK ]]; then
   echo '[BUILD]: Testing created build...'
 
+  if [[ -d $TEST_PATH ]]; then
+    echo '[BUILD]: Test build already exists. Cleaning...'
+
+    eval $TEST_CLEAN_COMMAND > /dev/null
+  fi
+
   TEST_COMMAND=$TEST_COMMAND" test -sdk $TEST_SDK"
+  TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $TEST_SDK"
   message "Testing build..." debug normal
 
   #
   # Check for Rakefile, run rake test command, otherwise run xctool test
   #
 
-  if eval $TEST_COMMAND; then
-    echo '[BUILD]: Test complete:' $SCHEME
-    message "Test successful: <b>$SCHEME</b>" info success
+  TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
+
+  NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
+  NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`
+
+  TEST_EXECUTE=`echo $TEST_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
+
+  if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
+    echo '[BUILD]: Test complete:' $SCHEME '('$TEST_EXECUTE')'
+    message "Test complete: <b>$SCHEME</b> ($TEST_EXECUTE)" info success
   else
-    echo '[BUILD]: Test failed:' $SCHEME
-    message "Test failed: <b>$SCHEME</b>" info error
+    echo '[BUILD]: Test failed:' $SCHEME '('$TEST_EXECUTE')'
+    message "Test failed: <b>$SCHEME</b> ($TEST_EXECUTE)" info error
+
+    eval $TEST_CLEAN_COMMAND > /dev/null
+    eval $TEST_COMMAND
 
     exit 1
   fi

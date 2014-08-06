@@ -57,6 +57,19 @@ if [[ ! -z $BUILD_SDK ]]; then
 fi
 
 #
+# Warning builds
+#
+
+if [[ -z $ALLOWS_WARNING_BUILDS ]]; then
+  echo '[TRAVIS]: Allow warning builds to be deployed (true/false): '
+  read ALLOWS_WARNING_BUILDS
+fi
+
+if [[ ! -z $ALLOWS_WARNING_BUILDS ]]; then
+  echo "  - ALLOWS_WARNING_BUILDS=$ALLOWS_WARNING_BUILDS" >> .travis.yml
+fi
+
+#
 # Test SDK
 #
 
