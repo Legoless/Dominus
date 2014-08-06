@@ -9,6 +9,9 @@ Dominus is a world class command line tool to improve workflow with developing i
 - Updating provisioning profiles
 - Building and testing application with automatic scheme detection
 - Deployment to TestFlight
+  - Automatic build project increase (on Travis CI only)
+  - Release notes from Git history (on Travis CI only)
+  - Configure which branches should deploy
 
 In addition to features available on Travis CI, Dominus can also help with:
 
@@ -49,13 +52,11 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 # TODO
 
-- Loading Git history (from Travis Environment Variables) when deploying and adding it to message
-- Configuration for different branches for testing and deploying
+- Use project's build number + Travis build
 - Displaying build warnings notification
 - Code formatting checker (Obj-Clean or http://fauxpasapp.com/)
 - Static code analysis
 - Push notification support
-- TestFlight bug fix
 
 Contact
 ======
