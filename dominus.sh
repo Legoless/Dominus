@@ -466,7 +466,9 @@ send()
     # Deploy if we are on defined deploy branch or not on Travis
     #
 
-    echo $RELEASE_NOTES
+    if [[ ! -z $RELEASE_NOTES ]]; then
+      SEND_SCRIPT_PATH=$SEND_SCRIPT_PATH" -r \"$RELEASE_NOTES\""
+    fi
 
     eval $SEND_SCRIPT_PATH
 
