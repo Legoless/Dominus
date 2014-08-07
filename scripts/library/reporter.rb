@@ -13,40 +13,47 @@ testFailed = 0
 testError = 0
 
 ARGF.each do |line|
-  xcodeEvent = JSON.parse(line)
-  
-  #
-  # Parse testing events
-  #
-  
-  #puts line
-  
-  if (xcodeEvent['event'].include? "test")
-    testing = true
-  end
-  
-  if (xcodeEvent['event'] == 'end-test-suite')
-    testCount = xcodeEvent['testCaseCount']
-    testFailed = xcodeEvent['totalFailureCount']
-    testError = xcodeEvent['unexpectedExceptionCount']
-    testPassed = testCount - testFailed - testError
-  end
-  
-  #
-  # Skip events that are not end build targets
-  #
-  
-  if (xcodeEvent['event'] != 'end-build-target')
-      next
-  end
-
-  unless xcodeEvent['totalNumberOfErrors'].nil?
-    errors = xcodeEvent['totalNumberOfErrors']
-  end
+    xcodeEvent = JSON.parse(line)
     
-  unless xcodeEvent['totalNumberOfWarnings'].nil?
-    warnings = xcodeEvent['totalNumberOfWarnings']
-  end
+    #
+    # Parse testing events
+    #
+    
+    #puts line
+    
+    if ((xcodeEvent['event'].include? "test") )
+        testing = true
+    end
+    
+    unless xcodeEvent['name'].nil?
+        if (xcodeEvent['name'].include? "test")
+            testing = true
+        end
+    end
+    
+    
+    if (xcodeEvent['event'] == 'end-test-suite')
+        testCount = xcodeEvent['testCaseCount']
+        testFailed = xcodeEvent['totalFailureCount']
+        testError = xcodeEvent['unexpectedExceptionCount']
+        testPassed = testCount - testFailed - testError
+    end
+    
+    #
+    # Skip events that are not end build targets
+    #
+    
+    if (xcodeEvent['event'] != 'end-build-target')
+        #next
+    end
+    
+    unless xcodeEvent['totalNumberOfErrors'].nil?
+        errors = xcodeEvent['totalNumberOfErrors']
+    end
+    
+    unless xcodeEvent['totalNumberOfWarnings'].nil?
+        warnings = xcodeEvent['totalNumberOfWarnings']
+    end
 end
 
 #
@@ -54,7 +61,7 @@ end
 #
 
 if (testing)
-  puts " #{testPassed} passed, #{testFailed} failed, #{testError} errored, #{testCount} total"
-else
-  puts " #{errors} errors, #{warnings} warnings"
+    puts " #{testPassed} passed, #{testFailed} failed, #{testError} errored, #{testCount} total"
+    else
+    puts " #{errors} errors, #{warnings} warnings"
 end
