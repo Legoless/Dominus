@@ -19,7 +19,7 @@ ARGF.each do |line|
   # Parse testing events
   #
   
-  puts line
+  #puts line
   
   if (xcodeEvent['event'].include? "test")
     testing = true
@@ -37,7 +37,7 @@ ARGF.each do |line|
   #
   
   if (xcodeEvent['event'] != 'end-build-target')
-      #next
+      next
   end
 
   unless xcodeEvent['totalNumberOfErrors'].nil?
