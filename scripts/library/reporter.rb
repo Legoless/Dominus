@@ -19,6 +19,8 @@ ARGF.each do |line|
   # Parse testing events
   #
   
+  puts line
+  
   if (xcodeEvent['event'].include? "test")
     testing = true
   end
@@ -45,9 +47,6 @@ ARGF.each do |line|
   unless xcodeEvent['totalNumberOfWarnings'].nil?
     warnings = xcodeEvent['totalNumberOfWarnings']
   end
-  
-  #puts line
-
 end
 
 #

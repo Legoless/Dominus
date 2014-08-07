@@ -474,6 +474,8 @@ if [[ ! -z $TEST_SDK ]]; then
 
   TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
+  echo $TEXT_EXECUTE
+
   NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
   NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`
 
