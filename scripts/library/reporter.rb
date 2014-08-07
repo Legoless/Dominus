@@ -19,13 +19,11 @@ ARGF.each do |line|
   # Parse testing events
   #
   
-  #if (xcodeEvent['event'].include? "test")
-    #puts line
-  #end
+  if (xcodeEvent['event'].include? "test")
+    testing = true
+  end
   
   if (xcodeEvent['event'] == 'end-test-suite')
-    testing = true
-      
     testCount = xcodeEvent['testCaseCount']
     testFailed = xcodeEvent['totalFailureCount']
     testError = xcodeEvent['unexpectedExceptionCount']
