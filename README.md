@@ -8,15 +8,16 @@ Dominus is a world class command line tool to improve workflow with developing i
 - Loading new devices from TestFlight to Apple Developer Portal
 - Updating provisioning profiles
 - Building and testing application with automatic scheme detection
+- Quality control with [Faux Pas](http://fauxpasapp.com/) and static analysis (CLANG)
 - Deployment to TestFlight
   - Automatic build project increase (on Travis CI only)
   - Release notes from Git history (on Travis CI only)
   - Configure which branches should deploy
+- Detailed notification system (HipChat)
 
 In addition to features available on Travis CI, Dominus can also help with:
 
-- Project creation
-- Quality control
+- Project creation and configuration (using LiftOff)
 
 # Installation
 
@@ -53,9 +54,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 # TODO
 
 - Use project's build number + Travis build
-- Displaying build warnings notification
-- Code formatting checker (Obj-Clean or http://fauxpasapp.com/)
-- Static code analysis
+- Code formatting checker (Obj-Clean)
 - Push notification support
 
 Contact
