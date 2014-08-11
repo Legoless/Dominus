@@ -185,7 +185,12 @@ environment()
 
 project()
 {
-  echo '[DOMINUS]: Project Not implemented'
+  if [[ -f $SCRIPT_PATH'setup/project.sh' ]]; then
+    $SCRIPT_PATH'setup/project.sh' -c
+  else
+    echo '[DOMINUS]: Unable to find 'project' script. Try to run' \"$0 update\"'.'
+    exit 1
+  fi
 }
 
 #
@@ -194,10 +199,10 @@ project()
 
 travis()
 {
-  if [[ -f $SCRIPT_PATH'setup/travis.sh' ]]; then
-    $SCRIPT_PATH'setup/travis.sh'
+  if [[ -f $SCRIPT_PATH'setup/project.sh' ]]; then
+    $SCRIPT_PATH'setup/project.sh' -t
   else
-    echo '[DOMINUS]: Unable to find 'travis' script. Try to run' \"$0 update\"'.'
+    echo '[DOMINUS]: Unable to find 'project' script. Try to run' \"$0 update\"'.'
     exit 1
   fi
 }
