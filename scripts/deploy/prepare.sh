@@ -261,7 +261,9 @@ echo '[PREPARE]: Downloading new provisioning profile...'
 #$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
 DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
 
-echo [PREPARE]: $DOWNLOAD
+echo '[PREPARE]: Provisioning profile download completed.'
+
+echo '[PREPARE]: '$DOWNLOAD
 
 PROFILE_NAME=`find . -type f -name "*.mobileprovision" | head -n1`
 
