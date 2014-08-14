@@ -278,9 +278,9 @@ fi
 # Install the provisioning profile...
 #
 
-PROFILE_UUID=`grep UUID -A1 -a $PROFILE_NAME | grep -o "[-A-Z0-9]\{36\}"`
-
 echo '[PREPARE]: Installing profile with ID' $PROFILE_UUID
+
+PROFILE_UUID=`grep UUID -A1 -a $PROFILE_NAME | grep -o "[-A-Z0-9]\{36\}"`
 
 message "Installing profile: $PROFILE_UUID" debug normal
 
