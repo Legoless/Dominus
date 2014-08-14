@@ -287,7 +287,7 @@ PROFILE_UUID=`grep UUID -A1 -a $PROFILE_NAME`
 #
 
 PROFILE_UUID=${PROFILE_UUID#<string>}
-PROFILE_UUID=${PROFILE_UUID#</string>}
+PROFILE_UUID=${PROFILE_UUID%</string>}
 
 echo '[PREPARE]: Installing profile with ID: '$PROFILE_UUID
 
