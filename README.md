@@ -55,7 +55,8 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 - Use project's build number + Travis build
 - Code formatting checker (Obj-Clean)
-- Push notification support
+- Push notification support (Shenzhen)
+- Disable recreation of Provisioning Profiles
 
 Contact
 ======
