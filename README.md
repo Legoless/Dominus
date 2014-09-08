@@ -58,6 +58,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
 - Test report and code coverage storing
+- Use Travis Build Matrix for Parallelizing testing builds
 
 Contact
 ======
