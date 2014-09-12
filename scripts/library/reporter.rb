@@ -48,11 +48,11 @@ ARGF.each do |line|
     end
     
     unless xcodeEvent['totalNumberOfErrors'].nil?
-        errors = xcodeEvent['totalNumberOfErrors']
+        errors += xcodeEvent['totalNumberOfErrors']
     end
     
     unless xcodeEvent['totalNumberOfWarnings'].nil?
-        warnings = xcodeEvent['totalNumberOfWarnings']
+        warnings += xcodeEvent['totalNumberOfWarnings']
     end
 end
 
@@ -62,6 +62,6 @@ end
 
 if (testing)
     puts " #{testPassed} passed, #{testFailed} failed, #{testError} errored, #{testCount} total"
-    else
+else
     puts " #{errors} errors, #{warnings} warnings"
 end
