@@ -73,7 +73,7 @@ TEST_SDK=""
 ALLOW_WARNINGS=false
 ADD_BUILD_NUMBER_TO_PROJECT=false
 
-while getopts “h:d:w:p:s:c:k:f:n:b:t:a:r” OPTION; do
+while getopts “h:d:w:p:s:c:k:f:n:b:t:ar” OPTION; do
   case $OPTION in
     h) usage; exit 1;;
     d) DIR_PATH=$OPTARG;;
