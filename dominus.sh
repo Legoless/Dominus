@@ -302,7 +302,8 @@ build()
 
     if [ "$USE_BUILD_NUMBER" == "travis" ] && [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
       BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER"
-    elif [ "$USE_BUILD_NUMBER" == "travis" ] && [[ ! -z $TRAVIS_BUILD_NUMBER ]];
+    elif [ "$USE_BUILD_NUMBER" == "project" ] && [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+      BUILD_SCRIPT_PATH=$BUILD_SCRIPT_PATH" -b $TRAVIS_BUILD_NUMBER -r"
     fi
 
     #
