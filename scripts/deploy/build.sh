@@ -373,13 +373,13 @@ if [[ ! -z $BUILD_NUMBER ]]; then
     # build number.
     #
 
-    if [ "$ADD_BUILD_NUMBER_TO_PROJECT" = true ] then
+    if [ "$ADD_BUILD_NUMBER_TO_PROJECT" = true ]; then
       echo '[BUILD]: Reading project build number...'
 
       PROJECT_BUILD_NUMBER=/usr/libexec/plistbuddy -c "Print:CFBundleVersion:" $filename
 
       BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + BUILD_NUMBER))
-      echo '[BUILD]: Project build numbers set from:' $PROJECT_BUILD_NUMBER 'to'
+      echo '[BUILD]: Project build numbers set from:' $PROJECT_BUILD_NUMBER 'to' $BUILD_NUMBER
     fi
 
     message "Setting build number to: $BUILD_NUMBER" debug normal
