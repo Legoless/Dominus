@@ -402,6 +402,8 @@ if [[ -d $BUILD_PATH ]]; then
   echo '[BUILD]: Build already exists. Cleaning...'
 
   eval $BUILD_CLEAN_COMMAND > /dev/null
+
+  echo '[BUILD]: Build clean finished.'
 fi
 
 #
@@ -413,7 +415,17 @@ BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build"
 
 echo '[BUILD]: Building project with XCTool...'
 
+#
+# Allow the subshell to exit, as we are manually checking for errors
+#
+set +e
+
 BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+
+#
+# Now subshell will exit the script
+#
+set -e
 
 echo '[BUILD]: Build complete.'
 
