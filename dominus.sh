@@ -556,17 +556,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-#echo "[DOMINUS]: Script location: $SCRIPT_PATH"
-
-SCRIPT_VERSION='0.3.0'
-
-#
-# Protect against pull requests on CI
-#
-if [[ ! -z "$TRAVIS_PULL_REQUEST" ]] && [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
-  echo "[DOMINUS]: This is a pull request. No deployment will be done."
-  exit 0
-fi
+SCRIPT_VERSION='0.3.1'
 
 #
 # Load environment variables from file, if it exists, otherwise they should be loaded
