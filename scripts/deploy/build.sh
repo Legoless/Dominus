@@ -411,7 +411,11 @@ fi
 BUILD_COMMAND=$BUILD_COMMAND" build"
 BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build"
 
+echo '[BUILD]: Building project with XCTool...'
+
 BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+
+echo '[BUILD]: Build complete.'
 
 #
 # Check the build status
