@@ -152,6 +152,20 @@ else
 fi
 
 #
+# Build number
+#
+
+if [[ -z $USE_BUILD_NUMBER ]]; then
+  echo '[PROJECT]: Use build number from (travis/project or empty): '
+  read USE_BUILD_NUMBER
+fi
+
+if [[ ! -z $USE_BUILD_NUMBER ]]; then
+  writecfg "USE_BUILD_NUMBER" "$USE_BUILD_NUMBER"
+fi
+
+
+#
 # Test SDK
 #
 

@@ -56,6 +56,7 @@ OPTIONS:
    -b <build>          Desired build number
    -t <test>           Testing SDK
    -a                  Allow building with warnings
+   -r                  Add build number to build number in project
 EOF
 }
 
@@ -70,8 +71,9 @@ CODE_SIGN=""
 BUILD_NUMBER=""
 TEST_SDK=""
 ALLOW_WARNINGS=false
+ADD_BUILD_NUMBER_TO_PROJECT=false
 
-while getopts “h:d:w:p:s:c:k:f:n:b:t:a” OPTION; do
+while getopts “h:d:w:p:s:c:k:f:n:b:t:a:r” OPTION; do
   case $OPTION in
     h) usage; exit 1;;
     d) DIR_PATH=$OPTARG;;
@@ -85,6 +87,7 @@ while getopts “h:d:w:p:s:c:k:f:n:b:t:a” OPTION; do
     b) BUILD_NUMBER=$OPTARG;;
     t) TEST_SDK=$OPTARG;;
     a) ALLOW_WARNINGS=true;;
+    r) ADD_BUILD_NUMBER_TO_PROJECT=true;;
     [?]) usage; exit;;
   esac
 done
@@ -364,6 +367,21 @@ if [[ ! -z $BUILD_NUMBER ]]; then
 
   for filename in $(find . -iname $SCHEME-Info.plist);
   do
+
+    #
+    # If we should add build number to project's build number, need to read projects
+    # build number.
+    #
+
+    if [ "$ADD_BUILD_NUMBER_TO_PROJECT" = true ] then
+      echo '[BUILD]: Reading project build number...'
+
+      PROJECT_BUILD_NUMBER=/usr/libexec/plistbuddy -c "Print:CFBundleVersion:" $filename
+
+      BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + BUILD_NUMBER))
+      echo '[BUILD]: Project build numbers set from:' $PROJECT_BUILD_NUMBER 'to'
+    fi
+
     message "Setting build number to: $BUILD_NUMBER" debug normal
 
     echo '[BUILD]: Setting build number to:' $BUILD_NUMBER
