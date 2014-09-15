@@ -9,6 +9,7 @@ This script will environment variables for notification configuration.
 
 OPTIONS:
    -h             Show this message
+   -p <prefix>      Prefix to the message
    -m <message>   Message to send
    -l <level>     Message log level: warn, info, debug (default: debug)
    -t <type>      Message type, values: error, success, warning, normal, announce (default: normal)
@@ -18,12 +19,14 @@ EOF
 MESSAGE=""
 LEVEL=""
 MESSAGE_TYPE=""
+PREFIX=""
 
-while getopts “h:m:l:t:” OPTION; do
+while getopts “h:p:m:l:t:” OPTION; do
   case $OPTION in
     h) usage; exit 0;;
     m) MESSAGE=$OPTARG;;
     l) LEVEL=$OPTARG;;
+    p) PREFIX=$OPTARG;;
     t) MESSAGE_TYPE=$OPTARG;;
     [?]) usage; exit;;
   esac
@@ -63,6 +66,7 @@ case $LEVEL in
   warn) NUM_MSG_LEVEL=1;;
   info) NUM_MSG_LEVEL=2;;
   debug) NUM_MSG_LEVEL=3;;
+  trace) NUM_MSG_LEVEL=4;;
   [?]) NUM_MSG_LEVEL=1;;
 esac
 

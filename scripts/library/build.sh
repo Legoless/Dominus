@@ -413,7 +413,7 @@ fi
 BUILD_COMMAND=$BUILD_COMMAND" build"
 BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build"
 
-echo '[BUILD]: Building project with XCTool...'
+echo '[BUILD]: Building project with xctool...'
 
 #
 # Allow the subshell to exit, as we are manually checking for errors

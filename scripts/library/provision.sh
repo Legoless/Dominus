@@ -1,75 +1,55 @@
 #!/bin/bash
 
-message()
-{
-  #
-  # Find notify script
-  #
-
-  NOTIFY_SCRIPT=`find . -name notify.sh | head -n1`
-
-  IFS=$'\n'
-
-  if [[ -f $NOTIFY_SCRIPT ]]; then
-    $NOTIFY_SCRIPT -m $1 -l $2 -t $3
-  fi
-}
-
 # exit on failure
 set -e
 
-usage() {
-cat << EOF
-Usage: $0 <options>
+#
+# Public functions
+#
 
-This script will search for podfile and install Cocoapods in the directory.
+provision()
+{
+  #
+  # Load all devices on TestFlight for specific distribution list
+  #
 
-OPTIONS:
-   -h                   Display this message
-   -a <path>            Path to AtlantisPro executable
-   -c <path>            Path to CupertinoPro executable
-EOF
+  message "" "Loading devices from TestFlight and Apple developer portal..." debug normal
+
+  message "provision" "Loading devices in TestFlight list: $TESTFLIGHT_DISTRIBUTION_LIST" trace normal
+
+  testflight_devices
+
+  #
+  # Load all devices from Apple Developer portal
+  #
+
+  message "provision" "Loading devices in team: $DEVELOPER_TEAM"
+
+  apple_devices
+
+  message "" Searching for new device IDs..." debug normal
 }
 
-while getopts “a:c:” OPTION; do
-  case $OPTION in
-    h) usage; exit 1;;
-    a) ATLANTIS_PATH=$OPTARG;;
-    c) CUPERTINO_PATH=$OPTARG;;
-    [?]) usage; exit;;
-  esac
-done
+testflight_devices()
+{
+  IFS=$'\n'
+
+  DEVICES=$($ATLANTIS_PATH devices $TESTFLIGHT_DISTRIBUTION_LIST --team $TESTFLIGHT_TEAM --username $TESTFLIGHT_USERNAME --password $TESTFLIGHT_PASSWORD --format csv --trace)
+}
+
+apple_devices()
+{
+  IFS=$'\n'
+
+  ADDED_DEVICES=$($CUPERTINO_PATH devices:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv --trace)
+}
 
 #
-# A safety check if all executables are available
+# Private functions
 #
 
-command -v $ATLANTIS_PATH >/dev/null 2>&1 || { message "AtlantisPro not installed. Aborting..." warn error; echo >&2 "[PROFILE]: AtlantisPro not installed. Aborting..."; exit 1; }
-command -v $CUPERTINO_PATH >/dev/null 2>&1 || { message "CupertinoPro not installed. Aborting..." warn error; echo >&2 "[PROFILE]: CupertinoPro not installed. Aborting..."; exit 1; }
-
-#
-# Load all devices on TestFlight for specific distribution list
-#
-
-IFS=$'\n'
-
-message "Loading devices from TestFlight and Apple developer portal" debug normal
-
-echo '[PREPARE]: Loading devices in list:' $TESTFLIGHT_DISTRIBUTION_LIST
-
-DEVICES=$($ATLANTIS_PATH devices $TESTFLIGHT_DISTRIBUTION_LIST --team $TESTFLIGHT_TEAM --username $TESTFLIGHT_USERNAME --password $TESTFLIGHT_PASSWORD --format csv --trace)
-
-#
-# Load all devices from Apple Developer portal
-#
-
-echo '[PREPARE]: Loading devices in team:' $DEVELOPER_TEAM
-
-ADDED_DEVICES=$($CUPERTINO_PATH devices:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv --trace)
-
-echo '[PREPARE]: Searching for new device IDs...'
-
-message "Searching for new device IDs..." debug normal
+new_devices()
+{
 
 #
 # Find all new devices
@@ -131,27 +111,36 @@ do
     NEW_DEVICES+=($device)
   fi
 
-done
+  done
+}
 
-#
-# Found new devices, add them to the portal
-#
-IFS=$'\n'
 
-for device in ${NEW_DEVICES[@]};
-do
-  IFS=',' read -a data <<< "$device"
+apple_add_devices()
+{
 
-  UDID="${data[1]}"
-  NAME="${data[0]}"
+  #
+  # Add new devices to the portal
+  #
 
-  message "Adding $NAME to Developer Portal" info success
+  IFS=$'\n'
 
-  echo '[PREPARE]: Adding' $NAME 'device to Apple Developer Portal...'
+  for device in ${NEW_DEVICES[@]};
+  do
+    IFS=',' read -a data <<< "$device"
 
-  $($CUPERTINO_PATH devices:add \"$NAME\"=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD > /dev/null)
-done
+    UDID="${data[1]}"
+    NAME="${data[0]}"
 
+    message "Adding $NAME to Developer Portal" info success
+
+    echo '[PREPARE]: Adding' $NAME 'device to Apple Developer Portal...'
+
+    $($CUPERTINO_PATH devices:add \"$NAME\"=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD > /dev/null)
+  done
+}
+
+apple_provisioning_profile()
+{
 message "Searching for profile: $DEVELOPER_PROVISIONING" debug normal
 
 #
@@ -194,6 +183,7 @@ do
     break;
   fi
 done
+}
 
 #
 # If there is no profile yet, we shall create it, right?
@@ -254,9 +244,9 @@ find . -maxdepth 1 -type f -name "*.mobileprovision" -delete
 # Download profile
 #
 
-message "Downloading new provisioning profile..." debug normal
+message "Downloading provisioning profile..." debug normal
 
-echo '[PREPARE]: Downloading new provisioning profile...'
+echo '[PREPARE]: Downloading provisioning profile...'
 
 #$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
 DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
@@ -297,10 +287,13 @@ message "Installing profile: $PROFILE_UUID" debug normal
 # Copy profile to home directoy
 #
 
-OUTPUT="$HOME/Library/MobileDevice/Provisioning Profiles"
+profile_copy()
+{
+  OUTPUT="$HOME/Library/MobileDevice/Provisioning Profiles"
 
-if [ ! -d "$OUTPUT" ]; then
-  mkdir -p "$OUTPUT"
-fi
+  if [ ! -d "$OUTPUT" ]; then
+    mkdir -p "$OUTPUT"
+  fi
 
-mv $PROFILE_NAME "$OUTPUT/$PROFILE_UUID.mobileprovision"
+  mv $PROFILE_NAME "$OUTPUT/$1.mobileprovision"
+}
