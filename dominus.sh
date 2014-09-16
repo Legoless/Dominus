@@ -14,15 +14,11 @@ load()
 {
   for filename in $(find . -iname '*.sh' -path "*/utility/*");
   do
-echo $filename
-
     source $filename
   done
 
   for filename in $(find . -iname '*.sh' -path "*/library/*");
   do
-echo $filename
-    
     source $filename
   done
 }
@@ -116,7 +112,7 @@ integrate()
     BUILD_SDK=$PLATFORM
     TEST_SDK=$PLATFORM
 
-    if [ "$PLATFORM" == "iphone"]; then
+    if [ "$PLATFORM" == "iphone" ]; then
       BUILD_SDK=$BUILD_SDK'os'
       TEST_SDK=$TEST_SDK'simulator'
     fi
@@ -128,16 +124,16 @@ integrate()
   #
   # Init and library is always run
   #
-  init
-  library
+  #init
+  #library
 
   #
   # Define actions
   #
 
   case "$ACTION" in
-    build) provision;
-    cert;
+    build) #provision;
+    #cert;
     project_build;;
     run_tests) run_tests;;
     quality) provision;

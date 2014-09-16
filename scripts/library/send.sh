@@ -84,7 +84,7 @@ send()
   # Find built .app file
   #
 
-  APP_PATH=$(find_file *.app)
+  APP_PATH=$(find_file '*.app')
 
   APPNAME=$(basename $APP_PATH)
   APPNAME=${APPNAME%.*}

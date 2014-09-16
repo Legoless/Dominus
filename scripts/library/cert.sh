@@ -7,7 +7,7 @@ set -e
 # Public functions (only ones with messages in)
 #
 
-certificate_install()
+cert()
 {
   if [ "$ACTION" != "test" ]; then
 
@@ -72,5 +72,5 @@ find_signing_identity()
   IDENTITY=${IDENTITY%%\"*}
   IDENTITY="\"iPhone$IDENTITY\""
 
-  return "$IDENTITY"
+  echo "$IDENTITY"
 }

@@ -8,6 +8,7 @@ message()
   #
   # Find notify script
   #
+
   NOTIFY_SCRIPT=`find . -name notify.sh | head -n1`
 
   IFS=$'\n'

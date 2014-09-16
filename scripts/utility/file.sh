@@ -15,6 +15,6 @@ find_file()
     fi
   done
 
-  return "$FILE_PATH"
+  echo $FILE_PATH
 }
 

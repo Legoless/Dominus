@@ -43,7 +43,8 @@ run_tests()
   # Load other parameters from the XCode itself
   #
 
-  message "test" "Source path: $BUILD_PATH"
+  message "test" "Source path: $BUILD_PATH" trace normal
+
 
   # Remember previous dir
   CURRENT_DIR=$(pwd)
@@ -58,9 +59,7 @@ run_tests()
   #
 
   if [[ -z $SCHEME ]]; then
-    message "" "No scheme found in project. Aborting..." warn error
-
-    message "build" "No scheme found in project (did you set it as shared?). Aborting..."
+    message "test" "No scheme found in project (did you set it as shared?). Aborting..." warn error
     exit 1
   fi
 
@@ -83,7 +82,7 @@ run_tests()
   #
   # Prepare commands
   #
-  TEST_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
+  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
 
   REPORTER=$(reporter);
 
@@ -98,9 +97,7 @@ run_tests()
   #
 
   TEST_CLEAN_COMMAND=$TEST_COMMAND" clean"
-
-  message "test" "Testing project with xctool..." trace normal
-
+  
   execute_rake_test
   execute_test
 }
@@ -112,10 +109,10 @@ execute_test()
   #
 
   if [[ ! -z $TEST_SDK ]]; then
-    message "test" "Testing created build: $TEST_SDK"
+    message "test" "Testing created build: $TEST_SDK" debug normal
 
     if [[ -d $TEST_PATH ]]; then
-      message "test" "Test build already exists. Cleaning..."
+      message "test" "Test build already exists. Cleaning..." debug normal
 
       eval $TEST_CLEAN_COMMAND > /dev/null
     fi
@@ -130,7 +127,7 @@ execute_test()
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
-    #message $TEXT_EXECUTE
+    message "test" $TEXT_EXECUTE trace normal
 
     NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
     NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`

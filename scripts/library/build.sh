@@ -77,7 +77,9 @@ build()
 
   BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
 
-  find_profile
+  if [[ -z $PROFILE_UUID ]]; then
+    find_profile $DEVELOPER_PROVISIONING
+  fi
 
   #
   # Add profile build command
@@ -105,7 +107,7 @@ build()
   fi
 
   if [[ ! -z $CODE_SIGN ]]; then
-    message "build" "Using developer identity: <b>$IDENTITY</b>" info success
+    message "build" "Using developer identity: <b>$CODE_SIGN</b>" info success
 
     BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
   else
@@ -309,8 +311,6 @@ execute_build()
     else
       message "build" "Build completed with warnings: <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
     fi
-
-    message "build" "Build completed: $SCHEME ($BUILD_EXECUTE)"
   else
     if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNINGS_BUILDS" = false ]; then
       message "build" "Build failed (<b>warnings not allowed</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error

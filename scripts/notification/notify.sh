@@ -81,27 +81,23 @@ case $LOG_LEVEL in
   [?]) NUM_GLOBAL_LEVEL=0;;
 esac
 
-#echo $LOG_LEVEL=$NUM_GLOBAL_LEVEL $LEVEL=$NUM_MSG_LEVEL
-
-#echo $HIPCHAT_TOKEN '.' $HIPCHAT_ROOM_ID
-
 #
-# Output Trace message
+# Strip HTML tags for local output
 #
+
+LOCAL_MESSAGE=$(echo $MESSAGE | sed -e 's/<[^>]*>//g')
 
 if [[ ! -z $PREFIX ]]; then
   PREFIX=$(echo $PREFIX | tr '[:lower:]' '[:upper:]')
 
-  #
-  # Strip HTML tags for local output
-  #
-  
-  LOCAL_MESSAGE=$(echo $MESSAGE | sed -e 's/<[^>]*>//g')
-
   LOCAL_MESSAGE='['$PREFIX']: '$LOCAL_MESSAGE
-
-  echo $LOCAL_MESSAGE
 fi
+
+echo $LOCAL_MESSAGE
+
+#
+# Output Trace message
+#
 
 if [ $NUM_GLOBAL_LEVEL -lt $NUM_MSG_LEVEL ]; then
   exit 0
@@ -117,6 +113,8 @@ if [[ ! -z $TRAVIS_COMMIT ]]; then
   SENDER_NAME=$TRAVIS_REPO_SLUG
   
   MESSAGE='[<b>'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
+else
+  SENDER_NAME='Dominus'
 fi
 
 # 
@@ -151,5 +149,4 @@ if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
   if [[ -f $HIPCHAT_SCRIPT ]]; then
     OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE")
   fi
-
 fi

@@ -27,7 +27,7 @@ provision()
 
   apple_provisioning_profile
 
-  FOUND_UUID=parse_profile_uuid
+  FOUND_UUID=$(parse_profile_uuid $FOUND_PROFILE)
 
   #
   # Check if UUID is found
@@ -36,7 +36,7 @@ provision()
   if [[ ! -z $FOUND_UUID ]]; then
     message "provision" "Using profile: $FOUND_UUID <b>($DEVELOPER_PROVISIONING)</b>" info success
   else
-    message "provision" "Provisioning profile not found. Aborting..." warn error
+    message "provision" "Provisioning profile not found ($FOUND_UUID). Aborting..." warn error
     exit 1
   fi
 
@@ -52,14 +52,16 @@ provision()
 
   message "provision" "Downloading provisioning profile..." debug normal
 
-  PROFILE_NAME=$(apple_download_profile)
+  apple_download_profile
 
-  message "provision" "Download completed (provisioning profile)." trace normal
+  #PROFILE_NAME=$(apple_download_profile)
 
   if [[ ! -f $PROFILE_NAME ]]; then
     message "provision" "Could not download provisioning profile. Aborting..." warn error
     exit 1
   fi
+
+  message "provision" "Download completed (provisioning profile)." trace normal
 
   #
   # Install the provisioning profile...
@@ -228,7 +230,7 @@ parse_profile_uuid()
     FOUND_UUID=${FOUND_UUID##*,}
   fi
 
-  return "$FOUND_UUID"
+  echo "$FOUND_UUID"
 }
 
 #
@@ -281,13 +283,13 @@ clean_provisioning()
 
 apple_download_profile()
 {
+  rm -f *.mobileprovision*
+
   DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
 
   message "provision" "$DOWNLOAD" trace normal
 
   PROFILE_NAME=`find . -type f -name "*.mobileprovision" | head -n1`
-
-  return "$PROFILE_NAME"
 }
 
 find_profile_uuid()
@@ -301,7 +303,7 @@ find_profile_uuid()
   PROFILE_UUID=${PROFILE_UUID##*<string>}
   PROFILE_UUID=${PROFILE_UUID%%</string>*}
 
-  return "$PROFILE_UUID"
+  echo "$PROFILE_UUID"
 }
 
 

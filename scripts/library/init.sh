@@ -9,12 +9,12 @@ set -e
 init()
 {
   if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-    message "" "Building branch: <b>$TRAVIS_BRANCH</b>." warn warning
+    message "init" "Building branch: <b>$TRAVIS_BRANCH</b>." warn warning
   else
     CURRENT_DIR=$(pwd)
     CURRENT_DIR=$(basename $CURRENT_DIR)
 
-    message "" "Initializing repository: $CURRENT_DIR" warn warning
+    message "init" "Initializing repository: $CURRENT_DIR" warn warning
   fi
 
   message "init" "Updating Homebrew..." trace normal
@@ -23,7 +23,7 @@ init()
 
   message "init" "Updating xctool..." trace normal
 
-  brew_update_xctool
+  brew_upgrade
 
   message "init" "Installing CupertinoPro gem..." trace normal
 
@@ -35,7 +35,9 @@ init()
 
   message "init" "Installing CocoaPods gem..." trace normal
 
-  message "" "Gems installed." debug normal
+  gem_install "CocoaPods"
+
+  message "init" "Gems installed." debug normal
 }
 
 #
@@ -47,9 +49,9 @@ brew_update()
   brew update
 }
 
-brew_update_xctool()
+brew_upgrade()
 {
-  brew upgrade xctool
+  brew upgrade
 
   #brew uninstall xctool
   #brew install xctool
