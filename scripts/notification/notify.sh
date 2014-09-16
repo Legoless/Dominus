@@ -1,17 +1,18 @@
 #!/bin/bash
 
 # exit on failure
-usage() {
+usage()
+{
   cat << EOF
-Usage: $0 -m <message> -l <level> -t <type>
+Usage: $0 -p <prefix> -m <message> -l <level> -t <type>
 
 This script will environment variables for notification configuration.
 
 OPTIONS:
    -h             Show this message
-   -p <prefix>      Prefix to the message
+   -p <prefix>    Prefix to the message
    -m <message>   Message to send
-   -l <level>     Message log level: warn, info, debug (default: debug)
+   -l <level>     Message log level: warn, info, debug, trace (default: debug)
    -t <type>      Message type, values: error, success, warning, normal, announce (default: normal)
 EOF
 }
@@ -76,6 +77,7 @@ case $LOG_LEVEL in
   warn) NUM_GLOBAL_LEVEL=1;;
   info) NUM_GLOBAL_LEVEL=2;;
   debug) NUM_GLOBAL_LEVEL=3;;
+  trace) NUM_GLOBAL_LEVEL=4;;
   [?]) NUM_GLOBAL_LEVEL=0;;
 esac
 
@@ -83,24 +85,45 @@ esac
 
 #echo $HIPCHAT_TOKEN '.' $HIPCHAT_ROOM_ID
 
+#
+# Output Trace message
+#
+
+if [[ ! -z $PREFIX ]]; then
+  PREFIX=$(echo $PREFIX | tr '[:lower:]' '[:upper:]')
+
+  #
+  # Strip HTML tags for local output
+  #
+  
+  LOCAL_MESSAGE=$(echo $MESSAGE | sed -e 's/<[^>]*>//g')
+
+  LOCAL_MESSAGE='['$PREFIX']: '$LOCAL_MESSAGE
+
+  echo $LOCAL_MESSAGE
+fi
+
 if [ $NUM_GLOBAL_LEVEL -lt $NUM_MSG_LEVEL ]; then
   exit 0
 fi
 
 #
+# Add Travis to message
+#
+
+SENDER_NAME=''
+
+if [[ ! -z $TRAVIS_COMMIT ]]; then
+  SENDER_NAME=$TRAVIS_REPO_SLUG
+  
+  MESSAGE='[<b>'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
+fi
+
+# 
 # Read HipChat stuff from environment and post a message
 #
 
 if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
-
-  #
-  # Add Travis to message
-  #
-
-  if [[ ! -z $TRAVIS_COMMIT ]]; then
-    MESSAGE='[<b>'$TRAVIS_REPO_SLUG'</b>#<i>'$TRAVIS_BUILD_NUMBER'</i>]: '$MESSAGE
-  fi
-
   #
   # HipChat color mapping
   #
@@ -126,7 +149,7 @@ if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
   HIPCHAT_SCRIPT=`find . -name hipchat.sh | head -n1`
 
   if [[ -f $HIPCHAT_SCRIPT ]]; then
-    OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f Dominus -c $COLOR -i "$MESSAGE")
+    OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE")
   fi
 
 fi

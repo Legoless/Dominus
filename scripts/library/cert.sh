@@ -3,35 +3,35 @@
 # exit on failure
 set -e
 
-
 #
 # Public functions (only ones with messages in)
 #
 
 certificate_install()
 {
-  LOGINED_USER=$(whoami)
+  if [ "$ACTION" != "test" ]; then
 
-  echo '[CERT]: Creating keychain for' $1
+    LOGINED_USER=$(whoami)
 
-  keychain_create $LOGINED_USER
+    message "cert" "Creating keychain for $LOGINED_USER"
 
-  APPLE_CERT_PATH=$(find_file *.cer)
-  DEVELOPER_CERT_PATH=$(find_file *.p12)
+    keychain_create $LOGINED_USER
 
-  message "" "Importing Apple certificate..." debug normal
-  message "cert" "Importing Apple certificate at: $APPLE_CERT_PATH" trace normal
+    APPLE_CERT_PATH=$(find_file *.cer)
+    DEVELOPER_CERT_PATH=$(find_file *.p12)
 
-  keychain_certificate_import $APPLE_CERT_PATH
+    message "cert" "Importing Apple certificate at: $APPLE_CERT_PATH" debug normal
 
-  message "cert" "Apple certificate imported." trace normal
+    keychain_certificate_import $APPLE_CERT_PATH
 
-  message "" "Importing Developer certificate..." debug normal
-  message "cert" "Importing Developer certificate at: $DEVELOPER_CERT_PATH" trace normal
+    message "cert" "Apple certificate imported." trace normal
 
-  keychain_certificate_import $DEVELOPER_CERT_PATH $DEVELOPER_IDENTITY_PASSWORD
+    message "cert" "Importing Developer certificate at: $DEVELOPER_CERT_PATH" debug normal
 
-  message "cert" "Developer certificate imported." trace normal
+    keychain_certificate_import $DEVELOPER_CERT_PATH $DEVELOPER_IDENTITY_PASSWORD
+
+    message "cert" "Developer certificate imported." trace normal
+  fi
 }
 
 #
@@ -61,4 +61,16 @@ keychain_certificate_import()
   if [[ ! -z $1 ]]; then
     eval $IMPORT_COMMAND
   fi
+}
+
+
+find_signing_identity()
+{
+  #IDENTITIES=$(security find-identity -v ~/Library/Keychains/ios-build.keychain | grep "iPhone" | head -n1)
+  IDENTITY=`security find-identity -v | grep "iPhone" | head -n1`
+  IDENTITY=${IDENTITY##*iPhone}
+  IDENTITY=${IDENTITY%%\"*}
+  IDENTITY="\"iPhone$IDENTITY\""
+
+  return "$IDENTITY"
 }

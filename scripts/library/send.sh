@@ -1,344 +1,335 @@
 #!/bin/sh
 
-message()
-{
-  #
-  # Find notify script
-  #
-
-  NOTIFY_SCRIPT=`find . -name notify.sh | head -n1`
-
-  IFS=$'\n'
-
-  if [[ -f $NOTIFY_SCRIPT ]]; then
-    $NOTIFY_SCRIPT -m $1 -l $2 -t $3
-  fi
-}
-
 # exit on failure
 set -e
 
-usage() {
-  cat << EOF
-Usage: $0 <options>
+send()
+{
+  #
+  # Check if we should deploy
+  #
+  
+  if [[ $TRAVIS_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $TRAVIS_BRANCH ]] && [[ ! -z $DEPLOY_BRANCH ]]; then
+    message "send" "Skipping deployment: $TRAVIS_BRANCH branch not deployed (requires: $DEPLOY_BRANCH)." debug warning
 
-This script will search for built application (.app) file, sign it and send it to TestFlight.
+    return
+ fi
 
-OPTIONS:
-   -h                  Show this message
-   -f <profile>        Provisioning profile to sign executable
-   -a <token>          TestFlight API token
-   -t <token>          TestFlight Team Token
-   -d <distribute>     Distribution list
-   -r <notes>          Release notes for TestFlight
-EOF
+  PROFILE=$DEVELOPER_PROVISIONING
+  API_TOKEN=$TESTFLIGHT_API_TOKEN
+  TEAM_TOKEN=$TESTFLIGHT_TEAM_TOKEN
+  DISTRIBUTION_LISTS=$TESTFLIGHT_DISTRIBUTION_LIST
+  RELEASE_NOTES=$(construct_release_notes)
+
+  message "send" "Sending build to distribution service..." debug normal
+
+  #
+  # Find provisioning profile
+  #
+
+  find_profile
+
+  #
+  # Fill defaults
+  #
+
+  if [[ -z $DIR_PATH ]]; then
+    DIR_PATH=$(pwd)
+  fi
+
+  #
+  # Search for workspace if project and workspace not set
+  #
+
+  search_targets
+
+  #
+  # Check if we have workspace or project at least
+  #
+  if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
+    message "send" "Nothing to send. Aborting..." warn error
+
+    exit 0
+  fi
+
+  #
+  # Print what are we building
+  #
+
+  if [[ ! -z $WORKSPACE ]]; then
+    message "send" "Sending Workspace: $WORKSPACE" debug normal
+
+    BUILD_PATH=$(dirname $WORKSPACE)
+  fi
+
+  if [[ ! -z $PROJECT ]]; then
+    message "send" "Sending Project: $PROJECT." debug normal
+
+    BUILD_PATH=$(dirname $PROJECT)
+  fi
+
+  #
+  # Build path
+  #
+
+  BUILD_PATH="$BUILD_PATH/build/"
+
+  if [ ! -d "$BUILD_PATH" ]; then
+    message "send" "Project uild folder does not exist yet. Aborting..." warn error
+
+    exit 1
+  fi
+
+  #
+  # Find built .app file
+  #
+
+  APP_PATH=$(find_file *.app)
+
+  APPNAME=$(basename $APP_PATH)
+  APPNAME=${APPNAME%.*}
+
+  #
+  # Search for all installed developer identities
+  #
+
+  message "send" "Searching developer identities..." debug normal
+
+  #
+  # We must find ALL developer identities in provisioning profile, so we can sign with one that is correct.
+  # First get the developer keys base64 code from provisioning profile.
+  #
+
+  KEYS=`strings $PROFILE_FILE | sed -n "/<data>/,/<\/data>/p" | tr -d '\n'`
+
+  DEVELOPER_KEYS=()
+
+  while [[  $KEYS == *\<data\>* ]]
+  do
+
+    #
+    # Cut first key
+    #
+    KEY=${KEYS%%</data>*}
+    KEY=${KEY#*<data>}
+
+    DECRYPTED=`echo $KEY | base64 --decode | strings`
+
+    # Cut away the parsed data
+    KEYS=${KEYS#*</data>}
+
+    DECRYPTED=${DECRYPTED#*iPhone}
+    DECRYPTED=${DECRYPTED%%)*}
+    DECRYPTED=$DECRYPTED')'
+    DECRYPTED='iPhone'$DECRYPTED
+
+    DECRYPTED="${DECRYPTED#"${DECRYPTED%%[![:space:]]*}"}"
+    DECRYPTED="${DECRYPTED%"${DECRYPTED##*[![:space:]]}"}"
+
+  #echo '[SEND]: Profile key' $DECRYPTED
+
+    DEVELOPER_KEYS+=($DECRYPTED)
+  done;
+
+  #
+  # We got developer keys in profile, find the correct key to sign now
+  #
+
+  IDENTITIES=`security find-identity -v | grep "iPhone"`
+
+  IDENTITY=""
+
+  for ident in $IDENTITIES;
+  do
+    DEV_NAME=${ident#*\"}
+    DEV_NAME=${DEV_NAME%\"*}
+    DEV_NAME="${DEV_NAME#"${DEV_NAME%%[![:space:]]*}"}"
+    DEV_NAME="${DEV_NAME%"${DEV_NAME##*[![:space:]]}"}"
+
+  #echo '[SEND]: Identity:' $DEV_NAME
+
+    #
+    # Go through developer keys and find a matching developer name
+    #
+
+    IFS=$'\n'
+
+    for dev_key in "${DEVELOPER_KEYS[@]}";
+    do
+  #echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
+
+      if [ "$dev_key" == "$DEV_NAME" ]; then
+        IDENTITY=$DEV_NAME
+        break
+      fi
+
+    done
+
+    #
+    # Stop looping if found key
+    #
+
+    if [[ ! -z $IDENTITY ]]; then
+      break;
+    fi
+  done
+
+  if [[ -z $IDENTITY ]]; then
+    message "send" "No matching code signing identity found. Aborting..." warn error
+
+    exit 1
+  fi
+
+  message "send" "Found developer identity:' $IDENTITY" trace normal
+
+  #
+  # Sign and package
+  #
+
+  message "send" "Signing $APPNAME with $IDENTITY..." debug normal
+
+  xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
+
+  message "send" "Creating dSYM symbol ZIP package..." trace normal
+
+  zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
+
+  #
+  # Add release notes
+  #
+
+  if [[ -z $RELEASE_NOTES ]]; then
+    RELEASE_NOTES="$APPNAME Automated Build"
+  fi
+
+  echo '[SEND]: Uploading package to TestFlight...'
+
+  #
+  # Upload to TestFlight
+  #
+
+  message "Uploading package to TestFlight..." debug normal
+
+  TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
+  -F file="@$BUILD_PATH/$APPNAME.ipa" \
+  -F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
+  -F api_token="$API_TOKEN" \
+  -F team_token="$TEAM_TOKEN" \
+  -F distribution_lists="$DISTRIBUTION_LISTS" \
+  -F notes="$RELEASE_NOTES" -v \
+  -F notify="TRUE" -w "%{http_code}"`
+
+  message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
 }
 
-PROFILE=""
-API_TOKEN=""
-TEAM_TOKEN=""
-DISTRIBUTION_LISTS=""
-RELEASE_NOTES=""
+construct_release_notes()
+{
+  #
+  # Create release notes for deployment
+  #
 
-while getopts “h:f:a:t:d:r:” OPTION; do
-  case $OPTION in
-    h) usage; exit 1;;
-    f) PROFILE=$OPTARG;;
-    a) API_TOKEN=$OPTARG;;
-    t) TEAM_TOKEN=$OPTARG;;
-    d) DISTRIBUTION_LISTS=$OPTARG;;
-    r) RELEASE_NOTES=$OPTARG;;
-    [?]) usage; exit;;
-  esac
-done
+  RELEASE_NOTES=''
 
-message "Sending build to distribution service..." debug normal
+  #
+  # Append app name
+  #
 
-#
-# Checks that are needed to make sure the script works
-#
+  XCODE_PROJECT=`find . -iname *.xcodeproj -type d -maxdepth 2 | head -1`
 
-if [[ -z $API_TOKEN ]]; then
-  message "TestFlight API token missing. Aborting..." warn error
+  if [[ ! -z $XCODE_PROJECT ]]; then
+    PROJECT_NAME=`xcodebuild -project $XCODE_PROJECT -showBuildSettings | grep PRODUCT_NAME | grep FULL --invert-match | head -1 | sed -e 's/^ *//' -e 's/ *$//'`
+  fi
 
-  echo '[SEND]: TestFlight API token missing. Aborting...'
-  exit 1
-fi
+  if [[ ! -z $PROJECT_NAME ]]; then
+    PREFIX='PRODUCT_NAME = '
+    PROJECT_NAME=${PROJECT_NAME#$PREFIX}
 
-if [[ -z $TEAM_TOKEN ]]; then
-  message "TestFlight API token missing. Aborting..." warn error
+    RELEASE_NOTES=$PROJECT_NAME
+  fi
 
-  echo '[SEND]: TestFlight Team token missing. Aborting...'
-  exit 1
-fi
+  # Find a correct property list
+  PROPERTY_LIST=''
 
-if [[ -z $DISTRIBUTION_LISTS ]]; then
-  message "TestFlight Distribution list missing. Aborting..." warn error
-
-  echo '[SEND]: TestFlight Distribution list missing. Aborting...'
-  exit 1
-fi
-
-
-#
-# Find provisioning profile
-#
-
-PROFILE_FILE=""
-
-IFS=$'\n'
-
-if [[ ! -z $PROFILE ]]; then
-#OUTPUT="$HOME/Library/MobileDevice/Provisioning Profiles/"
-  OUTPUT='.'
-
-  for filename in $(find "$OUTPUT" -iname *.mobileprovision);
+  for filename in $(find . -iname *-Info.plist);
   do
-    echo $filename
 
-    PROFILE_NAME=`grep "<key>Name</key" -A1 -a $filename`
-    PROFILE_NAME=${PROFILE_NAME##*<string>}
-    PROFILE_NAME=${PROFILE_NAME%%</string>*}
+    #
+    # Select property list if it does not contain Tests or Pods
+    #
 
-    if [[ -f $filename ]] && [ "$PROFILE" == "$PROFILE_NAME" ]; then
-      echo '[SEND]: Found profile:' $PROFILE_NAME
-
-      PROFILE_FILE=$filename
+    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]]; then
+      PROPERTY_LIST=$filename
       break
     fi
   done
-else
-  message "Provisioning profile name missing. Aborting..." warn error
 
-  echo '[SEND]: Provisioning profile name not found. Aborting...'
-  exit 1
-fi
+  #
+  # Append version and build to release notes
+  #
 
-#
-# Fill defaults
-#
+  if [[ ! -z $PROPERTY_LIST ]]; then
+    echo '[DOMINUS]: Creating release notes from property list:' $PROPERTY_LIST
 
-if [[ -z $DIR_PATH ]]; then
-  DIR_PATH=$(pwd)
-fi
+    APP_VERSION=`/usr/libexec/plistbuddy -c Print:CFBundleShortVersionString: $PROPERTY_LIST`
 
-#
-# Search for workspace if project and workspace not set
-#
+    #
+    # Override bundle name here if we have it
+    #
 
-if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
-  for f in $(find $DIR_PATH -iname *.xcworkspace);
-  do
-    if [[ -d $f ]] && [[ $f != */project.xcworkspace ]]; then
-      WORKSPACE=$f
+    BUNDLE_NAME=`/usr/libexec/plistbuddy -c Print:CFBundleDisplayName: $PROPERTY_LIST`
+
+    if [[ ! -z $BUNDLE_NAME ]]; then
+      RELEASE_NOTES=$BUNDLE_NAME
     fi
-  done
+
+    RELEASE_NOTES="$RELEASE_NOTES ($APP_VERSION"
+
+    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+      RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
+    else
+      PLIST_BUILD_NUMBER=`/usr/libexec/plistbuddy -c Print:CFBundleVersion: $PROPERTY_LIST`
+      RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
+    fi
+
+    RELEASE_NOTES=$RELEASE_NOTES')'
+  fi
 
   #
-  # Search for project, but only if no workspace was found
+  # Append branch
   #
-  if [[ -z $WORKSPACE ]]; then
-    for f in $(find $DIR_PATH -iname *.xcodeproj -maxdepth 2);
+
+  BUILD_BRANCH=''
+
+  if [[ ! -z $TRAVIS_BRANCH ]]; then
+    BUILD_BRANCH=$TRAVIS_BRANCH
+  else
+    BUILD_BRANCH=`git rev-parse --abbrev-ref HEAD`
+  fi
+
+  BUILD_BRANCH="$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_BRANCH:0:1})${BUILD_BRANCH:1}"
+
+  if [[ ! -z $BUILD_BRANCH ]]; then
+    RELEASE_NOTES=$RELEASE_NOTES' '$BUILD_BRANCH' automated build.'
+  else
+    RELEASE_NOTES=$RELEASE_NOTES' automated build.'
+  fi
+
+  #
+  # Check for Travis CI history
+  #
+
+  if [[ ! -z $TRAVIS_COMMIT_RANGE ]]; then
+    RELEASE_NOTES=$RELEASE_NOTES' Changes from last version:\n'
+
+    GIT_HISTORY=`git log $TRAVIS_COMMIT_RANGE --no-merges --format="%s"`
+
+    IFS=$'\n'
+
+    for history in $GIT_HISTORY;
     do
-      if [[ -d $f ]]; then
-        PROJECT=$f
-      fi
+      RELEASE_NOTES=$RELEASE_NOTES' - '$history$'\n'
     done
   fi
-fi
 
-#
-# Check if we have workspace or project at least
-#
-if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
-  message "Nothing to send. Aborting..." warn error
-
-  echo '[SEND]: Nothing to send. Aborting...'
-  exit 0
-fi
-
-#
-# Print what are we building
-#
-
-if [[ ! -z $WORKSPACE ]]; then
-  message "Sending Workspace: $WORKSPACE" debug normal
-
-  echo '[SEND]: Sending Workspace:' $WORKSPACE
-  BUILD_PATH=$(dirname $WORKSPACE)
-fi
-
-if [[ ! -z $PROJECT ]]; then
-  message "Sending Project: $PROJECT." debug normal
-
-  echo '[SEND]: Sending project:' $PROJECT
-  BUILD_PATH=$(dirname $PROJECT)
-fi
-
-#
-# Build path
-#
-
-BUILD_PATH="$BUILD_PATH/build/"
-
-if [ ! -d "$BUILD_PATH" ]; then
-  message "Project not yet build. Aborting..." warn error
-
-  echo '[SEND]: Build folder does not exist. Run build script first.'
-  exit 1
-fi
-
-#
-# Find built .app file
-#
-
-APP_PATH=""
-
-for filename in $(find . -name *.app);
-do
-  if [[ -d $filename ]]; then
-    message "Located compiled app: $filename" debug normal
-
-    echo '[SEND]: Found compiled app:' $filename
-
-    APP_PATH=$filename
-    break
-  fi
-done
-
-APPNAME=$(basename $APP_PATH)
-APPNAME=${APPNAME%.*}
-
-#
-# Search for all installed developer identities
-#
-
-message "Searching developer identities..." debug normal
-
-#
-# We must find ALL developer identities in provisioning profile, so we can sign with one that is correct.
-# First get the developer keys base64 code from provisioning profile.
-#
-
-KEYS=`strings $PROFILE_FILE | sed -n "/<data>/,/<\/data>/p" | tr -d '\n'`
-
-DEVELOPER_KEYS=()
-
-while [[  $KEYS == *\<data\>* ]]
-do
-
-  #
-  # Cut first key
-  #
-  KEY=${KEYS%%</data>*}
-  KEY=${KEY#*<data>}
-
-  DECRYPTED=`echo $KEY | base64 --decode | strings`
-
-  # Cut away the parsed data
-  KEYS=${KEYS#*</data>}
-
-  DECRYPTED=${DECRYPTED#*iPhone}
-  DECRYPTED=${DECRYPTED%%)*}
-  DECRYPTED=$DECRYPTED')'
-  DECRYPTED='iPhone'$DECRYPTED
-
-  DECRYPTED="${DECRYPTED#"${DECRYPTED%%[![:space:]]*}"}"
-  DECRYPTED="${DECRYPTED%"${DECRYPTED##*[![:space:]]}"}"
-
-#echo '[SEND]: Profile key' $DECRYPTED
-
-  DEVELOPER_KEYS+=($DECRYPTED)
-done;
-
-#
-# We got developer keys in profile, find the correct key to sign now
-#
-
-IDENTITIES=`security find-identity -v | grep "iPhone"`
-
-IDENTITY=""
-
-for ident in $IDENTITIES;
-do
-  DEV_NAME=${ident#*\"}
-  DEV_NAME=${DEV_NAME%\"*}
-  DEV_NAME="${DEV_NAME#"${DEV_NAME%%[![:space:]]*}"}"
-  DEV_NAME="${DEV_NAME%"${DEV_NAME##*[![:space:]]}"}"
-
-#echo '[SEND]: Identity:' $DEV_NAME
-
-  #
-  # Go through developer keys and find a matching developer name
-  #
-
-  IFS=$'\n'
-
-  for dev_key in "${DEVELOPER_KEYS[@]}";
-  do
-#echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
-
-    if [ "$dev_key" == "$DEV_NAME" ]; then
-      IDENTITY=$DEV_NAME
-      break
-    fi
-
-  done
-
-  #
-  # Stop looping if found key
-  #
-
-  if [[ ! -z $IDENTITY ]]; then
-    break;
-  fi
-done
-
-if [[ -z $IDENTITY ]]; then
-  message "No matching code signing identity found. Aborting..." warn error
-
-  echo '[SEND]: Could not find code signing identity. Aborting...'
-  exit 1
-fi
-
-echo '[SEND]: Found developer identity:' $IDENTITY
-
-#
-# Sign and package
-#
-
-message "Signing $APPNAME with $IDENTITY..." debug normal
-
-echo '[SEND]: Signing and packaging the' $APPNAME 'build...'
-xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
-
-echo '[SEND]: Creating dSYM symbol ZIP package...'
-
-zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
-
-#
-# Add release notes
-#
-
-if [[ -z $RELEASE_NOTES ]]; then
-  RELEASE_NOTES="$APPNAME Automated Build"
-fi
-
-echo '[SEND]: Uploading package to TestFlight...'
-
-#
-# Upload to TestFlight
-#
-
-message "Uploading package to TestFlight..." debug normal
-
-TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
--F file="@$BUILD_PATH/$APPNAME.ipa" \
--F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
--F api_token="$API_TOKEN" \
--F team_token="$TEAM_TOKEN" \
--F distribution_lists="$DISTRIBUTION_LISTS" \
--F notes="$RELEASE_NOTES" -v \
--F notify="TRUE" -w "%{http_code}"`
-
-message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+  return "$RELEASE_NOTES"
+}

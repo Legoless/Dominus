@@ -9,26 +9,74 @@ set -e
 
 provision()
 {
+  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_USE_BUILD_NUMBER" = true ]; then
+    message "" "Loading devices from TestFlight and Apple developer portal..." debug normal
+
+    message "provision" "Loading devices in TestFlight list: $TESTFLIGHT_DISTRIBUTION_LIST" trace normal
+
+    testflight_devices
+
+    message "provision" "Loading devices in team: $DEVELOPER_TEAM"
+
+    apple_devices
+
+    message "provision" "Searching for new device IDs..." debug normal
+
+    new_devices
+  fi
+
+  apple_provisioning_profile
+
+  FOUND_UUID=parse_profile_uuid
+
   #
-  # Load all devices on TestFlight for specific distribution list
+  # Check if UUID is found
   #
 
-  message "" "Loading devices from TestFlight and Apple developer portal..." debug normal
-
-  message "provision" "Loading devices in TestFlight list: $TESTFLIGHT_DISTRIBUTION_LIST" trace normal
-
-  testflight_devices
+  if [[ ! -z $FOUND_UUID ]]; then
+    message "provision" "Using profile: $FOUND_UUID <b>($DEVELOPER_PROVISIONING)</b>" info success
+  else
+    message "provision" "Provisioning profile not found. Aborting..." warn error
+    exit 1
+  fi
 
   #
-  # Load all devices from Apple Developer portal
+  # If the action is deploy
   #
 
-  message "provision" "Loading devices in team: $DEVELOPER_TEAM"
+  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_USE_BUILD_NUMBER" = true ]; then
+    apple_add_to_provisioning
+  fi
 
-  apple_devices
+  clean_provisioning
 
-  message "" Searching for new device IDs..." debug normal
+  message "provision" "Downloading provisioning profile..." debug normal
+
+  PROFILE_NAME=$(apple_download_profile)
+
+  message "provision" "Download completed (provisioning profile)." trace normal
+
+  if [[ ! -f $PROFILE_NAME ]]; then
+    message "provision" "Could not download provisioning profile. Aborting..." warn error
+    exit 1
+  fi
+
+  #
+  # Install the provisioning profile...
+  #
+
+  message "provision" "Searching for UUID in profile: $PROFILE_NAME" trace normal
+
+  PROFILE_UUID=$(find_profile_uuid $PROFILE_NAME)
+
+  message "provision" "Installing profile: $PROFILE_UUID" debug normal
+
+  profile_copy $PROFILE_NAME $PROFILE_UUID
 }
+
+#
+# Private functions
+#
 
 testflight_devices()
 {
@@ -44,76 +92,69 @@ apple_devices()
   ADDED_DEVICES=$($CUPERTINO_PATH devices:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv --trace)
 }
 
-#
-# Private functions
-#
-
 new_devices()
 {
+  #
+  # Find all new devices
+  #
 
-#
-# Find all new devices
-#
+  NEW_DEVICES=()
 
-NEW_DEVICES=()
+  DEVICE_INDEX=-1
 
-DEVICE_INDEX=-1
-
-FOUND=false
-
-for device in $DEVICES;
-do
-  DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
   FOUND=false
 
-  #
-  # Skip first line, which is only a descriptor
-  #
-  if (($DEVICE_INDEX == 0)); then
-    continue;
-  fi
-
-  #
-  # Get UDID
-  #
-
-  IFS=',' read -a data <<< "$device"
-
-  UDID="${data[1]}"
-
-  #
-  # Find UDID in existing
-  #
-
-  IFS=$'\n'
-
-  ADDED_INDEX=-1
-
-  for old_device in $ADDED_DEVICES;
+  for device in $DEVICES;
   do
-    ADDED_INDEX=$(( ADDED_INDEX+1 ))
+    DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
+    FOUND=false
 
-    if (($ADDED_INDEX == 0)); then
-      continue
+    #
+    # Skip first line, which is only a descriptor
+    #
+    if (($DEVICE_INDEX == 0)); then
+      continue;
     fi
 
-    IFS=',' read -a device_data <<< "$old_device"
+    #
+    # Get UDID
+    #
 
-    EXISTING_UDID="${device_data[1]}"
+    IFS=',' read -a data <<< "$device"
 
-    if [ "$UDID" == "$EXISTING_UDID" ]; then
-      FOUND=true
-      break;
+    UDID="${data[1]}"
+
+    #
+    # Find UDID in existing
+    #
+
+    IFS=$'\n'
+
+    ADDED_INDEX=-1
+
+    for old_device in $ADDED_DEVICES;
+    do
+      ADDED_INDEX=$(( ADDED_INDEX+1 ))
+
+      if (($ADDED_INDEX == 0)); then
+        continue
+      fi
+
+      IFS=',' read -a device_data <<< "$old_device"
+
+      EXISTING_UDID="${device_data[1]}"
+
+      if [ "$UDID" == "$EXISTING_UDID" ]; then
+        FOUND=true
+        break;
+      fi
+    done
+
+    if [ "$FOUND" != true ]; then
+      NEW_DEVICES+=($device)
     fi
-  done
-
-  if [ "$FOUND" != true ]; then
-    NEW_DEVICES+=($device)
-  fi
-
   done
 }
-
 
 apple_add_devices()
 {
@@ -131,9 +172,7 @@ apple_add_devices()
     UDID="${data[1]}"
     NAME="${data[0]}"
 
-    message "Adding $NAME to Developer Portal" info success
-
-    echo '[PREPARE]: Adding' $NAME 'device to Apple Developer Portal...'
+    message "provision" "Adding $NAME device to Apple Developer Portal..." info success
 
     $($CUPERTINO_PATH devices:add \"$NAME\"=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD > /dev/null)
   done
@@ -141,147 +180,171 @@ apple_add_devices()
 
 apple_provisioning_profile()
 {
-message "Searching for profile: $DEVELOPER_PROVISIONING" debug normal
-
-#
-# Get provisioning profile and find the name
-#
-
-echo '[PREPARE]: Searching for provisioning profile:' $DEVELOPER_PROVISIONING'...'
-
-IFS=$'\n'
-
-PROFILES=$($CUPERTINO_PATH profiles:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv)
-
-PROFILE_INDEX=-1
-
-FOUND_PROFILE=""
-
-for profile in $PROFILES;
-do
-  PROFILE_INDEX=$(( PROFILE_INDEX+1 ))
+  message "provision" "Searching for profile: $DEVELOPER_PROVISIONING" debug normal
 
   #
-  # Skip first line, which is only a descriptor
-  #
-  if (($PROFILE_INDEX == 0)); then
-    continue;
-  fi
-
-#echo 'LOOKING AT:' $profile
-
-  #
-  # Get profile name
+  # Get provisioning profile and find the name
   #
 
-  IFS=',' read -a data <<< "$profile"
+  IFS=$'\n'
 
-  PROFILE_NAME="${data[0]}"
+  PROFILES=$($CUPERTINO_PATH profiles:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv)
 
-  if [ "$PROFILE_NAME" == "$DEVELOPER_PROVISIONING" ]; then
-    FOUND_PROFILE=$profile
-    break;
-  fi
-done
+  PROFILE_INDEX=-1
+
+  FOUND_PROFILE=""
+
+  for profile in $PROFILES;
+  do
+    PROFILE_INDEX=$(( PROFILE_INDEX+1 ))
+
+    #
+    # Skip first line, which is only a descriptor
+    #
+    if (($PROFILE_INDEX == 0)); then
+      continue;
+    fi
+
+    #
+    # Get profile name
+    #
+
+    IFS=',' read -a data <<< "$profile"
+
+    PROFILE_NAME="${data[0]}"
+
+    if [ "$PROFILE_NAME" == "$DEVELOPER_PROVISIONING" ]; then
+      FOUND_PROFILE=$profile
+      break;
+    fi
+  done
 }
 
-#
-# If there is no profile yet, we shall create it, right?
-#
+parse_profile_uuid()
+{
+  if [ "$1" != "" ]; then
+    CURRENT_PROFILE=$1
+    FOUND_UUID=${CURRENT_PROFILE%,*}
+    FOUND_UUID=${FOUND_UUID##*,}
+  fi
 
-if [ "$FOUND_PROFILE" != "" ]; then
-  FOUND_UUID=${FOUND_PROFILE%,*}
-  FOUND_UUID=${FOUND_UUID##*,}
-
-  message "Using profile: $FOUND_UUID <b>($DEVELOPER_PROVISIONING)</b>" info success
-
-  echo '[PREPARE]: Using profile: '$FOUND_UUID
-else
-  message "Provisioning profile not found. Aborting..." warn error
-
-  echo '[PREPARE]: Provisioning profile not found. Aborting...'
-  exit 1
-fi
+  return "$FOUND_UUID"
+}
 
 #
 # Add devices to profile
 #
 
-DEVICE_INDEX=-1
+apple_add_to_provisioning()
+{
+  DEVICE_INDEX=-1
 
-for device in $DEVICES;
-do
-  DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
+  for device in $DEVICES;
+  do
+    DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
 
-  #
-  # Skip first line, which is only a descriptor
-  #
-  if (($DEVICE_INDEX == 0)); then
-    continue;
-  fi
+    #
+    # Skip first line, which is only a descriptor
+    #
 
-  IFS=',' read -a data <<< "$device"
+    if (($DEVICE_INDEX == 0)); then
+      continue;
+    fi
 
-  UDID="${data[1]}"
-  NAME="${data[0]}"
+    IFS=',' read -a data <<< "$device"
 
-  echo '[PREPARE]: Adding' $NAME '('$UDID') to' $PROFILE_NAME
+    UDID="${data[1]}"
+    NAME="${data[0]}"
 
-  message "Adding $NAME to profile: $PROFILE_NAME" debug normal
+    message "provision" "Adding $NAME ($UDID) to $PROFILE_NAME" trace normal
 
-  ADD_OUTPUT=$($CUPERTINO_PATH profiles:devices:add $PROFILE_NAME $NAME=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
+    message "provision" "Adding $NAME to profile: $PROFILE_NAME" debug normal
 
-  echo '[PREPARE]:' $ADD_OUTPUT
-done
+    ADD_OUTPUT=$($CUPERTINO_PATH profiles:devices:add $PROFILE_NAME $NAME=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
+
+    message "provision" "$ADD_OUTPUT" trace normal
+  done
+}
 
 #
 # Clean directory of any provisioning profiles, to make sure it is clean
 #
 
-find . -maxdepth 1 -type f -name "*.mobileprovision" -delete
+clean_provisioning()
+{
+  find . -maxdepth 1 -type f -name "*.mobileprovision" -delete
+}
 
 #
 # Download profile
 #
 
-message "Downloading provisioning profile..." debug normal
+apple_download_profile()
+{
+  DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
 
-echo '[PREPARE]: Downloading provisioning profile...'
+  message "provision" "$DOWNLOAD" trace normal
 
-#$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
-DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
+  PROFILE_NAME=`find . -type f -name "*.mobileprovision" | head -n1`
 
-echo '[PREPARE]: '$DOWNLOAD
+  return "$PROFILE_NAME"
+}
 
-echo '[PREPARE]: Download completed (provisioning profile).'
+find_profile_uuid()
+{
+  PROFILE_UUID=`grep UUID -A1 -a $1`
 
-PROFILE_NAME=`find . -type f -name "*.mobileprovision" | head -n1`
+  #
+  # Parse PROFILE_UUID
+  #
 
-if [[ ! -f $PROFILE_NAME ]]; then
-  message "Could not download provisioning profile. Aborting..." warn error
+  PROFILE_UUID=${PROFILE_UUID##*<string>}
+  PROFILE_UUID=${PROFILE_UUID%%</string>*}
 
-  echo '[PREPARE]: Could not download provisioning profile. Aborting...'
-  exit 1
-fi
+  return "$PROFILE_UUID"
+}
 
-#
-# Install the provisioning profile...
-#
 
-echo '[PREPARE]: Searching for UUID in profile: '$PROFILE_NAME
+find_profile()
+{
+  #
+  # Find provisioning profile UUID from existing provisioning profiles and check with name,
+  # but we need to have a developer provisioning name.
+  #
 
-PROFILE_UUID=`grep UUID -A1 -a $PROFILE_NAME`
+  PROFILE_UUID=""
 
-#
-# Parse PROFILE_UUID
-#
+  if [[ ! -z $2 ]]; then
+    OUTPUT=$2
+  else
+    OUTPUT="$HOME/Library/MobileDevice/Provisioning Profiles/"
+  fi
 
-PROFILE_UUID=${PROFILE_UUID##*<string>}
-PROFILE_UUID=${PROFILE_UUID%%</string>*}
+  #
+  # If no profile specified, use developer provisioning global profile
+  #
 
-echo '[PREPARE]: Installing profile with ID: '$PROFILE_UUID
+  if [[ ! -z $1 ]]; then
+    message "provision" "Searching for profile: $1" debug normal
 
-message "Installing profile: $PROFILE_UUID" debug normal
+    for filename in $(find $OUTPUT -iname *.mobileprovision);
+    do
+      PROFILE_NAME=`grep "<key>Name</key" -A1 -a $filename`
+      PROFILE_NAME=${PROFILE_NAME##*<string>}
+      PROFILE_NAME=${PROFILE_NAME%%</string>*}
+
+      if [[ -f $filename ]] && [ "$PROFILE" == "$PROFILE_NAME" ]; then
+        message "provision" "Found profile: $PROFILE_NAME" trace normal
+
+        PROFILE_UUID=${filename%%.*}
+        PROFILE_UUID=${PROFILE_UUID##*/}
+
+        PROFILE_FILE=$filename
+        break
+      fi
+    done
+  fi
+}
 
 #
 # Copy profile to home directoy
@@ -295,5 +358,5 @@ profile_copy()
     mkdir -p "$OUTPUT"
   fi
 
-  mv $PROFILE_NAME "$OUTPUT/$1.mobileprovision"
+  mv $1 "$OUTPUT/$2.mobileprovision"
 }
