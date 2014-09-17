@@ -159,7 +159,7 @@ if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
   HIPCHAT_SCRIPT=`find . -name hipchat.sh | head -n1`
 
   if [[ -f $HIPCHAT_SCRIPT ]]; then
-    #echo $HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE"
+    echo $HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE"
 
     OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE")
   fi

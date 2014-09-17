@@ -109,17 +109,17 @@ execute_test()
   #
 
   if [[ ! -z $TEST_SDK ]]; then
-    message "test" "Testing created build: $TEST_SDK" debug normal
-
+    
     if [[ -d $TEST_PATH ]]; then
       message "test" "Test build already exists. Cleaning..." debug normal
 
       eval $TEST_CLEAN_COMMAND > /dev/null
     fi
 
+    message "test" "Testing build: $TEST_SDK" debug normal
+
     TEST_COMMAND=$TEST_COMMAND" test -sdk $TEST_SDK"
     TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $TEST_SDK"
-    message "test" "Testing build..." debug normal
 
     #
     # Check for Rakefile, run rake test command, otherwise run xctool test
@@ -127,7 +127,7 @@ execute_test()
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
-    message "test" $TEXT_EXECUTE trace normal
+    message "test" "$TEXT_EXECUTE" trace normal
 
     NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
     NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`
@@ -135,9 +135,9 @@ execute_test()
     TEST_EXECUTE=`echo $TEST_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
 
     if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
-      message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" info success
+      message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn success
     else
-      message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" info error
+      message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
 
       eval $TEST_CLEAN_COMMAND > /dev/null
       eval $TEST_COMMAND
