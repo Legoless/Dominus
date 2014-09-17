@@ -135,9 +135,9 @@ execute_test()
     TEST_EXECUTE=`echo $TEST_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
 
     if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
-      message "test" "Test complete: <b>$SCHEME</b> ($TEST_EXECUTE)" info success
+      message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" info success
     else
-      message "test" "Test failed: <b>$SCHEME</b> ($TEST_EXECUTE)" info error
+      message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" info error
 
       eval $TEST_CLEAN_COMMAND > /dev/null
       eval $TEST_COMMAND

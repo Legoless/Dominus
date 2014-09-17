@@ -122,16 +122,22 @@ integrate()
   fi
 
   #
-  # Init and library is always run
+  # Init and library is always run on CI, since it always starts
+  # from point 0
   #
-  #init
-  #library
+
+  if [ "$CI" = true ]; then
+    init
+    library
+  fi
 
   #
   # Define actions
   #
 
   case "$ACTION" in
+    init) init;;
+    library) library;;
     build) provision;
     cert;
     project_build;;
