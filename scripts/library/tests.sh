@@ -122,8 +122,8 @@ execute_test()
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" test -sdk $TEST_SDK"
-    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $TEST_SDK"
+    TEST_COMMAND=$TEST_COMMAND" test -test-sdk $TEST_SDK"
+    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -test-sdk $TEST_SDK"
 
     #
     # Check for Rakefile, run rake test command, otherwise run xctool test
