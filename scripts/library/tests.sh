@@ -35,6 +35,10 @@ run_tests()
   if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
     message "test" "Nothing to test, aborting..." trace error
     exit 1
+  elif [[ ! -z $WORKSPACE ]]; then
+    message "test" "Testing Workspace: $WORKSPACE" debug normal
+  elif [[ ! -z $PROJECT ]]; then
+    message "test" "Testing Project: $PROJECT" debug normal
   fi
 
   set_build_path

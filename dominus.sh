@@ -105,7 +105,7 @@ integrate()
   fi
 
   #
-  # Create build and test SDK's
+  # Create build and test SDK's if both sdk and platform are specified
   #
   
   if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then

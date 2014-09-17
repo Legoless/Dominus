@@ -30,10 +30,13 @@ build()
   # Check if we have workspace or project at least
   #
   if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
-    message "Nothing to build, aborting..." warn error
-
     message "build" "Nothing to build, aborting..." trace error
     exit 1
+
+  elif [[ ! -z $WORKSPACE ]]; then
+    message "build" "Building Workspace: $WORKSPACE" debug normal
+  elif [[ ! -z $PROJECT ]]; then
+    message "build" "Building Project: $PROJECT" debug normal
   fi
 
   set_build_path
@@ -168,14 +171,10 @@ set_build_path()
   #
 
   if [[ ! -z $WORKSPACE ]]; then
-    message "build" "Building Workspace: $WORKSPACE" debug normal
-
     BUILD_PATH=$(dirname $WORKSPACE)
   fi
 
   if [[ ! -z $PROJECT ]]; then
-    message "build" "Building Project: $PROJECT" debug normal
-
     BUILD_PATH=$(dirname $PROJECT)
   fi
 }
