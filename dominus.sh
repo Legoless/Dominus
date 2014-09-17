@@ -132,8 +132,8 @@ integrate()
   #
 
   case "$ACTION" in
-    build) #provision;
-    #cert;
+    build) provision;
+    cert;
     project_build;;
     run_tests) run_tests;;
     quality) provision;
