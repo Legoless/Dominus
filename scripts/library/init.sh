@@ -46,12 +46,12 @@ init()
 
 brew_update()
 {
-  brew update
+  brew update > /dev/null
 }
 
 brew_upgrade()
 {
-  brew upgrade
+  brew upgrade > /dev/null
 
   #brew uninstall xctool
   #brew install xctool

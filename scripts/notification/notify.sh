@@ -111,9 +111,21 @@ SENDER_NAME=''
 
 if [[ ! -z $TRAVIS_COMMIT ]]; then
   SENDER_NAME=$TRAVIS_REPO_SLUG
+
+  #
+  # Cut away organization from repo slug
+  #
+  SENDER_NAME=${SENDER_NAME#*/}
+
+  #
+  # Limit sender name to 14 characters
+  #
+  SENDER_NAME=${SENDER_NAME:0:15}
   
-  MESSAGE='[<b>'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
-else
+  MESSAGE='[Build <b>#'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
+fi
+
+if [[ -z $SENDER_NAME ]]; then
   SENDER_NAME='Dominus'
 fi
 
@@ -147,7 +159,7 @@ if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
   HIPCHAT_SCRIPT=`find . -name hipchat.sh | head -n1`
 
   if [[ -f $HIPCHAT_SCRIPT ]]; then
-    echo $HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE"
+    #echo $HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE"
 
     OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE")
   fi
