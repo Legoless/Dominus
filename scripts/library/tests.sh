@@ -109,7 +109,7 @@ execute_test()
   #
 
   if [[ ! -z $TEST_SDK ]]; then
-    
+
     if [[ -d $TEST_PATH ]]; then
       message "test" "Test build already exists. Cleaning..." debug normal
 
@@ -127,7 +127,11 @@ execute_test()
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
-    message "test" "$TEXT_EXECUTE" trace normal
+    #echo $TEST_EXECUTE
+
+    #eval $TEST_COMMAND
+
+    #message "test" "$TEXT_EXECUTE" trace normal
 
     NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
     NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`
