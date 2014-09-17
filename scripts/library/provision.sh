@@ -9,7 +9,15 @@ set -e
 
 provision()
 {
-  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_USE_BUILD_NUMBER" = true ]; then
+  #
+  # If we are building for simulator, no provisioning profiles needed
+  #
+
+  if [[ $BUILD_SDK == *simulator* ]]; then
+    return 0
+  fi
+
+  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ]; then
     message "" "Loading devices from TestFlight and Apple developer portal..." debug normal
 
     message "provision" "Loading devices in TestFlight list: $TESTFLIGHT_DISTRIBUTION_LIST" trace normal
@@ -44,13 +52,15 @@ provision()
   # If the action is deploy
   #
 
-  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_USE_BUILD_NUMBER" = true ]; then
+  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ]; then
     apple_add_to_provisioning
   fi
 
   clean_provisioning
 
   message "provision" "Downloading provisioning profile..." debug normal
+
+  if 
 
   apple_download_profile
 

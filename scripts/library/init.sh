@@ -46,15 +46,15 @@ init()
 
 brew_update()
 {
-  brew update > /dev/null
+  #brew update > /dev/null
 }
 
 brew_upgrade()
 {
-  brew upgrade > /dev/null
+  #brew upgrade > /dev/null
 
-  #brew uninstall xctool
-  #brew install xctool
+  brew uninstall xctool
+  brew install xctool
 }
 
 gem_install()

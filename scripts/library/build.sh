@@ -80,7 +80,11 @@ build()
 
   BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
 
-  if [[ -z $PROFILE_UUID ]]; then
+  #
+  # If we are building for simulator, do not care about provisioning
+  #
+
+  if [[ -z $PROFILE_UUID ]] && [[ $BUILD_SDK != *simulator* ]]; then
     find_profile $DEVELOPER_PROVISIONING
   fi
 
@@ -92,7 +96,7 @@ build()
     message "build" "Searching profile UUID: $PROFILE_UUID" debug normal
 
     BUILD_COMMAND=$BUILD_COMMAND" PROVISIONING_PROFILE=$PROFILE_UUID"
-  else
+  elif [[ $BUILD_SDK != *simulator* ]]
     message "build" "Could not find provisioning profile, continuing with default setting..." info warning
   fi
 
@@ -101,7 +105,7 @@ build()
   # Easier than getting to them from command line
   #
 
-  if [[ -z $CODE_SIGN  ]]; then
+  if [[ -z $CODE_SIGN  ]] && [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "No code signing identity specified.. Searching certificates..." debug warning
 
     CODE_SIGN=$(find_signing_identity)
@@ -109,11 +113,11 @@ build()
     message "build" "Found identity: $CODE_SIGN" trace normal
   fi
 
-  if [[ ! -z $CODE_SIGN ]]; then
+  if [[ ! -z $CODE_SIGN ]] && [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "Using developer identity: <b>$CODE_SIGN</b>" info success
 
     BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
-  else
+  elif [[ $BUILD_SDK != *simulator* ]]
     message "build" "No code signing identity found. Building with default..." warn warning
   fi
 

@@ -83,10 +83,18 @@ run_tests()
 
   TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG -arch i386"
 
+  if [[ $TEST_SDK == *simulator* ]]; then
+    TEST_COMMAND=$TEST_COMMAND" -arch i386"
+  fi
+
   #
   # Prepare commands
   #
   TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH VALID_ARCHS='armv6 armv7 i386'"
+
+  if [[ $TEST_SDK == *simulator* ]]; then
+    TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='armv6 armv7 i386'"
+  fi
 
   REPORTER=$(reporter);
 

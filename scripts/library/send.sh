@@ -27,7 +27,9 @@ send()
   # Find provisioning profile
   #
 
-  find_profile
+  if [[ $BUILD_SDK != *simulator* ]]; then
+    find_profile
+  fi
 
   #
   # Fill defaults
@@ -75,7 +77,7 @@ send()
   BUILD_PATH="$BUILD_PATH/build/"
 
   if [ ! -d "$BUILD_PATH" ]; then
-    message "send" "Project uild folder does not exist yet. Aborting..." warn error
+    message "send" "Project build folder does not exist yet. Aborting..." warn error
 
     exit 1
   fi
@@ -93,106 +95,112 @@ send()
   # Search for all installed developer identities
   #
 
-  message "send" "Searching developer identities..." debug normal
-
-  #
-  # We must find ALL developer identities in provisioning profile, so we can sign with one that is correct.
-  # First get the developer keys base64 code from provisioning profile.
-  #
-
-  KEYS=`strings $PROFILE_FILE | sed -n "/<data>/,/<\/data>/p" | tr -d '\n'`
-
-  DEVELOPER_KEYS=()
-
-  while [[  $KEYS == *\<data\>* ]]
-  do
+  if [[ $BUILD_SDK != *simulator* ]]; then
+    message "send" "Searching developer identities..." debug normal
 
     #
-    # Cut first key
-    #
-    KEY=${KEYS%%</data>*}
-    KEY=${KEY#*<data>}
-
-    DECRYPTED=`echo $KEY | base64 --decode | strings`
-
-    # Cut away the parsed data
-    KEYS=${KEYS#*</data>}
-
-    DECRYPTED=${DECRYPTED#*iPhone}
-    DECRYPTED=${DECRYPTED%%)*}
-    DECRYPTED=$DECRYPTED')'
-    DECRYPTED='iPhone'$DECRYPTED
-
-    DECRYPTED="${DECRYPTED#"${DECRYPTED%%[![:space:]]*}"}"
-    DECRYPTED="${DECRYPTED%"${DECRYPTED##*[![:space:]]}"}"
-
-  #echo '[SEND]: Profile key' $DECRYPTED
-
-    DEVELOPER_KEYS+=($DECRYPTED)
-  done;
-
-  #
-  # We got developer keys in profile, find the correct key to sign now
-  #
-
-  IDENTITIES=`security find-identity -v | grep "iPhone"`
-
-  IDENTITY=""
-
-  for ident in $IDENTITIES;
-  do
-    DEV_NAME=${ident#*\"}
-    DEV_NAME=${DEV_NAME%\"*}
-    DEV_NAME="${DEV_NAME#"${DEV_NAME%%[![:space:]]*}"}"
-    DEV_NAME="${DEV_NAME%"${DEV_NAME##*[![:space:]]}"}"
-
-  #echo '[SEND]: Identity:' $DEV_NAME
-
-    #
-    # Go through developer keys and find a matching developer name
+    # We must find ALL developer identities in provisioning profile, so we can sign with one that is correct.
+    # First get the developer keys base64 code from provisioning profile.
     #
 
-    IFS=$'\n'
+    KEYS=`strings $PROFILE_FILE | sed -n "/<data>/,/<\/data>/p" | tr -d '\n'`
 
-    for dev_key in "${DEVELOPER_KEYS[@]}";
+    DEVELOPER_KEYS=()
+
+    while [[  $KEYS == *\<data\>* ]]
     do
-  #echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
 
-      if [ "$dev_key" == "$DEV_NAME" ]; then
-        IDENTITY=$DEV_NAME
-        break
+      #
+      # Cut first key
+      #
+      KEY=${KEYS%%</data>*}
+      KEY=${KEY#*<data>}
+
+      DECRYPTED=`echo $KEY | base64 --decode | strings`
+
+      # Cut away the parsed data
+      KEYS=${KEYS#*</data>}
+
+      DECRYPTED=${DECRYPTED#*iPhone}
+      DECRYPTED=${DECRYPTED%%)*}
+      DECRYPTED=$DECRYPTED')'
+      DECRYPTED='iPhone'$DECRYPTED
+
+      DECRYPTED="${DECRYPTED#"${DECRYPTED%%[![:space:]]*}"}"
+      DECRYPTED="${DECRYPTED%"${DECRYPTED##*[![:space:]]}"}"
+
+    #echo '[SEND]: Profile key' $DECRYPTED
+
+      DEVELOPER_KEYS+=($DECRYPTED)
+    done;
+
+    #
+    # We got developer keys in profile, find the correct key to sign now
+    #
+
+    IDENTITIES=`security find-identity -v | grep "iPhone"`
+
+    IDENTITY=""
+
+    for ident in $IDENTITIES;
+    do
+      DEV_NAME=${ident#*\"}
+      DEV_NAME=${DEV_NAME%\"*}
+      DEV_NAME="${DEV_NAME#"${DEV_NAME%%[![:space:]]*}"}"
+      DEV_NAME="${DEV_NAME%"${DEV_NAME##*[![:space:]]}"}"
+
+    #echo '[SEND]: Identity:' $DEV_NAME
+
+      #
+      # Go through developer keys and find a matching developer name
+      #
+
+      IFS=$'\n'
+
+      for dev_key in "${DEVELOPER_KEYS[@]}";
+      do
+    #echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
+
+        if [ "$dev_key" == "$DEV_NAME" ]; then
+          IDENTITY=$DEV_NAME
+          break
+        fi
+
+      done
+
+      #
+      # Stop looping if found key
+      #
+
+      if [[ ! -z $IDENTITY ]]; then
+        break;
       fi
-
     done
 
-    #
-    # Stop looping if found key
-    #
+    if [[ -z $IDENTITY ]]; then
+      message "send" "No matching code signing identity found. Aborting..." warn error
 
-    if [[ ! -z $IDENTITY ]]; then
-      break;
+      exit 1
     fi
-  done
 
-  if [[ -z $IDENTITY ]]; then
-    message "send" "No matching code signing identity found. Aborting..." warn error
+    message "send" "Found developer identity:' $IDENTITY" trace normal
 
-    exit 1
+    #
+    # Sign and package
+    #
+
+    message "send" "Signing $APPNAME with $IDENTITY..." debug normal
+
+    xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
+
+    message "send" "Creating dSYM symbol ZIP package..." trace normal
+
+    zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
+  else
+    message "send" "Creating iOS Simulator ZIP package..." trace normal
+
+    zip -r -q -9 "$BUILD_PATH/$APPNAME.app.zip" "$BUILD_PATH/$APPNAME.app"
   fi
-
-  message "send" "Found developer identity:' $IDENTITY" trace normal
-
-  #
-  # Sign and package
-  #
-
-  message "send" "Signing $APPNAME with $IDENTITY..." debug normal
-
-  xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
-
-  message "send" "Creating dSYM symbol ZIP package..." trace normal
-
-  zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
 
   #
   # Add release notes
@@ -202,24 +210,24 @@ send()
     RELEASE_NOTES="$APPNAME Automated Build"
   fi
 
-  echo '[SEND]: Uploading package to TestFlight...'
-
   #
   # Upload to TestFlight
   #
 
-  message "Uploading package to TestFlight..." debug normal
+  if [[ $BUILD_SDK != *simulator* ]]; then
+    message "send" "Uploading package to TestFlight..." debug normal
 
-  TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
-  -F file="@$BUILD_PATH/$APPNAME.ipa" \
-  -F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
-  -F api_token="$API_TOKEN" \
-  -F team_token="$TEAM_TOKEN" \
-  -F distribution_lists="$DISTRIBUTION_LISTS" \
-  -F notes="$RELEASE_NOTES" -v \
-  -F notify="TRUE" -w "%{http_code}"`
+    TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
+    -F file="@$BUILD_PATH/$APPNAME.ipa" \
+    -F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
+    -F api_token="$API_TOKEN" \
+    -F team_token="$TEAM_TOKEN" \
+    -F distribution_lists="$DISTRIBUTION_LISTS" \
+    -F notes="$RELEASE_NOTES" -v \
+    -F notify="TRUE" -w "%{http_code}"`
 
-  message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+    message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+  fi
 }
 
 construct_release_notes()
