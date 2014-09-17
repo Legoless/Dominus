@@ -81,12 +81,12 @@ run_tests()
     TEST_COMMAND="xctool -project $PROJECT"
   fi
 
-  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
+  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG -arch i386"
 
   #
   # Prepare commands
   #
-  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
+  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH VALID_ARCHS='armv6 armv7 i386'"
 
   REPORTER=$(reporter);
 
@@ -122,8 +122,8 @@ execute_test()
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" test -test-sdk $TEST_SDK"
-    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -test-sdk $TEST_SDK"
+    TEST_COMMAND=$TEST_COMMAND" test -sdk $TEST_SDK"
+    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $TEST_SDK"
 
     #
     # Check for Rakefile, run rake test command, otherwise run xctool test
@@ -147,8 +147,10 @@ execute_test()
     else
       message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
 
-      eval $TEST_CLEAN_COMMAND > /dev/null
-      eval $TEST_COMMAND
+      echo $TEST_COMMAND
+
+      #eval $TEST_CLEAN_COMMAND > /dev/null
+      #eval $TEST_COMMAND
 
       exit 1
     fi
