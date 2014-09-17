@@ -145,10 +145,10 @@ integrate()
     quality) provision;
     cert;
     project_build;;
-    deploy) provision;
-    cert;
-    project_build;
-    run_tests;
+    deploy) #provision;
+    #cert;
+    #project_build;
+    #run_tests;
     send;;
     *) exit 1;;
   esac

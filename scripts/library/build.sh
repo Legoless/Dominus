@@ -96,7 +96,7 @@ build()
     message "build" "Searching profile UUID: $PROFILE_UUID" debug normal
 
     BUILD_COMMAND=$BUILD_COMMAND" PROVISIONING_PROFILE=$PROFILE_UUID"
-  elif [[ $BUILD_SDK != *simulator* ]]
+  elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "Could not find provisioning profile, continuing with default setting..." info warning
   fi
 
@@ -117,7 +117,7 @@ build()
     message "build" "Using developer identity: <b>$CODE_SIGN</b>" info success
 
     BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
-  elif [[ $BUILD_SDK != *simulator* ]]
+  elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "No code signing identity found. Building with default..." warn warning
   fi
 

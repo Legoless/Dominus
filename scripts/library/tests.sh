@@ -155,10 +155,10 @@ execute_test()
     else
       message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
 
-      echo $TEST_COMMAND
+      #echo $TEST_COMMAND
 
-      #eval $TEST_CLEAN_COMMAND > /dev/null
-      #eval $TEST_COMMAND
+      eval $TEST_CLEAN_COMMAND > /dev/null
+      eval $TEST_COMMAND
 
       exit 1
     fi

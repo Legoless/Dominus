@@ -13,7 +13,15 @@ send()
     message "send" "Skipping deployment: $TRAVIS_BRANCH branch not deployed (requires: $DEPLOY_BRANCH)." debug warning
 
     return
- fi
+  fi
+
+  if [[ ! -z $TEST_CLEAN_COMMAND ]]; then
+    #
+    # Clean test files
+    #
+
+    eval $TEST_CLEAN_COMMAND > /dev/null
+  fi
 
   PROFILE=$DEVELOPER_PROVISIONING
   API_TOKEN=$TESTFLIGHT_API_TOKEN
@@ -74,7 +82,7 @@ send()
   # Build path
   #
 
-  BUILD_PATH="$BUILD_PATH/build/"
+  BUILD_PATH="$BUILD_PATH/build"
 
   if [ ! -d "$BUILD_PATH" ]; then
     message "send" "Project build folder does not exist yet. Aborting..." warn error
@@ -86,10 +94,12 @@ send()
   # Find built .app file
   #
 
-  APP_PATH=$(find_file '*.app')
+  APP_PATH=$(find_dir '*.app')
 
-  APPNAME=$(basename $APP_PATH)
-  APPNAME=${APPNAME%.*}
+  if [[ ! -z $APP_PATH ]]; then
+    APP_NAME=$(basename $APP_PATH)
+    APP_NAME=${APP_NAME%.*}
+  fi
 
   #
   # Search for all installed developer identities
@@ -103,11 +113,15 @@ send()
     # First get the developer keys base64 code from provisioning profile.
     #
 
+    if [[ -z $PROFILE_FILE ]]; then
+      find_profile $DEVELOPER_PROVISIONING
+    fi
+
     KEYS=`strings $PROFILE_FILE | sed -n "/<data>/,/<\/data>/p" | tr -d '\n'`
 
     DEVELOPER_KEYS=()
 
-    while [[  $KEYS == *\<data\>* ]]
+    while [[ $KEYS == *\<data\>* ]]
     do
 
       #
@@ -129,7 +143,7 @@ send()
       DECRYPTED="${DECRYPTED#"${DECRYPTED%%[![:space:]]*}"}"
       DECRYPTED="${DECRYPTED%"${DECRYPTED##*[![:space:]]}"}"
 
-    #echo '[SEND]: Profile key' $DECRYPTED
+      #echo '[SEND]: Profile key' $DECRYPTED
 
       DEVELOPER_KEYS+=($DECRYPTED)
     done;
@@ -149,7 +163,7 @@ send()
       DEV_NAME="${DEV_NAME#"${DEV_NAME%%[![:space:]]*}"}"
       DEV_NAME="${DEV_NAME%"${DEV_NAME##*[![:space:]]}"}"
 
-    #echo '[SEND]: Identity:' $DEV_NAME
+      #echo '[SEND]: Identity:' $DEV_NAME
 
       #
       # Go through developer keys and find a matching developer name
@@ -159,7 +173,7 @@ send()
 
       for dev_key in "${DEVELOPER_KEYS[@]}";
       do
-    #echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
+        #echo '[SEND]: Comparing:' $dev_key 'to' $DEV_NAME
 
         if [ "$dev_key" == "$DEV_NAME" ]; then
           IDENTITY=$DEV_NAME
@@ -189,17 +203,19 @@ send()
     # Sign and package
     #
 
-    message "send" "Signing $APPNAME with $IDENTITY..." debug normal
+    message "send" "Signing $APP_NAME with $IDENTITY..." debug normal
 
-    xcrun -sdk iphoneos PackageApplication "$BUILD_PATH/$APPNAME.app" -o "$BUILD_PATH/$APPNAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
+    xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
     message "send" "Creating dSYM symbol ZIP package..." trace normal
 
-    zip -r -q -9 "$BUILD_PATH/$APPNAME.app.dSYM.zip" "$BUILD_PATH/$APPNAME.app.dSYM"
+    package "$APP_PATH.dSYM"
   else
     message "send" "Creating iOS Simulator ZIP package..." trace normal
 
-    zip -r -q -9 "$BUILD_PATH/$APPNAME.app.zip" "$BUILD_PATH/$APPNAME.app"
+    package "$APP_PATH"
+
+    message "send" "iOS Simulator package created at: $BUILD_PATH/$APP_NAME.app.zip" trace normal
   fi
 
   #
@@ -207,7 +223,7 @@ send()
   #
 
   if [[ -z $RELEASE_NOTES ]]; then
-    RELEASE_NOTES="$APPNAME Automated Build"
+    RELEASE_NOTES="$APP_NAME Automated Build"
   fi
 
   #
@@ -218,15 +234,15 @@ send()
     message "send" "Uploading package to TestFlight..." debug normal
 
     TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
-    -F file="@$BUILD_PATH/$APPNAME.ipa" \
-    -F dsym="@$BUILD_PATH/$APPNAME.app.dSYM.zip" \
+    -F file="@$BUILD_PATH/$APP_NAME.ipa" \
+    -F dsym="@$APP_PATH.dSYM.zip" \
     -F api_token="$API_TOKEN" \
     -F team_token="$TEAM_TOKEN" \
     -F distribution_lists="$DISTRIBUTION_LISTS" \
     -F notes="$RELEASE_NOTES" -v \
     -F notify="TRUE" -w "%{http_code}"`
 
-    message "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
   fi
 }
 
@@ -242,6 +258,8 @@ construct_release_notes()
   # Append app name
   #
 
+  echo 'LOL'
+
   XCODE_PROJECT=`find . -iname *.xcodeproj -type d -maxdepth 2 | head -1`
 
   if [[ ! -z $XCODE_PROJECT ]]; then
@@ -252,7 +270,7 @@ construct_release_notes()
     PREFIX='PRODUCT_NAME = '
     PROJECT_NAME=${PROJECT_NAME#$PREFIX}
 
-    RELEASE_NOTES=$PROJECT_NAME
+    RELEASE_NOTES="$PROJECT_NAME"
   fi
 
   # Find a correct property list
@@ -276,8 +294,6 @@ construct_release_notes()
   #
 
   if [[ ! -z $PROPERTY_LIST ]]; then
-    echo '[DOMINUS]: Creating release notes from property list:' $PROPERTY_LIST
-
     APP_VERSION=`/usr/libexec/plistbuddy -c Print:CFBundleShortVersionString: $PROPERTY_LIST`
 
     #
@@ -286,7 +302,7 @@ construct_release_notes()
 
     BUNDLE_NAME=`/usr/libexec/plistbuddy -c Print:CFBundleDisplayName: $PROPERTY_LIST`
 
-    if [[ ! -z $BUNDLE_NAME ]]; then
+    if [[ ! -z $BUNDLE_NAME ]] && [[] "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
       RELEASE_NOTES=$BUNDLE_NAME
     fi
 
@@ -339,5 +355,5 @@ construct_release_notes()
     done
   fi
 
-  return "$RELEASE_NOTES"
+  echo "$RELEASE_NOTES"
 }

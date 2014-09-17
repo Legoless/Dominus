@@ -60,8 +60,6 @@ provision()
 
   message "provision" "Downloading provisioning profile..." debug normal
 
-  if 
-
   apple_download_profile
 
   #PROFILE_NAME=$(apple_download_profile)
