@@ -59,7 +59,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Code formatting checker (Obj-Clean)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
-- Test report and code coverage storing
+- Test report and code coverage upload
 - Use Travis Build Matrix for Parallelizing testing builds (done)
 
 Contact
