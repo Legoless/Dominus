@@ -28,7 +28,7 @@ The easiest way to add Dominus to a project just add a Git submodule. Make sure 
 
 # Configuration file
 
-The file dominus.cfg is so called configuration file, it stores all project related information locally.
+The file `dominus.cfg` is so called configuration file, it stores all project related information locally.
 
 **Make sure to add configuration file to .gitignore, so it is not commited to the repository as it can contain sensitive data.** On Travis always use encrypted environment variables (can be done with travis encrypt command) instead.
 
