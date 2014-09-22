@@ -19,7 +19,7 @@ ARGF.each do |line|
     # Parse testing events
     #
     
-    puts line
+    #puts line
     
     if ((xcodeEvent['event'].include? "test") )
         testing = true
