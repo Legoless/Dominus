@@ -311,6 +311,8 @@ execute_build()
   APP_PATH=$(find_dir '*.app')
 
   if [[ -z $APP_PATH ]]; then
+    echo '[BUILD]: Empty app path...'
+
     NO_ERRORS=''
     NO_WARNINGS=''
   fi
