@@ -128,7 +128,7 @@ integrate()
 
   if [ "$CI" = true ] && [ "$ACTION" != "run_tests" ]; then
     init
-    library
+    #library
   fi
 
   #
