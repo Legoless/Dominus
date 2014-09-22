@@ -6,8 +6,10 @@ Dominus is a world class command line tool to improve workflow with developing i
 # Features
 
 - Loading new devices from TestFlight to Apple Developer Portal
+- Full configuration
 - Updating provisioning profiles
 - Building and testing application with automatic scheme and target detection
+  - Multiple targets, schemes, simulators and SDK's available 
 - Quality control and static analysis with [Faux Pas](http://fauxpasapp.com/)
 - Deployment to TestFlight
   - Automatic build project increase (on Travis CI only)
@@ -26,7 +28,7 @@ The easiest way to add Dominus to a project just add a Git submodule. Make sure 
 
 # Configuration file
 
-The file dominus.cfg is so called configuration file, it stores all project related information locally.
+The file `dominus.cfg` is so called configuration file, it stores all project related information locally.
 
 **Make sure to add configuration file to .gitignore, so it is not commited to the repository as it can contain sensitive data.** On Travis always use encrypted environment variables (can be done with travis encrypt command) instead.
 
@@ -57,8 +59,8 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Code formatting checker (Obj-Clean)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
-- Test report and code coverage storing
-- Use Travis Build Matrix for Parallelizing testing builds
+- Test report and code coverage upload
+- Use Travis Build Matrix for Parallelizing testing builds (done)
 
 Contact
 ======
