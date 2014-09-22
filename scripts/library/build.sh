@@ -312,6 +312,7 @@ execute_build()
 
   if [[ -z $APP_PATH ]]; then
     NO_ERRORS=''
+    NO_WARNINGS=''
   fi
 
   #

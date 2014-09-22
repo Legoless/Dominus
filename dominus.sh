@@ -142,9 +142,7 @@ integrate()
     cert;
     project_build;;
     run_tests) run_tests;;
-    quality) provision;
-    cert;
-    project_build;;
+    quality) quality;;
     deploy) provision;
     cert;
     project_build;
