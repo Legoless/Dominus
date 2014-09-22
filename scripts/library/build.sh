@@ -318,20 +318,18 @@ execute_build()
   #
   # Build succeeded if there are no warnings or we allow warnings
   #
-  if [[ ! -z $NO_ERRORS ]] && ([[ ! -z $NO_WARNINGS ]] || [ "$DEPLOY_ALLOW_WARNINGS_BUILDS" = true ]); then
+  if [[ ! -z $NO_ERRORS ]] && ([[ ! -z $NO_WARNINGS ]] || [ "$DEPLOY_ALLOW_WARNING_BUILDS" = true ]); then
     if [[ ! -z $NO_WARNINGS ]]; then
       message "build" "Build completed (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" info success
     else
       message "build" "Build completed with warnings (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
     fi
   else
-    if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNINGS_BUILDS" = false ]; then
+    if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNING_BUILDS" = false ]; then
       message "build" "Build failed - <b>warnings not allowed</b> (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
     else
       message "build" "Build failed (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
     fi
-
-    echo 'TESTING: '$NO_ERRORS
 
     #
     # Rerun build script with normal formatter, so we get a nice, clean output with exact error,
