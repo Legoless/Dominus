@@ -286,6 +286,7 @@ execute_build()
   set +e
 
   BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+  #echo $BUILD_COMMAND_REPORTER
 
   #
   # Now subshell will exit the script
@@ -302,6 +303,16 @@ execute_build()
   NO_WARNINGS=`echo $BUILD_EXECUTE | grep ' 0 warnings' | head -1`
 
   BUILD_EXECUTE=`echo $BUILD_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
+
+  #
+  # Find built .app file, check for successful build
+  #
+
+  APP_PATH=$(find_dir '*.app')
+
+  if [[ -z $APP_PATH ]]; then
+    NO_ERRORS=''
+  fi
 
   #
   # Build succeeded if there are no warnings or we allow warnings
