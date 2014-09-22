@@ -311,8 +311,6 @@ execute_build()
   APP_PATH=$(find_dir '*.app')
 
   if [[ -z $APP_PATH ]]; then
-    echo '[BUILD]: Empty app path...'
-
     NO_ERRORS=''
     NO_WARNINGS=''
   fi
@@ -332,6 +330,8 @@ execute_build()
     else
       message "build" "Build failed (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
     fi
+
+    echo 'TESTING: '$NO_ERRORS
 
     #
     # Rerun build script with normal formatter, so we get a nice, clean output with exact error,
