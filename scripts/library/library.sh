@@ -13,16 +13,14 @@ library()
   # Search for podfile
   #
 
-  PODFILE_PATH=$(find_file "podfile")
+  PODFILE_PATH=$(find_file 'podfile')
 
   #
   # If found, install pods
   #
 
   if [[ ! -z $PODFILE_PATH ]]; then
-    message "Installing pods: $PODFILE_PATH" debug normal
-
-    message "pods" "[PODS]: Installing pods: $PODFILE_PATH" trace normal
+    message "library" "Installing pods: $PODFILE_PATH" debug normal
 
     CURRENT_DIR=$(pwd)
 
@@ -32,8 +30,8 @@ library()
     pod install
     cd ${CURRENT_DIR}
 
-    message "" "CocoaPods finished installation." debug success
+    message "library" "CocoaPods finished installation." debug success
   else
-    message "" "Podfile not found. CocoaPods not installed." info warning
+    message "library" "Podfile not found. CocoaPods not installed." info warning
   fi
 }

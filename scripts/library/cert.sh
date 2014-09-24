@@ -7,31 +7,32 @@ set -e
 # Public functions (only ones with messages in)
 #
 
-certificate_install()
+cert()
 {
-  if [ "$ACTION" != "test" ]; then
-
-    LOGINED_USER=$(whoami)
-
-    message "cert" "Creating keychain for $LOGINED_USER"
-
-    keychain_create $LOGINED_USER
-
-    APPLE_CERT_PATH=$(find_file *.cer)
-    DEVELOPER_CERT_PATH=$(find_file *.p12)
-
-    message "cert" "Importing Apple certificate at: $APPLE_CERT_PATH" debug normal
-
-    keychain_certificate_import $APPLE_CERT_PATH
-
-    message "cert" "Apple certificate imported." trace normal
-
-    message "cert" "Importing Developer certificate at: $DEVELOPER_CERT_PATH" debug normal
-
-    keychain_certificate_import $DEVELOPER_CERT_PATH $DEVELOPER_IDENTITY_PASSWORD
-
-    message "cert" "Developer certificate imported." trace normal
+  if [[ $BUILD_SDK == *simulator* ]]; then
+    return 0
   fi
+
+  LOGINED_USER=$(whoami)
+
+  message "cert" "Creating keychain for $LOGINED_USER"
+
+  keychain_create $LOGINED_USER
+
+  APPLE_CERT_PATH=$(find_file *.cer)
+  DEVELOPER_CERT_PATH=$(find_file *.p12)
+
+  message "cert" "Importing Apple certificate at: $APPLE_CERT_PATH" debug normal
+
+  keychain_certificate_import $APPLE_CERT_PATH
+
+  message "cert" "Apple certificate imported." trace normal
+
+  message "cert" "Importing Developer certificate at: $DEVELOPER_CERT_PATH" debug normal
+
+  keychain_certificate_import $DEVELOPER_CERT_PATH $DEVELOPER_IDENTITY_PASSWORD
+
+  message "cert" "Developer certificate imported." trace normal
 }
 
 #
@@ -72,5 +73,5 @@ find_signing_identity()
   IDENTITY=${IDENTITY%%\"*}
   IDENTITY="\"iPhone$IDENTITY\""
 
-  return "$IDENTITY"
+  echo "$IDENTITY"
 }

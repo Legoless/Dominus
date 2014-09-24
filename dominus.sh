@@ -105,14 +105,14 @@ integrate()
   fi
 
   #
-  # Create build and test SDK's
+  # Create build and test SDK's if both sdk and platform are specified
   #
   
   if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then
     BUILD_SDK=$PLATFORM
     TEST_SDK=$PLATFORM
 
-    if [ "$PLATFORM" == "iphone"]; then
+    if [ "$PLATFORM" == "iphone" ]; then
       BUILD_SDK=$BUILD_SDK'os'
       TEST_SDK=$TEST_SDK'simulator'
     fi
@@ -122,23 +122,27 @@ integrate()
   fi
 
   #
-  # Init and library is always run
+  # Init and library is always run on CI, since it always starts
+  # from point 0
   #
-  init
-  library
+
+  if [ "$CI" = true ] && [ "$ACTION" != "run_tests" ]; then
+    init
+    #library
+  fi
 
   #
   # Define actions
   #
 
   case "$ACTION" in
+    init) init;;
+    library) library;;
     build) provision;
     cert;
     project_build;;
     run_tests) run_tests;;
-    quality) provision;
-    cert;
-    project_build;;
+    quality) quality;;
     deploy) provision;
     cert;
     project_build;

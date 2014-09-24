@@ -61,6 +61,11 @@ end
 #
 
 if (testing)
+
+    if (errors > 0)
+        testError += errors
+    end 
+
     puts " #{testPassed} passed, #{testFailed} failed, #{testError} errored, #{testCount} total"
 else
     puts " #{errors} errors, #{warnings} warnings"

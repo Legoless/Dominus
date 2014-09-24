@@ -30,10 +30,13 @@ build()
   # Check if we have workspace or project at least
   #
   if [[ -z $WORKSPACE ]] && [[ -z $PROJECT ]]; then
-    message "Nothing to build, aborting..." warn error
-
     message "build" "Nothing to build, aborting..." trace error
     exit 1
+
+  elif [[ ! -z $WORKSPACE ]]; then
+    message "build" "Building Workspace: $WORKSPACE" debug normal
+  elif [[ ! -z $PROJECT ]]; then
+    message "build" "Building Project: $PROJECT" debug normal
   fi
 
   set_build_path
@@ -77,7 +80,13 @@ build()
 
   BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
 
-  find_profile
+  #
+  # If we are building for simulator, do not care about provisioning
+  #
+
+  if [[ -z $PROFILE_UUID ]] && [[ $BUILD_SDK != *simulator* ]]; then
+    find_profile $DEVELOPER_PROVISIONING
+  fi
 
   #
   # Add profile build command
@@ -87,7 +96,7 @@ build()
     message "build" "Searching profile UUID: $PROFILE_UUID" debug normal
 
     BUILD_COMMAND=$BUILD_COMMAND" PROVISIONING_PROFILE=$PROFILE_UUID"
-  else
+  elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "Could not find provisioning profile, continuing with default setting..." info warning
   fi
 
@@ -96,7 +105,7 @@ build()
   # Easier than getting to them from command line
   #
 
-  if [[ -z $CODE_SIGN  ]]; then
+  if [[ -z $CODE_SIGN  ]] && [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "No code signing identity specified.. Searching certificates..." debug warning
 
     CODE_SIGN=$(find_signing_identity)
@@ -104,11 +113,11 @@ build()
     message "build" "Found identity: $CODE_SIGN" trace normal
   fi
 
-  if [[ ! -z $CODE_SIGN ]]; then
-    message "build" "Using developer identity: <b>$IDENTITY</b>" info success
+  if [[ ! -z $CODE_SIGN ]] && [[ $BUILD_SDK != *simulator* ]]; then
+    message "build" "Using developer identity: <b>$CODE_SIGN</b>" info success
 
     BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
-  else
+  elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "No code signing identity found. Building with default..." warn warning
   fi
 
@@ -151,14 +160,12 @@ build()
   # Run build command
   #
 
-  BUILD_COMMAND=$BUILD_COMMAND" build"
-  BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build"
+  BUILD_COMMAND=$BUILD_COMMAND" build -sdk $BUILD_SDK"
+  BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build -sdk $BUILD_SDK"
 
   message "build" "Building project with xctool..." trace normal
 
-  if [ "$ACTION" != "test" ]; then
-    execute_build
-  fi
+  execute_build
 }
 
 set_build_path()
@@ -168,14 +175,10 @@ set_build_path()
   #
 
   if [[ ! -z $WORKSPACE ]]; then
-    message "build" "Building Workspace: $WORKSPACE" debug normal
-
     BUILD_PATH=$(dirname $WORKSPACE)
   fi
 
   if [[ ! -z $PROJECT ]]; then
-    message "build" "Building Project: $PROJECT" debug normal
-
     BUILD_PATH=$(dirname $PROJECT)
   fi
 }
@@ -283,6 +286,7 @@ execute_build()
   set +e
 
   BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+  #echo $BUILD_COMMAND_REPORTER
 
   #
   # Now subshell will exit the script
@@ -301,21 +305,30 @@ execute_build()
   BUILD_EXECUTE=`echo $BUILD_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
 
   #
+  # Find built .app file, check for successful build
+  #
+
+  APP_PATH=$(find_dir '*.app')
+
+  if [[ -z $APP_PATH ]]; then
+    NO_ERRORS=''
+    NO_WARNINGS=''
+  fi
+
+  #
   # Build succeeded if there are no warnings or we allow warnings
   #
-  if [[ ! -z $NO_ERRORS ]] && ([[ ! -z $NO_WARNINGS ]] || [ "$DEPLOY_ALLOW_WARNINGS_BUILDS" = true ]); then
+  if [[ ! -z $NO_ERRORS ]] && ([[ ! -z $NO_WARNINGS ]] || [ "$DEPLOY_ALLOW_WARNING_BUILDS" = true ]); then
     if [[ ! -z $NO_WARNINGS ]]; then
-      message "build" "Build completed: <b>$SCHEME</b> ($BUILD_EXECUTE)" info success
+      message "build" "Build completed (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" info success
     else
-      message "build" "Build completed with warnings: <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
+      message "build" "Build completed with warnings (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
     fi
-
-    message "build" "Build completed: $SCHEME ($BUILD_EXECUTE)"
   else
-    if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNINGS_BUILDS" = false ]; then
-      message "build" "Build failed (<b>warnings not allowed</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
+    if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNING_BUILDS" = false ]; then
+      message "build" "Build failed - <b>warnings not allowed</b> (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
     else
-      message "build" "Build failed: <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
+      message "build" "Build failed (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
     fi
 
     #
