@@ -274,33 +274,22 @@ construct_release_notes()
   fi
 
   # Find a correct property list
-  PROPERTY_LIST=''
-
-  for filename in $(find . -iname *-Info.plist);
-  do
-
-    #
-    # Select property list if it does not contain Tests or Pods
-    #
-
-    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]]; then
-      PROPERTY_LIST=$filename
-      break
-    fi
-  done
+  PROPERTY_LIST=$(find_property_list)
 
   #
   # Append version and build to release notes
   #
 
   if [[ ! -z $PROPERTY_LIST ]]; then
-    APP_VERSION=`/usr/libexec/plistbuddy -c Print:CFBundleShortVersionString: $PROPERTY_LIST`
+    message "send" "Creating release notes from property list: $PROPERTY_LIST"
+
+    APP_VERSION=$(read_property $PROPERTY_LIST CFBundleShortVersionString)
 
     #
     # Override bundle name here if we have it
     #
 
-    BUNDLE_NAME=`/usr/libexec/plistbuddy -c Print:CFBundleDisplayName: $PROPERTY_LIST`
+    BUNDLE_NAME=$(read_property $PROPERTY_LIST CFBundleDisplayName)
 
     if [[ ! -z $BUNDLE_NAME ]] && [[] "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
       RELEASE_NOTES=$BUNDLE_NAME
@@ -311,7 +300,7 @@ construct_release_notes()
     if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
       RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
     else
-      PLIST_BUILD_NUMBER=`/usr/libexec/plistbuddy -c Print:CFBundleVersion: $PROPERTY_LIST`
+      PLIST_BUILD_NUMBER=$(read_property $PROPERTY_LIST CFBundleVersion)
       RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
     fi
 
@@ -355,5 +344,33 @@ construct_release_notes()
     done
   fi
 
-  echo "$RELEASE_NOTES"
+  return "$RELEASE_NOTES"
+}
+
+find_property_list()
+{
+  # Find a correct property list
+  PROPERTY_LIST=''
+
+  for filename in $(find . -iname *-Info.plist);
+  do
+
+    #
+    # Select property list if it does not contain Tests or Pods
+    #
+
+    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]]; then
+      PROPERTY_LIST=$filename
+      break
+    fi
+  done
+
+  echo $PROPERTY_LIST
+}
+
+read_property()
+{
+  PROPERTY=`/usr/libexec/plistbuddy -c Print:$2: $1`
+
+  echo $PROPERTY
 }

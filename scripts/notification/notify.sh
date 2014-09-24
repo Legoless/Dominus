@@ -91,6 +91,16 @@ if [[ ! -z $PREFIX ]]; then
   PREFIX=$(echo $PREFIX | tr '[:lower:]' '[:upper:]')
 
   LOCAL_MESSAGE='['$PREFIX']: '$LOCAL_MESSAGE
+
+  #
+  # Write report log at the same time
+  #
+
+  if [ ! -d './report' ]; then
+    mkdir './report'
+  fi
+
+  echo $LOCAL_MESSAGE > './report/progress.log'
 fi
 
 echo $LOCAL_MESSAGE

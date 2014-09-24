@@ -158,7 +158,7 @@ execute_test()
       #echo $TEST_COMMAND
 
       eval $TEST_CLEAN_COMMAND > /dev/null
-      eval $TEST_COMMAND
+      eval $TEST_COMMAND' -reporter junit:./report/test_report.xml'
 
       exit 1
     fi
