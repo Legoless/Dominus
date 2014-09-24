@@ -263,7 +263,7 @@ set_build_number()
     if [ "$2" = true ]; then
       message "build" "Reading project build number..." trace normal
 
-      PROJECT_BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" $filename)
+      PROJECT_BUILD_NUMBER=$(read_property $filename CFBundleVersion)
 
       BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + BUILD_NUMBER))
 
