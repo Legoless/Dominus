@@ -143,7 +143,7 @@ execute_test()
       message "test" "Test failed: <b>$SCHEME</b> ($TEST_EXECUTE)" info error
 
       eval $TEST_CLEAN_COMMAND > /dev/null
-      eval $TEST_COMMAND
+      eval $TEST_COMMAND' -reporter junit:./report/test_report.xml'
 
       exit 1
     fi

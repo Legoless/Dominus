@@ -101,6 +101,16 @@ if [[ ! -z $PREFIX ]]; then
   LOCAL_MESSAGE='['$PREFIX']: '$LOCAL_MESSAGE
 
   echo $LOCAL_MESSAGE
+
+  #
+  # Write report log at the same time
+  #
+
+  if [ ! -d './Report' ]; then
+    mkdir './Report'
+  fi
+
+  echo $LOCAL_MESSAGE > './Report/Progress.log'
 fi
 
 if [ $NUM_GLOBAL_LEVEL -lt $NUM_MSG_LEVEL ]; then

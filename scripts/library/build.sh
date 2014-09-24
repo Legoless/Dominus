@@ -324,7 +324,7 @@ execute_build()
     #
 
     eval $BUILD_CLEAN_COMMAND > /dev/null
-    eval $BUILD_COMMAND
+    eval $BUILD_COMMAND' -reporter junit:./report/build_report.xml'
 
     exit 1
   fi

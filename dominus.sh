@@ -14,15 +14,11 @@ load()
 {
   for filename in $(find . -iname '*.sh' -path "*/utility/*");
   do
-echo $filename
-
     source $filename
   done
 
   for filename in $(find . -iname '*.sh' -path "*/library/*");
   do
-echo $filename
-    
     source $filename
   done
 }
