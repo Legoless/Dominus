@@ -29,6 +29,8 @@ collect_reports()
   	gem_install "travis-artifacts"
   fi
 
+  message "report" "Preparing path to upload reports..." trace normal
+
   #
   # Create result path to where on server we will store reports
   #
@@ -84,7 +86,7 @@ create_result_path()
 
   RESULT_PATH=$RESULT_PATH'/'
 
-  echo $RESULT_PATH
+  echo "$RESULT_PATH"
 }
 
 upload_log()
