@@ -143,11 +143,13 @@ integrate()
     project_build;;
     run_tests) run_tests;;
     quality) quality;;
+    report) report;;
     deploy) provision;
     cert;
     project_build;
     run_tests;
     send;;
+    r
     *) exit 1;;
   esac
 
@@ -155,7 +157,10 @@ integrate()
   # Finalize report and clean
   #
 
-  report
+  if [ "$ACTION" != "report" ]; then
+    report
+  fi
+  
   clean
 }
 
