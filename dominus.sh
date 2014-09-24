@@ -149,7 +149,6 @@ integrate()
     project_build;
     run_tests;
     send;;
-    r
     *) exit 1;;
   esac
 
