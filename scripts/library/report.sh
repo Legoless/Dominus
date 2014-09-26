@@ -110,9 +110,11 @@ upload_prepare()
   # Construct correct report directory
   #
 
-  gem list awscli -i
+  set +e 
 
-  ARTIFACTS_GEM=$(gem list awscli -i)
+  ARTIFACTS_GEM=`gem list awscli -i`
+
+  set -e
 
   message "report" "Installing awscli gem..." debug normal
 
