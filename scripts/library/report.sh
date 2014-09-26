@@ -17,17 +17,9 @@ report()
 
 collect_reports()
 {
-  #
-  # Construct correct report directory
-  #  
+  message "report" "Checking upload tools..." trace normal
 
-  #ARTIFACTS_GEM=$(gem list travis-artifacts -i)
-
-  #if [ "$ARTIFACTS_GEM" == "false"]; then
-  #  message "report" "Installing artifacts gem..." debug normal
-
-  #	gem_install "travis-artifacts"
-  #fi
+  upload_prepare
 
   message "report" "Preparing path to upload reports..." trace normal
 
@@ -77,7 +69,9 @@ create_result_path()
   RESULT_PATH=$RESULT_PATH"$CURRENT_DATE"
 
   if [[ ! -z $TRAVIS_COMMIT ]]; then
-  	RESULT_PATH=$RESULT_PATH"_$TRAVIS_COMMIT"
+    COMMIT_HASH=${TRAVIS_COMMIT:0:8}
+
+  	RESULT_PATH=$RESULT_PATH"_$COMMIT_HASH"
   fi
 
   if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
@@ -97,6 +91,49 @@ upload_log()
 upload_amazon()
 {
   if [[ ! -z $ARTIFACTS_S3_BUCKET ]] && [[ ! -z $ARTIFACTS_AWS_ACCESS_KEY_ID ]] && [[ ! -z $ARTIFACTS_AWS_SECRET_ACCESS_KEY ]]; then
-    travis-artifacts upload --target-path $1 --path $2
+    #travis-artifacts upload --target-path $1 --path $2
+
+    if [[ ! -z $ARTIFACTS_S3_REGION ]]; then
+      awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1 --region $ARTIFACTS_S3_REGION
+    else
+      awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1
+    fi
+    
+  fi
+}
+
+upload_prepare()
+{
+  AWSCLI_CONFIG_FILENAME='awscli_config.yml'
+
+  #
+  # Construct correct report directory
+  #  
+
+  ARTIFACTS_GEM=$(gem list awscli -i)
+
+  #
+  # Check for awscli gem which is needed for 
+  #
+
+  if [ "$ARTIFACTS_GEM" == "false" ]; then
+    message "report" "Installing awscli gem..." debug normal
+
+  	gem_install "awscli"
+  fi
+
+  #
+  # Sort out config file
+  #
+
+  if [ ! -f $AWSCLI_CONFIG_FILENAME ]; then
+    message "report" "Writing awscli config file..." debug normal
+
+    echo "aws_access_key_id: $ARTIFACTS_AWS_ACCESS_KEY_ID" > awscli_config.yml
+    echo "aws_secret_access_key: $ARTIFACTS_AWS_SECRET_ACCESS_KEY" >> awscli_config.yml
+  fi
+
+  if [[ -z $AWSCLI_CONFIG_FILE ]]; then
+    export AWSCLI_CONFIG_FILE=$AWSCLI_CONFIG_FILENAME
   fi
 }

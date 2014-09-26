@@ -138,8 +138,8 @@ integrate()
   case "$ACTION" in
     init) init;;
     library) library;;
-build) #provision;
-#cert;
+    build) provision;
+    cert;
     project_build;;
     run_tests) run_tests;;
     quality) quality;;
