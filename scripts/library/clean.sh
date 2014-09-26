@@ -8,7 +8,7 @@ clean()
   #rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*
   rm -rf ./build
 
-  #rm -rf ./report
+  rm -rf ./report
 
   if [ -f $AWSCLI_CONFIG_FILENAME ]; then
   	rm $AWSCLI_CONFIG_FILENAME

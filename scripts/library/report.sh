@@ -58,28 +58,38 @@ create_result_path()
 
   PROPERTY_LIST=$(find_property_list)
 
+  #
+  # App version
+  #
+
   if [[ ! -z $PROPERTY_LIST ]]; then
     APP_VERSION=$(read_property $PROPERTY_LIST CFBundleShortVersionString)
 
     RESULT_PATH=$RESULT_PATH"$APP_VERSION/"
   fi
 
+  #
+  # Date
+  #
+
+  CURRENT_DATE=$(date +"%Y-%m-%d")
+
+  RESULT_PATH=$RESULT_PATH"$CURRENT_DATE/"
+
+  #
+  # Travis Build Number
+  #
+
   if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-  	RESULT_PATH=$RESULT_PATH"$TRAVIS_BUILD_NUMBER"'_'
+  	RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
   fi
 
-  CURRENT_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
-
-  RESULT_PATH=$RESULT_PATH"$CURRENT_DATE"
+  
 
   if [[ ! -z $TRAVIS_COMMIT ]]; then
     COMMIT_HASH=${TRAVIS_COMMIT:0:8}
 
-  	RESULT_PATH=$RESULT_PATH"_$COMMIT_HASH"
-  fi
-
-  if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-  	RESULT_PATH=$RESULT_PATH"_$TRAVIS_BUILD_NUMBER"
+  	RESULT_PATH=$RESULT_PATH'_'$COMMIT_HASH
   fi
 
   RESULT_PATH=$RESULT_PATH'/'

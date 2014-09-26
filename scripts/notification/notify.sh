@@ -103,7 +103,7 @@ if [[ ! -z $PREFIX ]]; then
   ACTION_NAME=$ACTION
 
   if [ "$ACTION_NAME" == "run_tests" ]; then
-    ACTION_NAME='test'
+    ACTION_NAME='tests'
   fi
 
   LOG_FILENAME="$ACTION_NAME"
@@ -116,7 +116,7 @@ if [[ ! -z $PREFIX ]]; then
     LOG_FILENAME=$LOG_FILENAME'_'$BUILD_SDK
   fi
 
-  if [[ ! -z $TEST_SDK ]] && [ "$ACTION_NAME" == "test" ]; then
+  if [[ ! -z $TEST_SDK ]] && [ "$ACTION_NAME" == "tests" ]; then
     LOG_FILENAME=$LOG_FILENAME'_'$TEST_SDK
   fi
 
