@@ -45,7 +45,7 @@ build()
   # Load other parameters from the XCode itself
   #
 
-  message "build" "Source path: $BUILD_PATH"
+  message "build" "Source path: $BUILD_PATH" debug normal
 
   # Remember previous dir
   CURRENT_DIR=$(pwd)

@@ -15,7 +15,7 @@ cert()
 
   LOGINED_USER=$(whoami)
 
-  message "cert" "Creating keychain for $LOGINED_USER"
+  message "cert" "Creating keychain for $LOGINED_USER..." debug normal
 
   keychain_create $LOGINED_USER
 
