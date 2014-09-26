@@ -106,13 +106,13 @@ upload_prepare()
 {
   AWSCLI_CONFIG_FILENAME='awscli_config.yml'
 
-  gem_install "awscli"
-
   #
   # Construct correct report directory
   #  
 
-  #ARTIFACTS_GEM=$(gem list awscli -i)
+  ARTIFACTS_GEM=$(gem list awscli -i)
+
+  message "report" "Installing awscli gem..." debug normal
 
   #
   # Check for awscli gem which is needed for 
@@ -121,7 +121,7 @@ upload_prepare()
   if [ "$ARTIFACTS_GEM" == "false" ]; then
     message "report" "Installing awscli gem..." debug normal
 
-  	#gem_install "awscli"
+  	gem_install "awscli"
   fi
 
   #

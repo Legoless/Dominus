@@ -158,7 +158,10 @@ execute_test()
       #echo $TEST_COMMAND
 
       eval $TEST_CLEAN_COMMAND > /dev/null
-      eval $TEST_COMMAND' -reporter junit:./report/test_report.xml'
+
+      LOG_REPORT_PATH=$(create_report_path)
+
+      eval $TEST_COMMAND" -reporter junit:./report/$LOG_REPORT_PATH_test.xml"
 
       exit 1
     fi

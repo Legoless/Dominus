@@ -100,10 +100,16 @@ if [[ ! -z $PREFIX ]]; then
     mkdir './report'
   fi
 
-  LOG_FILENAME="$ACTION.log"
+  ACTION_NAME=$ACTION
+
+  if [ "$ACTION_NAME" == "run_tests" ]; then
+    ACTION_NAME='test'
+  fi
+
+  LOG_FILENAME="$ACTION_NAME.log"
 
   if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
-    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION.log"
+    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME.log"
   fi
 
   echo $LOCAL_MESSAGE >> "./report/$LOG_FILENAME"
