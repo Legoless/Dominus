@@ -121,8 +121,8 @@ integrate()
     TEST_SDK=$TEST_SDK"$SDK"
   fi
 
-  export $BUILD_SDK
-  export $TEST_SDK
+  export BUILD_SDK=$BUILD_SDK
+  export TEST_SDK=$TEST_SDK
 
   #
   # Init and library is always run on CI, since it always starts
