@@ -106,14 +106,22 @@ if [[ ! -z $PREFIX ]]; then
     ACTION_NAME='test'
   fi
 
-  LOG_FILENAME="$ACTION_NAME.log"
+  LOG_FILENAME="$ACTION_NAME"
 
   if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
-    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME.log"
+    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME"
+  fi
+
+  if [[ ! -z $BUILD_SDK ]] && [ "$ACTION_NAME" == "build" ]; then
+    LOG_FILENAME=$LOG_FILENAME'_'$BUILD_SDK
+  fi
+
+  if [[ ! -z $TEST_SDK ]] && [ "$ACTION_NAME" == "test" ]; then
+    LOG_FILENAME=$LOG_FILENAME'_'$TEST_SDK
   fi
 
   if [ "$ACTION_NAME" != "report" ]; then
-    echo $LOCAL_MESSAGE >> "./report/$LOG_FILENAME"
+    echo $LOCAL_MESSAGE >> "./report/$LOG_FILENAME.log"
   fi
 fi
 

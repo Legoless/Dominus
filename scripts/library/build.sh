@@ -338,7 +338,7 @@ execute_build()
 
     eval $BUILD_CLEAN_COMMAND > /dev/null
 
-    LOG_REPORT_PATH=$(create_report_path)
+    LOG_REPORT_PATH=$(create_report_path $BUILD_SDK)
 
     eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'_build.xml'
 
@@ -387,7 +387,6 @@ search_targets()
 create_report_path()
 {
   LOG_REPORT_PATH=''
-
 
   if [[ ! -z $1 ]]; then
     LOG_REPORT_PATH=$1
