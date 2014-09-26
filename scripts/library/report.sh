@@ -108,7 +108,9 @@ upload_prepare()
 
   #
   # Construct correct report directory
-  #  
+  #
+
+  gem list awscli -i
 
   ARTIFACTS_GEM=$(gem list awscli -i)
 
