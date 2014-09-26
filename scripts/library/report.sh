@@ -21,13 +21,13 @@ collect_reports()
   # Construct correct report directory
   #  
 
-  ARTIFACTS_GEM=$(gem list travis-artifacts -i)
+  #ARTIFACTS_GEM=$(gem list travis-artifacts -i)
 
-  if [ "$ARTIFACTS_GEM" == "false"]; then
-    message "report" "Installing artifacts gem..." debug normal
+  #if [ "$ARTIFACTS_GEM" == "false"]; then
+  #  message "report" "Installing artifacts gem..." debug normal
 
-  	gem_install "travis-artifacts"
-  fi
+  #	gem_install "travis-artifacts"
+  #fi
 
   message "report" "Preparing path to upload reports..." trace normal
 
