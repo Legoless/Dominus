@@ -23,7 +23,7 @@ collect_reports()
 
   ARTIFACTS_GEM=$(gem list travis-artifacts -i)
 
-  if [ "$ARTIFACTS_GEM" != "true"]; then
+  if [ "$ARTIFACTS_GEM" == "false"]; then
     message "report" "Installing artifacts gem..." debug normal
 
   	gem_install "travis-artifacts"

@@ -106,7 +106,7 @@ if [[ ! -z $PREFIX ]]; then
     LOG_FILENAME=$TRAVIS_JOB_NUMBER'_progress.log'
   fi
 
-  echo $LOCAL_MESSAGE > "./report/$LOG_FILENAME"
+  echo $LOCAL_MESSAGE >> "./report/$LOG_FILENAME"
 fi
 
 echo $LOCAL_MESSAGE
