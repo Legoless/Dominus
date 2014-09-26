@@ -338,7 +338,7 @@ execute_build()
 
     eval $BUILD_CLEAN_COMMAND > /dev/null
 
-    LOG_REPORT_PATH=$(create_report_path $BUILD_SDK build)
+    LOG_REPORT_PATH=$(create_report_path build $BUILD_SDK)
 
     eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml'
 
@@ -389,11 +389,11 @@ create_report_path()
   LOG_REPORT_PATH=''
 
   if [[ ! -z $1 ]]; then
-    LOG_REPORT_PATH=$1
+    LOG_REPORT_PATH="$1"
   fi
 
   if [[ ! -z $2 ]]; then
-    LOG_REPORT_PATH=$LOG_REPORT_PATH'_'$2
+    LOG_REPORT_PATH=$LOG_REPORT_PATH'_'"$2"
   fi
 
   if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
