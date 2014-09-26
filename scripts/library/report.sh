@@ -64,6 +64,10 @@ create_result_path()
     RESULT_PATH=$RESULT_PATH"$APP_VERSION/"
   fi
 
+  if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+  	RESULT_PATH=$RESULT_PATH"$TRAVIS_BUILD_NUMBER"'_'
+  fi
+
   CURRENT_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
   RESULT_PATH=$RESULT_PATH"$CURRENT_DATE"
