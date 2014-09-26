@@ -112,9 +112,6 @@ if [[ ! -z $PREFIX ]]; then
     LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME"
   fi
 
-  echo 'Appending build: '$BUILD_SDK
-  echo 'Appending test: '$TEST_SDK
-
   if [[ ! -z $BUILD_SDK ]] && [ "$ACTION_NAME" == "build" ]; then
     LOG_FILENAME=$LOG_FILENAME'_'$BUILD_SDK
   fi
@@ -128,7 +125,7 @@ if [[ ! -z $PREFIX ]]; then
   fi
 fi
 
-echo "[$ACTION_NAME]: "$LOCAL_MESSAGE
+echo $LOCAL_MESSAGE
 
 #
 # Output Trace message
