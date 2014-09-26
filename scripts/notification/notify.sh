@@ -125,7 +125,7 @@ if [[ ! -z $PREFIX ]]; then
   fi
 fi
 
-echo $LOCAL_MESSAGE
+echo "[$ACTION_NAME]: "$LOCAL_MESSAGE
 
 #
 # Output Trace message

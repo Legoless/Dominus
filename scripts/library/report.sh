@@ -84,8 +84,6 @@ create_result_path()
   	RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
   fi
 
-  
-
   if [[ ! -z $TRAVIS_COMMIT ]]; then
     COMMIT_HASH=${TRAVIS_COMMIT:0:8}
 
