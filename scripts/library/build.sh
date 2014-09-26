@@ -340,7 +340,7 @@ execute_build()
 
     LOG_REPORT_PATH=$(create_report_path build $BUILD_SDK)
 
-    eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml'
+    eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
 
     exit 1
   fi
