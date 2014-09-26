@@ -161,7 +161,7 @@ execute_test()
 
       LOG_REPORT_PATH=$(create_report_path)
 
-      eval $TEST_COMMAND" -reporter junit:./report/$LOG_REPORT_PATH_test.xml"
+      eval $TEST_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'_test.xml'
 
       exit 1
     fi

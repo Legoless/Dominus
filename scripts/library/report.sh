@@ -116,8 +116,6 @@ upload_prepare()
 
   set -e
 
-  message "report" "Installing awscli gem..." debug normal
-
   #
   # Check for awscli gem which is needed for 
   #

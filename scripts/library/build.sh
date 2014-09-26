@@ -340,7 +340,7 @@ execute_build()
 
     LOG_REPORT_PATH=$(create_report_path)
 
-    eval $BUILD_COMMAND" -reporter junit:./report/$LOG_REPORT_PATH_build.xml"
+    eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'_build.xml'
 
     exit 1
   fi
