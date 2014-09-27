@@ -9,7 +9,7 @@ Dominus is a world class command line tool to improve workflow with developing i
 - Full configuration
 - Updating provisioning profiles
 - Building and testing application with automatic scheme and target detection
-  - Multiple targets, schemes, simulators and SDK's available 
+  - Multiple targets, schemes, simulators and SDK's available using Travis CI matrix
 - Quality control
   - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
 - Deployment to TestFlight
@@ -60,8 +60,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Code formatting checker (Obj-Clean)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
-- Test report and code coverage upload
-- Use Travis Build Matrix for Parallelizing testing builds (done)
+- Code coverage upload
 
 Contact
 ======
