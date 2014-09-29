@@ -291,7 +291,7 @@ construct_release_notes()
 
     BUNDLE_NAME=$(read_property $PROPERTY_LIST CFBundleDisplayName)
 
-    if [[ ! -z $BUNDLE_NAME ]] && [[] "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
+    if [[ ! -z $BUNDLE_NAME ]] && [[ "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
       RELEASE_NOTES=$BUNDLE_NAME
     fi
 
@@ -344,7 +344,7 @@ construct_release_notes()
     done
   fi
 
-  return "$RELEASE_NOTES"
+  echo "$RELEASE_NOTES"
 }
 
 find_property_list()
