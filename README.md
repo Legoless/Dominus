@@ -61,6 +61,9 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
 - Code coverage upload
+- Better reporting tools
+- Action mapping per branch
+- Deploy only when all jobs are finished
 
 Contact
 ======
