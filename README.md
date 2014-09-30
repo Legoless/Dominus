@@ -62,7 +62,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Disable recreation of Provisioning Profiles
 - Code coverage upload
 - Better reporting tools
-- Action mapping per branch
+- Action mapping per branch (using Thalion gem)
 - Deploy only when all jobs are finished
 
 Contact
