@@ -53,8 +53,9 @@ brew_upgrade()
 {
   #brew upgrade > /dev/null
 
-  brew uninstall xctool
-  brew install xctool
+  if brew outdated | grep -qx xctool; then
+  	brew upgrade xctool;
+  fi
 }
 
 gem_install()

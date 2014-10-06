@@ -254,7 +254,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.5.0'
+SCRIPT_VERSION='0.5.1'
 
 #
 # Load all utility functions
