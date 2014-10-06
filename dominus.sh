@@ -129,7 +129,7 @@ integrate()
   # from point 0
   #
 
-  if [ "$CI" = true ] && [ "$ACTION" != "run_tests" ] && [ "$ACTION" != "report" ]; then
+  if [ "$CI" = true ] && [ "$ACTION" != "report" ]; then
     init
     #library
   fi
