@@ -161,7 +161,8 @@ execute_test()
 
       LOG_REPORT_PATH=$(create_report_path tests $TEST_SDK)
 
-      eval $TEST_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
+      #eval $TEST_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
+      eval $TEST_COMMAND' -reporter plain:./report/'$LOG_REPORT_PATH'.xml'
 
       exit 1
     fi
