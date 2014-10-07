@@ -109,22 +109,21 @@ integrate()
   #
   
   if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then
-    BUILD_SDK=$PLATFORM
-    TEST_SDK=$PLATFORM
-
+    
     if [ "$PLATFORM" == "iphone" ]; then
 
       if [ "$ACTION" != "run_tests" ]; then
-        BUILD_SDK=$BUILD_SDK'os'
-      else
-        BUILD_SDK=$BUILD_SDK'simulator'
+        BUILD_SDK=$PLATFORM'os'
+        BUILD_SDK=$BUILD_SDK"$SDK"
       fi
 
-      TEST_SDK=$TEST_SDK'simulator'
+      TEST_SDK=$PLATFORM'simulator'
     fi
-
-    BUILD_SDK=$BUILD_SDK"$SDK"
+    
     TEST_SDK=$TEST_SDK"$SDK"
+  else
+    BUILD_SDK=$PLATFORM"$SDK"
+    TEST_SDK=$PLATFORM"$SDK"
   fi
 
   export BUILD_SDK=$BUILD_SDK
