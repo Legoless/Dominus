@@ -142,9 +142,9 @@ execute_test()
     # Check for Rakefile, run rake test command, otherwise run xctool test
     #
 
-    TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
-
     message "test" "Test command: $TEST_COMMAND"
+
+    TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
     #echo $TEST_EXECUTE
 
@@ -172,7 +172,7 @@ execute_test()
       `eval $TEST_COMMAND -reporter plain:"./report/"$LOG_REPORT_PATH"_test_xcode.log" || true`
       #eval $TEST_COMMAND
 
-      cat './report/'$LOG_REPORT_PATH'_xcode.log'
+      cat './report/'$LOG_REPORT_PATH'_test_xcode.log'
       
       exit 1
     fi

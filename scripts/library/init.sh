@@ -38,6 +38,10 @@ init()
   gem_install "CocoaPods"
 
   message "init" "Gems installed." debug normal
+
+  message "init" "Checking upload tools..." trace normal
+
+  upload_prepare
 }
 
 #

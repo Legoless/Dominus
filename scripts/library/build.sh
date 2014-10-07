@@ -283,7 +283,9 @@ execute_build()
   #
   # Allow the subshell to exit, as we are manually checking for errors
   #
-  
+
+  message "build" "Build command: $BUILD_COMMAND"
+
   BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER || true`
   #echo $BUILD_COMMAND_REPORTER
 

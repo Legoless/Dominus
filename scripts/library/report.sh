@@ -17,10 +17,6 @@ report()
 
 collect_reports()
 {
-  message "report" "Checking upload tools..." trace normal
-
-  upload_prepare
-
   message "report" "Preparing path to upload reports..." trace normal
 
   #
