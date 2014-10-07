@@ -287,7 +287,6 @@ construct_release_notes()
   #
 
   if [[ ! -z $PROPERTY_LIST ]]; then
-    message "send" "Creating release notes from property list: $PROPERTY_LIST"
 
     APP_VERSION=$(read_property $PROPERTY_LIST CFBundleShortVersionString)
 
