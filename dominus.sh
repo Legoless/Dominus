@@ -116,8 +116,10 @@ integrate()
 
       if [ "$ACTION" != "run_tests" ]; then
         BUILD_SDK=$BUILD_SDK'os'
+      else
+        BUILD_SDK=$BUILD_SDK'simulator'
       fi
-      
+
       TEST_SDK=$TEST_SDK'simulator'
     fi
 
