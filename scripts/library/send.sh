@@ -248,7 +248,7 @@ send()
     message "send" "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
   
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
-    upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.dSYM.zip"
+    upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
   else
      upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.app.zip"
   fi
@@ -301,7 +301,7 @@ construct_release_notes()
       RELEASE_NOTES=$BUNDLE_NAME
     fi
 
-    RELEASE_NOTES="$RELEASE_NOTES ($APP_VERSION"
+    RELEASE_NOTES="$RELEASE_NOTES (v$APP_VERSION"
 
     if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
       RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
@@ -328,9 +328,9 @@ construct_release_notes()
   BUILD_BRANCH="$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_BRANCH:0:1})${BUILD_BRANCH:1}"
 
   if [[ ! -z $BUILD_BRANCH ]]; then
-    RELEASE_NOTES=$RELEASE_NOTES' '$BUILD_BRANCH' automated build.'
+    RELEASE_NOTES=$RELEASE_NOTES' Automated Build (Branch: '$BUILD_BRANCH').'
   else
-    RELEASE_NOTES=$RELEASE_NOTES' automated build.'
+    RELEASE_NOTES=$RELEASE_NOTES' Automated Build.'
   fi
 
   #

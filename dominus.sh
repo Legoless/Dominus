@@ -118,12 +118,10 @@ integrate()
       fi
 
       TEST_SDK=$PLATFORM'simulator'
+    else
+      BUILD_SDK=$PLATFORM"$SDK"
+      TEST_SDK=$PLATFORM"$SDK"
     fi
-    
-    TEST_SDK=$TEST_SDK"$SDK"
-  else
-    BUILD_SDK=$PLATFORM"$SDK"
-    TEST_SDK=$PLATFORM"$SDK"
   fi
 
   export BUILD_SDK=$BUILD_SDK
@@ -155,7 +153,6 @@ integrate()
     deploy) provision;
     cert;
     project_build;
-    run_tests;
     send;;
     send) send;;
     *) exit 1;;
