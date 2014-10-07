@@ -130,14 +130,21 @@ execute_test()
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" test -sdk $TEST_SDK"
-    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $TEST_SDK"
+    TEST_COMMAND=$TEST_COMMAND" test -test-sdk $TEST_SDK"
+    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -test-sdk $TEST_SDK"
+
+    if [[ ! -z $BUILD_SDK ]]; then
+      TEST_COMMAND=$TEST_COMMAND" test -sdk $BUILD_SDK"
+      TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $BUILD_SDK"
+    fi
 
     #
     # Check for Rakefile, run rake test command, otherwise run xctool test
     #
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
+
+    message "test" "Test command: $TEST_COMMAND"
 
     #echo $TEST_EXECUTE
 
@@ -162,7 +169,7 @@ execute_test()
       LOG_REPORT_PATH=$(create_report_path tests $TEST_SDK)
 
       #eval $TEST_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
-      eval $TEST_COMMAND' -reporter plain:./report/'$LOG_REPORT_PATH'_xcode.log'
+      `eval $TEST_COMMAND -reporter plain:"./report/"$LOG_REPORT_PATH"_xcode.log" || true`
       #eval $TEST_COMMAND
 
       cat './report/'$LOG_REPORT_PATH'_xcode.log'

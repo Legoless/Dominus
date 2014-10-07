@@ -113,7 +113,11 @@ integrate()
     TEST_SDK=$PLATFORM
 
     if [ "$PLATFORM" == "iphone" ]; then
-      BUILD_SDK=$BUILD_SDK'os'
+
+      if [ "$ACTION" != "run_tests" ]; then
+        BUILD_SDK=$BUILD_SDK'os'
+      fi
+      
       TEST_SDK=$TEST_SDK'simulator'
     fi
 
