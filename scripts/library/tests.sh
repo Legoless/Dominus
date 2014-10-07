@@ -163,7 +163,9 @@ execute_test()
 
       #eval $TEST_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
       eval $TEST_COMMAND' -reporter plain:./report/'$LOG_REPORT_PATH'_xcode.log'
-      eval $TEST_COMMAND
+      #eval $TEST_COMMAND
+
+      cat './report/'$LOG_REPORT_PATH'_xcode.log'
       
       exit 1
     fi
