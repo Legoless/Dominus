@@ -250,7 +250,7 @@ send()
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
   else
-     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.app.zip"
+     upload_file $RESULT_PATH "$APP_PATH.app.zip"
   fi
 }
 
