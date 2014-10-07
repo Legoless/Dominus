@@ -230,6 +230,9 @@ send()
   # Upload to TestFlight
   #
 
+  RESULT_PATH=$(create_result_path)
+  RESULT_PATH=$RESULT_PATH'binary/'
+
   if [[ $BUILD_SDK != *simulator* ]]; then
     message "send" "Uploading package to TestFlight..." debug normal
 
@@ -243,6 +246,11 @@ send()
     -F notify="TRUE" -w "%{http_code}"`
 
     message "send" "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+  
+    upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
+    upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.dSYM.zip"
+  else
+     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.app.zip"
   fi
 }
 
@@ -257,8 +265,6 @@ construct_release_notes()
   #
   # Append app name
   #
-
-  echo 'LOL'
 
   XCODE_PROJECT=`find . -iname *.xcodeproj -type d -maxdepth 2 | head -1`
 

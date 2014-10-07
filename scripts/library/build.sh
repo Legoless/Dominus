@@ -283,15 +283,9 @@ execute_build()
   #
   # Allow the subshell to exit, as we are manually checking for errors
   #
-  set +e
-
-  BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+  
+  BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER || true`
   #echo $BUILD_COMMAND_REPORTER
-
-  #
-  # Now subshell will exit the script
-  #
-  set -e
 
   message "build" "Building complete." trace normal
 
@@ -340,7 +334,9 @@ execute_build()
 
     LOG_REPORT_PATH=$(create_report_path build $BUILD_SDK)
 
-    eval $BUILD_COMMAND' -reporter junit:./report/'$LOG_REPORT_PATH'.xml' > './report/'$LOG_REPORT_PATH'_xcode.log'
+    `eval $BUILD_COMMAND -reporter plain:"./report/"$LOG_REPORT_PATH"_build_xcode.log" || true`
+
+    cat './report/'$LOG_REPORT_PATH'_build_xcode.log'
 
     exit 1
   fi

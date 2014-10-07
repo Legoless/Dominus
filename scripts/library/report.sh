@@ -43,7 +43,7 @@ collect_reports()
   	if [ -f $f ]; then
       message "report" "Uploading report file: $f" trace normal
 
-  	  upload_log $RESULT_PATH $f
+  	  upload_file $RESULT_PATH $f
   	fi
   done
 }
@@ -95,7 +95,7 @@ create_result_path()
   echo "$RESULT_PATH"
 }
 
-upload_log()
+upload_file()
 {
   upload_amazon $1 $2
 }
