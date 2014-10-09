@@ -169,7 +169,7 @@ SENDER_NAME=''
 if [[ ! -z $TRAVIS_COMMIT ]]; then
   SENDER_NAME=$(clean_sender_name $TRAVIS_REPO_SLUG)
 
-  MESSAGE='[Build <b>#'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
+  MESSAGE='[Build <b>#'$TRAVIS_JOB_NUMBER'</b>]: '$MESSAGE
 fi
 
 if [[ -z $SENDER_NAME ]]; then
