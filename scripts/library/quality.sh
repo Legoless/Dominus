@@ -39,7 +39,7 @@ quality()
 
     message "quality" "Updating Faux Pas license..." debug normal
 
-    fauxpas updatelicense $FAUXPAS_LICENSE_TYPE $FAUXPAS_LICENSE_NAME $FAUXPAS_LICENSE_KEY
+    fauxpas_cli updatelicense $FAUXPAS_LICENSE_TYPE $FAUXPAS_LICENSE_NAME $FAUXPAS_LICENSE_KEY
 
     PROJECT_TARGET=$(find_project .)
 
@@ -48,7 +48,7 @@ quality()
 
       LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
 
-      FAUXPAS_OUTPUT=`fauxpas check $PROJECT_TARGET -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`
+      FAUXPAS_OUTPUT=`fauxpas_cli check $PROJECT_TARGET -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`
 
       message "quality" "Finished running quality check." debug normal
     else
@@ -59,7 +59,7 @@ quality()
   fi
 }
 
-fauxpas_command()
+fauxpas_cli()
 {
   $FAUXPAS_LOCATION cli $@
 }
