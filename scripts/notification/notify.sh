@@ -1,5 +1,30 @@
 #!/bin/bash
 
+clean_sender_name()
+{
+  SENDER_NAME=$1
+
+  #
+  # Cut away organization from repo slug
+  #
+  SENDER_NAME=${SENDER_NAME#*/}
+
+  #
+  # Cut away App on the end and iOS
+  #
+
+  SENDER_NAME=${SENDER_NAME%App}
+  SENDER_NAME=${SENDER_NAME%-iOS}
+  SENDER_NAME=${SENDER_NAME%iOS}
+
+  #
+  # Limit sender name to 14 characters
+  #
+  SENDER_NAME=${SENDER_NAME:0:15}
+  
+  echo $SENDER_NAME
+}
+
 # exit on failure
 usage()
 {
@@ -142,26 +167,8 @@ fi
 SENDER_NAME=''
 
 if [[ ! -z $TRAVIS_COMMIT ]]; then
-  SENDER_NAME=$TRAVIS_REPO_SLUG
+  SENDER_NAME=$(clean_sender_name $TRAVIS_REPO_SLUG)
 
-  #
-  # Cut away organization from repo slug
-  #
-  SENDER_NAME=${SENDER_NAME#*/}
-
-  #
-  # Cut away App on the end and iOS
-  #
-
-  SENDER_NAME=$(SENDER_NAME%App)
-  SENDER_NAME=$(SENDER_NAME%-iOS)
-  SENDER_NAME=$(SENDER_NAME%iOS)
-
-  #
-  # Limit sender name to 14 characters
-  #
-  SENDER_NAME=${SENDER_NAME:0:15}
-  
   MESSAGE='[Build <b>#'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
 fi
 

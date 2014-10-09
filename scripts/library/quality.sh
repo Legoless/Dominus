@@ -33,6 +33,16 @@ quality()
       exit 1
     fi
 
+    search_targets
+    set_build_path
+
+    CURRENT_DIR=$(pwd)
+
+    cd $BUILD_PATH
+    search_scheme
+
+    cd $CURRENT_DIR
+
     #message "quality" "Setuping FauxPas CLI tools..." trace normal
 
     #cp -f $FAUXPAS_LOCATION'/Contents/Resources/fpx.sh' /usr/local/bin/fauxpas
@@ -46,13 +56,52 @@ quality()
     if [[ ! -z $PROJECT_TARGET ]]; then
       message "quality" "Running Faux Pas on $PROJECT_TARGET" debug normal
 
-      LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
-
-      FAUXPAS_OUTPUT=`fauxpas_cli check $PROJECT_TARGET -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`
-
-      message "quality" "Finished running quality check." debug normal
+      FAUXPAS_COMMAND=$PROJECT_TARGET
     else
       message "quality" "Failed: Could not find *.xcodeproj." warn error
+
+      exit 1
+    fi
+
+    #if [[ ! -z $WORKSPACE ]] && [[ ! -z $SCHEME ]]; then
+    #  message "quality" "Running Faux Pas on $WORKSPACE" debug normal
+#
+    #  FAUXPAS_COMMAND=$FAUXPAS_COMMAND" --workspace $WORKSPACE --scheme $SCHEME"
+    #fi
+
+    if [[ ! -z $FAUXPAS_COMMAND ]]; then
+
+      LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
+
+      FAUXPAS_OUTPUT=`fauxpas_cli check $FAUXPAS_COMMAND -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`
+
+      echo check $FAUXPAS_COMMAND
+
+      QUALITY_REPORT=$(./Dominus/scripts/report/quality.rb './report/'$LOG_REPORT_PATH'_check.json')
+
+      #
+      # Output correct messages
+      #
+
+      NO_ERRORS=`echo $QUALITY_REPORT | grep ' 0 errors' | head -1`
+      NO_WARNINGS=`echo $QUALITY_REPORT | grep ' 0 warnings' | head -1`
+      NO_CONCERNS=`echo $QUALITY_REPORT | grep ' 0 concerns' | head -1`
+
+      QUALITY_REPORT_LEVEL='success'
+
+      if [[ -z $NO_ERRORS ]]; then
+        QUALITY_REPORT_LEVEL='error'
+      elif [[ -z $NO_WARNINGS ]]; then
+        QUALITY_REPORT_LEVEL='warning'
+      elif [[ -z $NO_CONCERNS ]]; then
+        QUALITY_REPORT_LEVEL='warning'
+      fi
+
+      message "quality" "Quality check (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($QUALITY_REPORT)" info $QUALITY_REPORT_LEVEL
+    else
+      message "quality" "Failed: Could not find the project." warn error
+
+      exit 1
     fi
   else
   	message "quality" "Missing Faux Pas license information, aborting..." warn warning
