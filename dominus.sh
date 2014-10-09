@@ -117,7 +117,7 @@ integrate()
         BUILD_SDK=$BUILD_SDK"$SDK"
       fi
 
-      TEST_SDK=$PLATFORM'simulator'
+      TEST_SDK=$PLATFORM'simulator'$SDK
     else
       BUILD_SDK=$PLATFORM"$SDK"
       TEST_SDK=$PLATFORM"$SDK"
