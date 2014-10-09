@@ -142,7 +142,7 @@ execute_test()
     # Check for Rakefile, run rake test command, otherwise run xctool test
     #
 
-    message "test" "Test command: $TEST_COMMAND"
+    message "test" "Test command: $TEST_COMMAND" trace normal
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
@@ -199,5 +199,5 @@ execute_rake_test()
 
 generate_code_coverage()
 {
-  
+  echo 'Test'
 }

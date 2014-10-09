@@ -10,6 +10,8 @@ set -e
 quality()
 {
   if [[ ! -z $FAUXPAS_LICENSE_TYPE ]]; then
+    message "quality" "Installing quality tool prerequisites..." debug normal
+
     brew tap caskroom/cask
     brew install brew-cask
 
@@ -28,7 +30,7 @@ quality()
 
       LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
 
-      fauxpas check $PROJECT_TARGET -o json > './report/'$LOG_REPORT_PATH'_check.json'
+      FAUXPAS_OUTPUT=`fauxpas check $PROJECT_TARGET -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`
 
       message "quality" "Finished running quality check." debug normal
     else

@@ -5,6 +5,8 @@ report()
   if [ "$REPORT" = true ] && [ -d './report' ]; then
     message "report" "Collecting generated reports..." trace normal
 
+    upload_prepare
+
     collect_reports
   else
     message "report" "Skipping report collection." info warning
@@ -72,21 +74,21 @@ create_result_path()
 
   RESULT_PATH=$RESULT_PATH"$CURRENT_DATE/"
 
-  #
-  # Travis Build Number
-  #
-
-  if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-  	RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
-  fi
-
   if [[ ! -z $TRAVIS_COMMIT ]]; then
+    #
+    # Travis Build Number
+    #
+
+    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+      RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
+    fi
+
     COMMIT_HASH=${TRAVIS_COMMIT:0:8}
 
   	RESULT_PATH=$RESULT_PATH'_'$COMMIT_HASH
-  fi
 
-  RESULT_PATH=$RESULT_PATH'/'
+    RESULT_PATH=$RESULT_PATH'/'
+  fi
 
   echo "$RESULT_PATH"
 }
@@ -112,40 +114,42 @@ upload_amazon()
 
 upload_prepare()
 {
-  AWSCLI_CONFIG_FILENAME='awscli_config.yml'
-
-  #
-  # Construct correct report directory
-  #
-
-  set +e 
-
-  ARTIFACTS_GEM=`gem list awscli -i`
-
-  set -e
-
-  #
-  # Check for awscli gem which is needed for 
-  #
-
-  if [ "$ARTIFACTS_GEM" == "false" ]; then
-    message "report" "Installing awscli gem..." debug normal
-
-  	gem_install "awscli"
-  fi
-
-  #
-  # Sort out config file
-  #
-
-  if [ ! -f $AWSCLI_CONFIG_FILENAME ]; then
-    message "report" "Writing awscli config file..." debug normal
-
-    echo "aws_access_key_id: $ARTIFACTS_AWS_ACCESS_KEY_ID" > awscli_config.yml
-    echo "aws_secret_access_key: $ARTIFACTS_AWS_SECRET_ACCESS_KEY" >> awscli_config.yml
-  fi
-
   if [[ -z $AWSCLI_CONFIG_FILE ]]; then
-    export AWSCLI_CONFIG_FILE=$AWSCLI_CONFIG_FILENAME
+    AWSCLI_CONFIG_FILENAME='awscli_config.yml'
+
+    #
+    # Construct correct report directory
+    #
+
+    set +e 
+
+    ARTIFACTS_GEM=`gem list awscli -i`
+
+    set -e
+
+    #
+    # Check for awscli gem which is needed for 
+    #
+
+    if [ "$ARTIFACTS_GEM" == "false" ]; then
+      message "report" "Installing awscli gem..." debug normal
+
+    	gem_install "awscli"
+    fi
+
+    #
+    # Sort out config file
+    #
+
+    if [ ! -f $AWSCLI_CONFIG_FILENAME ]; then
+      message "report" "Writing awscli config file..." debug normal
+
+      echo "aws_access_key_id: $ARTIFACTS_AWS_ACCESS_KEY_ID" > awscli_config.yml
+      echo "aws_secret_access_key: $ARTIFACTS_AWS_SECRET_ACCESS_KEY" >> awscli_config.yml
+    fi
+
+    if [[ -z $AWSCLI_CONFIG_FILE ]]; then
+      export AWSCLI_CONFIG_FILE=$AWSCLI_CONFIG_FILENAME
+    fi
   fi
 }
