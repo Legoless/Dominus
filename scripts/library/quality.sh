@@ -61,5 +61,5 @@ quality()
 
 fauxpas_cli()
 {
-  $FAUXPAS_LOCATION cli $@
+  $FAUXPAS_LOCATION/Contents/MacOS/FauxPas cli $@
 }
