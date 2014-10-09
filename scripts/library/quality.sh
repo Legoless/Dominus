@@ -19,6 +19,24 @@ quality()
 
     brew cask install faux-pas
 
+    #
+    # Need to take care of FauxPas CLI tools
+    #
+
+    FAUXPAS_LOCATION=$(find_dir FauxPas.app ~/Applications)
+
+    #echo $FAUXPAS_LOCATION
+
+    if [[ -z $FAUXPAS_LOCATION ]]; then
+      message "quality" "Error: Unable to locate FauxPas app." warn error
+
+      exit 1
+    fi
+
+    #message "quality" "Setuping FauxPas CLI tools..." trace normal
+
+    #cp -f $FAUXPAS_LOCATION'/Contents/Resources/fpx.sh' /usr/local/bin/fauxpas
+
     message "quality" "Updating Faux Pas license..." debug normal
 
     fauxpas updatelicense $FAUXPAS_LICENSE_TYPE $FAUXPAS_LICENSE_NAME $FAUXPAS_LICENSE_KEY
@@ -39,4 +57,9 @@ quality()
   else
   	message "quality" "Missing Faux Pas license information, aborting..." warn warning
   fi
+}
+
+fauxpas_command()
+{
+  $FAUXPAS_LOCATION cli $@
 }
