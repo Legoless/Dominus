@@ -32,7 +32,9 @@ quality()
 
       message "quality" "Finished running quality check." debug normal
     else
-      message "quality" "Failed: Could not find *.xcodeproj." info error
+      message "quality" "Failed: Could not find *.xcodeproj." warn error
     fi
+  else
+  	message "quality" "Missing Faux Pas license information, aborting..." warn warning
   fi
 }

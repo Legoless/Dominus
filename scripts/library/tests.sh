@@ -196,3 +196,8 @@ execute_rake_test()
     message "test" "Rake testing finished." trace normal
   fi
 }
+
+generate_code_coverage()
+{
+  
+}

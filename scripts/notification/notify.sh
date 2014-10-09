@@ -150,6 +150,14 @@ if [[ ! -z $TRAVIS_COMMIT ]]; then
   SENDER_NAME=${SENDER_NAME#*/}
 
   #
+  # Cut away App on the end and iOS
+  #
+
+  SENDER_NAME=$(SENDER_NAME%App)
+  SENDER_NAME=$(SENDER_NAME%-iOS)
+  SENDER_NAME=$(SENDER_NAME%iOS)
+
+  #
   # Limit sender name to 14 characters
   #
   SENDER_NAME=${SENDER_NAME:0:15}
