@@ -24,6 +24,7 @@ Dominus is a world class command line tool to improve workflow with developing i
   - Configure which branches should deploy
 - Detailed notification system (HipChat)
 - Travis CI Full Support
+- Dashboard Reporting Panel and Ad-Hoc distribution
 
 In addition to features available on Travis CI, Dominus can also help with:
 
