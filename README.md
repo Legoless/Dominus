@@ -18,7 +18,7 @@ Dominus is a world class command line tool to improve workflow with developing i
   - Regenerating provisioning profiles
 - Quality control
   - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
-- Deployment to TestFlight
+- Deployment to TestFlight, Crashlytics
   - Automatic build project increase (on Travis CI only)
   - Release notes from Git history (on Travis CI only)
   - Configure which branches should deploy
