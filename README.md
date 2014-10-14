@@ -64,7 +64,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 # TODO
 
-- Code formatting checker (Obj-Clean)
+- Code formatting checker (Obj-Clean or some code formatter)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
 - Code coverage upload
