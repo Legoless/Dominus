@@ -63,8 +63,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Code formatting checker (Obj-Clean or some code formatter)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
-- Code coverage upload
-- Better reporting tools
+- Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
 - Deploy only when all jobs are finished
 
