@@ -15,7 +15,7 @@ Dominus is a world class command line tool to improve workflow with developing i
   - Automatic test process
 - Updating Provisioning Profiles
   - Loading new devices from TestFlight to Apple Developer Portal
-  - Regenerating provisioning profiles
+  - Regenerating provisioning profiles on demand
 - Quality control
   - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
 - Deployment to TestFlight, Crashlytics
