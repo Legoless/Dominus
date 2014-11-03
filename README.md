@@ -66,7 +66,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
 - Deploy only when all jobs are finished
-- Multiple scheme and target support
+- Multiple scheme and target support on Travis
 
 Contact
 ======
