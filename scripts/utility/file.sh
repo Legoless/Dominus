@@ -7,7 +7,13 @@ find_file()
 {
   FILE_PATH=''
 
-  for f in $(find . -iname $1);
+  CURRENT_PATH='.'
+
+  if [[ ! -z $2 ]]; then
+    CURRENT_PATH=$2
+  fi
+
+  for f in $(find $CURRENT_PATH -iname $1);
   do
     if [[ -f $f ]]; then
       FILE_PATH=$f
@@ -22,7 +28,13 @@ find_dir()
 {
   DIRECTORY_PATH=''
 
-  for f in $(find . -iname $1);
+  CURRENT_PATH='.'
+
+  if [[ ! -z $2 ]]; then
+    CURRENT_PATH=$2
+  fi
+
+  for f in $(find $CURRENT_PATH -iname $1);
   do
     if [[ -d $f ]]; then
       DIRECTORY_PATH=$f

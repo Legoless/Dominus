@@ -45,7 +45,7 @@ build()
   # Load other parameters from the XCode itself
   #
 
-  message "build" "Source path: $BUILD_PATH"
+  message "build" "Source path: $BUILD_PATH" debug normal
 
   # Remember previous dir
   CURRENT_DIR=$(pwd)
@@ -282,7 +282,7 @@ set_build_number()
     if [ "$2" = true ]; then
       message "build" "Reading project build number..." trace normal
 
-      PROJECT_BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" $filename)
+      PROJECT_BUILD_NUMBER=$(read_property $filename CFBundleVersion)
 
       BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + BUILD_NUMBER))
 
@@ -302,15 +302,11 @@ execute_build()
   #
   # Allow the subshell to exit, as we are manually checking for errors
   #
-  set +e
 
-  BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER`
+  message "build" "Build command: $BUILD_COMMAND" trace normal
+
+  BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER || true`
   #echo $BUILD_COMMAND_REPORTER
-
-  #
-  # Now subshell will exit the script
-  #
-  set -e
 
   message "build" "Building complete." trace normal
 
@@ -356,7 +352,12 @@ execute_build()
     #
 
     eval $BUILD_CLEAN_COMMAND > /dev/null
-    eval $BUILD_COMMAND' -reporter junit:./report/build_report.xml'
+
+    LOG_REPORT_PATH=$(create_report_path build $BUILD_SDK)
+
+    `eval $BUILD_COMMAND -reporter plain:"./report/"$LOG_REPORT_PATH"_build_xcode.log" || true`
+
+    cat './report/'$LOG_REPORT_PATH'_build_xcode.log'
 
     exit 1
   fi
@@ -379,23 +380,64 @@ reporter()
 
 search_targets()
 {
-  for f in $(find $DIR_PATH -iname *.xcworkspace);
-  do
-    if [[ -d $f ]] && [[ $f != */project.xcworkspace ]]; then
-      WORKSPACE=$f
-    fi
-  done
+  if [[ -z $1 ]]; then
+    SEARCH_PATH=$DIR_PATH
+  fi
+
+  if [[ -z $SEARCH_PATH ]]; then
+    SEARCH_PATH='.'
+  fi
+
+  WORKSPACE=$(find_workspace $SEARCH_PATH)
 
   #
   # Search for project, but only if no workspace was found
   #
 
   if [[ -z $WORKSPACE ]]; then
-    for f in $(find $DIR_PATH -iname *.xcodeproj -maxdepth 2);
-    do
-      if [[ -d $f ]]; then
-        PROJECT=$f
-      fi
-    done
+    PROJECT=$(find_project $SEARCH_PATH)
   fi
+}
+
+find_workspace()
+{
+  for f in $(find $1 -iname *.xcworkspace);
+  do
+    if [[ -d $f ]] && [[ $f != */project.xcworkspace ]]; then
+      PROJECT_WORKSPACE=$f
+    fi
+  done
+
+  echo $PROJECT_WORKSPACE
+}
+
+find_project()
+{
+  for f in $(find $1 -iname *.xcodeproj -maxdepth 2);
+  do
+    if [[ -d $f ]] && [[ $f != *Pods* ]] && [[ $f != *pods* ]]; then
+      PROJECT_FILE=$f
+    fi
+  done
+
+  echo $PROJECT_FILE
+}
+
+create_report_path()
+{
+  LOG_REPORT_PATH=''
+
+  if [[ ! -z $1 ]]; then
+    LOG_REPORT_PATH="$1"
+  fi
+
+  if [[ ! -z $2 ]]; then
+    LOG_REPORT_PATH=$LOG_REPORT_PATH'_'"$2"
+  fi
+
+  if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
+    LOG_REPORT_PATH=$TRAVIS_JOB_NUMBER'_'$LOG_REPORT_PATH
+  fi
+
+  echo $LOG_REPORT_PATH
 }

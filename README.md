@@ -5,23 +5,26 @@ Dominus is a world class command line tool to improve workflow with developing i
 
 # Features
 
-- Loading new devices from TestFlight to Apple Developer Portal
-- Full configuration
-- Updating provisioning profiles
-- Building and testing application with automatic scheme and target detection
-  - Multiple targets, schemes, simulators and SDK's available 
+- Building iOS Projects
+  - Multiple targets or schemes
+  - Different SDK's
+  - Automatic build process
+- Testing iOS Projects
+  - Using different iOS Simulators or real devices
+  - Test report coverage
+  - Automatic test process
+- Updating Provisioning Profiles
+  - Loading new devices from TestFlight to Apple Developer Portal
+  - Regenerating provisioning profiles on demand
 - Quality control
   - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
-- Deployment to TestFlight
+- Deployment to TestFlight, Crashlytics
   - Automatic build project increase (on Travis CI only)
   - Release notes from Git history (on Travis CI only)
   - Configure which branches should deploy
 - Detailed notification system (HipChat)
-- Detailed report system
-
-In addition to features available on Travis CI, Dominus can also help with:
-
-- Project creation and configuration (using LiftOff)
+- Travis CI Full Support, including project configuration
+- Dashboard Reporting Panel and Ad-Hoc distribution
 
 # Installation
 
@@ -29,7 +32,7 @@ The easiest way to add Dominus to a project just add a Git submodule. Make sure 
 
 # Configuration file
 
-The file `dominus.cfg` is so called configuration file, it stores all project related information locally.
+The file `dominus.cfg` is so called configuration file, it stores all project related information locally and allows the replication of CI environment.
 
 **Make sure to add configuration file to .gitignore, so it is not commited to the repository as it can contain sensitive data.** On Travis always use encrypted environment variables (can be done with travis encrypt command) instead.
 
@@ -57,11 +60,13 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 # TODO
 
-- Code formatting checker (Obj-Clean)
+- Code formatting checker (Obj-Clean or some code formatter)
 - Push notification support (Shenzhen)
 - Disable recreation of Provisioning Profiles
-- Test report and code coverage upload
-- Use Travis Build Matrix for Parallelizing testing builds (done)
+- Code coverage generation and upload
+- Action mapping per branch (using Thalion gem)
+- Deploy only when all jobs are finished
+- Multiple scheme and target support on Travis
 
 Contact
 ======

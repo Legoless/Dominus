@@ -5,6 +5,8 @@ report()
   if [ "$REPORT" = true ] && [ -d './report' ]; then
     message "report" "Collecting generated reports..." trace normal
 
+    upload_prepare
+
     collect_reports
   else
     message "report" "Skipping report collection." info warning
@@ -17,17 +19,7 @@ report()
 
 collect_reports()
 {
-  #
-  # Construct correct report directory
-  #  
-
-  ARTIFACTS_GEM=$(gem list travis-artifacts -i)
-
-  if [ "$ARTIFACTS_GEM" != "true"]; then
-    message "report" "Installing artifacts gem..." debug normal
-
-  	gem_install "travis-artifacts"
-  fi
+  message "report" "Preparing path to upload reports..." trace normal
 
   #
   # Create result path to where on server we will store reports
@@ -49,7 +41,7 @@ collect_reports()
   	if [ -f $f ]; then
       message "report" "Uploading report file: $f" trace normal
 
-  	  upload_log $RESULT_PATH $f
+  	  upload_file $RESULT_PATH $f
   	fi
   done
 }
@@ -64,30 +56,44 @@ create_result_path()
 
   PROPERTY_LIST=$(find_property_list)
 
+  #
+  # App version
+  #
+
   if [[ ! -z $PROPERTY_LIST ]]; then
     APP_VERSION=$(read_property $PROPERTY_LIST CFBundleShortVersionString)
 
     RESULT_PATH=$RESULT_PATH"$APP_VERSION/"
   fi
 
-  CURRENT_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
+  #
+  # Date
+  #
 
-  RESULT_PATH=$RESULT_PATH"$CURRENT_DATE"
+  CURRENT_DATE=$(date +"%Y-%m-%d")
+
+  RESULT_PATH=$RESULT_PATH"$CURRENT_DATE/"
 
   if [[ ! -z $TRAVIS_COMMIT ]]; then
-  	RESULT_PATH=$RESULT_PATH"_$TRAVIS_COMMIT"
+    #
+    # Travis Build Number
+    #
+
+    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+      RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
+    fi
+
+    COMMIT_HASH=${TRAVIS_COMMIT:0:8}
+
+  	RESULT_PATH=$RESULT_PATH'_'$COMMIT_HASH
+
+    RESULT_PATH=$RESULT_PATH'/'
   fi
 
-  if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-  	RESULT_PATH=$RESULT_PATH"_$TRAVIS_BUILD_NUMBER"
-  fi
-
-  RESULT_PATH=$RESULT_PATH'/'
-
-  echo $RESULT_PATH
+  echo "$RESULT_PATH"
 }
 
-upload_log()
+upload_file()
 {
   upload_amazon $1 $2
 }
@@ -95,6 +101,55 @@ upload_log()
 upload_amazon()
 {
   if [[ ! -z $ARTIFACTS_S3_BUCKET ]] && [[ ! -z $ARTIFACTS_AWS_ACCESS_KEY_ID ]] && [[ ! -z $ARTIFACTS_AWS_SECRET_ACCESS_KEY ]]; then
-    travis-artifacts upload --target-path $1 --path $2
+    #travis-artifacts upload --target-path $1 --path $2
+
+    if [[ ! -z $ARTIFACTS_S3_REGION ]]; then
+      awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1 --region $ARTIFACTS_S3_REGION
+    else
+      awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1
+    fi
+    
+  fi
+}
+
+upload_prepare()
+{
+  if [[ -z $AWSCLI_CONFIG_FILE ]]; then
+    AWSCLI_CONFIG_FILENAME='awscli_config.yml'
+
+    #
+    # Construct correct report directory
+    #
+
+    set +e 
+
+    ARTIFACTS_GEM=`gem list awscli -i`
+
+    set -e
+
+    #
+    # Check for awscli gem which is needed for 
+    #
+
+    if [ "$ARTIFACTS_GEM" == "false" ]; then
+      message "report" "Installing awscli gem..." debug normal
+
+    	gem_install "awscli"
+    fi
+
+    #
+    # Sort out config file
+    #
+
+    if [ ! -f $AWSCLI_CONFIG_FILENAME ]; then
+      message "report" "Writing awscli config file..." debug normal
+
+      echo "aws_access_key_id: $ARTIFACTS_AWS_ACCESS_KEY_ID" > awscli_config.yml
+      echo "aws_secret_access_key: $ARTIFACTS_AWS_SECRET_ACCESS_KEY" >> awscli_config.yml
+    fi
+
+    if [[ -z $AWSCLI_CONFIG_FILE ]]; then
+      export AWSCLI_CONFIG_FILE=$AWSCLI_CONFIG_FILENAME
+    fi
   fi
 }

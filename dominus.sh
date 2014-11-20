@@ -109,24 +109,30 @@ integrate()
   #
   
   if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then
-    BUILD_SDK=$PLATFORM
-    TEST_SDK=$PLATFORM
-
+    
     if [ "$PLATFORM" == "iphone" ]; then
-      BUILD_SDK=$BUILD_SDK'os'
-      TEST_SDK=$TEST_SDK'simulator'
-    fi
 
-    BUILD_SDK=$BUILD_SDK"$SDK"
-    TEST_SDK=$TEST_SDK"$SDK"
+      if [ "$ACTION" != "run_tests" ]; then
+        BUILD_SDK=$PLATFORM'os'
+        BUILD_SDK=$BUILD_SDK"$SDK"
+      fi
+
+      TEST_SDK=$PLATFORM'simulator'$SDK
+    else
+      BUILD_SDK=$PLATFORM"$SDK"
+      TEST_SDK=$PLATFORM"$SDK"
+    fi
   fi
+
+  export BUILD_SDK=$BUILD_SDK
+  export TEST_SDK=$TEST_SDK
 
   #
   # Init and library is always run on CI, since it always starts
   # from point 0
   #
 
-  if [ "$CI" = true ] && [ "$ACTION" != "run_tests" ]; then
+  if [ "$CI" = true ] && [ "$ACTION" != "report" ]; then
     init
     #library
   fi
@@ -143,11 +149,12 @@ integrate()
     project_build;;
     run_tests) run_tests;;
     quality) quality;;
+    report) report;;
     deploy) provision;
     cert;
     project_build;
-    run_tests;
     send;;
+    send) send;;
     *) exit 1;;
   esac
 
@@ -155,7 +162,10 @@ integrate()
   # Finalize report and clean
   #
 
-  report
+  if [ "$ACTION" != "report" ]; then
+    report
+  fi
+
   clean
 }
 
@@ -247,7 +257,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.5.0'
+SCRIPT_VERSION='0.5.1'
 
 #
 # Load all utility functions

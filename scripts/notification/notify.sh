@@ -1,5 +1,30 @@
 #!/bin/bash
 
+clean_sender_name()
+{
+  SENDER_NAME=$1
+
+  #
+  # Cut away organization from repo slug
+  #
+  SENDER_NAME=${SENDER_NAME#*/}
+
+  #
+  # Cut away App on the end and iOS
+  #
+
+  SENDER_NAME=${SENDER_NAME%App}
+  SENDER_NAME=${SENDER_NAME%-iOS}
+  SENDER_NAME=${SENDER_NAME%iOS}
+
+  #
+  # Limit sender name to 14 characters
+  #
+  SENDER_NAME=${SENDER_NAME:0:15}
+  
+  echo $SENDER_NAME
+}
+
 # exit on failure
 usage()
 {
@@ -100,7 +125,29 @@ if [[ ! -z $PREFIX ]]; then
     mkdir './report'
   fi
 
-  echo $LOCAL_MESSAGE > './report/progress.log'
+  ACTION_NAME=$ACTION
+
+  if [ "$ACTION_NAME" == "run_tests" ]; then
+    ACTION_NAME='tests'
+  fi
+
+  LOG_FILENAME="$ACTION_NAME"
+
+  if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
+    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME"
+  fi
+
+  if [[ ! -z $BUILD_SDK ]] && [ "$ACTION_NAME" == "build" ]; then
+    LOG_FILENAME=$LOG_FILENAME'_'$BUILD_SDK
+  fi
+
+  if [[ ! -z $TEST_SDK ]] && [ "$ACTION_NAME" == "tests" ]; then
+    LOG_FILENAME=$LOG_FILENAME'_'$TEST_SDK
+  fi
+
+  if [ "$ACTION_NAME" != "report" ]; then
+    echo $LOCAL_MESSAGE >> "./report/$LOG_FILENAME.log"
+  fi
 fi
 
 echo $LOCAL_MESSAGE
@@ -120,19 +167,9 @@ fi
 SENDER_NAME=''
 
 if [[ ! -z $TRAVIS_COMMIT ]]; then
-  SENDER_NAME=$TRAVIS_REPO_SLUG
+  SENDER_NAME=$(clean_sender_name $TRAVIS_REPO_SLUG)
 
-  #
-  # Cut away organization from repo slug
-  #
-  SENDER_NAME=${SENDER_NAME#*/}
-
-  #
-  # Limit sender name to 14 characters
-  #
-  SENDER_NAME=${SENDER_NAME:0:15}
-  
-  MESSAGE='[Build <b>#'$TRAVIS_BUILD_NUMBER'</b>]: '$MESSAGE
+  MESSAGE='[Build <b>#'$TRAVIS_JOB_NUMBER'</b>]: '$MESSAGE
 fi
 
 if [[ -z $SENDER_NAME ]]; then

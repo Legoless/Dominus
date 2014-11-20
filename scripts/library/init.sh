@@ -9,7 +9,7 @@ set -e
 init()
 {
   if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-    message "init" "Building branch: <b>$TRAVIS_BRANCH</b>." warn warning
+    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$TRAVIS_BRANCH</b>." warn warning
   else
     CURRENT_DIR=$(pwd)
     CURRENT_DIR=$(basename $CURRENT_DIR)
@@ -19,7 +19,7 @@ init()
 
   message "init" "Updating Homebrew..." trace normal
 
-  #brew_update
+  brew_update
 
   message "init" "Updating xctool..." trace normal
 
@@ -38,6 +38,10 @@ init()
   gem_install "CocoaPods"
 
   message "init" "Gems installed." debug normal
+
+  message "init" "Checking upload tools..." trace normal
+
+  upload_prepare
 }
 
 #
@@ -53,8 +57,9 @@ brew_upgrade()
 {
   #brew upgrade > /dev/null
 
-  brew uninstall xctool
-  brew install xctool
+  if brew outdated | grep -qx xctool; then
+  	brew upgrade xctool;
+  fi
 }
 
 gem_install()

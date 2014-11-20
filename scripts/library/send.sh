@@ -230,6 +230,9 @@ send()
   # Upload to TestFlight
   #
 
+  RESULT_PATH=$(create_result_path)
+  RESULT_PATH=$RESULT_PATH'binary/'
+
   if [[ $BUILD_SDK != *simulator* ]]; then
     message "send" "Uploading package to TestFlight..." debug normal
 
@@ -243,6 +246,11 @@ send()
     -F notify="TRUE" -w "%{http_code}"`
 
     message "send" "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+  
+    upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
+    upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
+  else
+     upload_file $RESULT_PATH "$APP_PATH.zip"
   fi
 }
 
@@ -257,8 +265,6 @@ construct_release_notes()
   #
   # Append app name
   #
-
-  echo 'LOL'
 
   XCODE_PROJECT=`find . -iname *.xcodeproj -type d -maxdepth 2 | head -1`
 
@@ -281,7 +287,6 @@ construct_release_notes()
   #
 
   if [[ ! -z $PROPERTY_LIST ]]; then
-    message "send" "Creating release notes from property list: $PROPERTY_LIST"
 
     APP_VERSION=$(read_property $PROPERTY_LIST CFBundleShortVersionString)
 
@@ -291,11 +296,11 @@ construct_release_notes()
 
     BUNDLE_NAME=$(read_property $PROPERTY_LIST CFBundleDisplayName)
 
-    if [[ ! -z $BUNDLE_NAME ]] && [[] "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
+    if [[ ! -z $BUNDLE_NAME ]] && [[ "$BUNDLE_NAME" != *PRODUCT_NAME* ]]; then
       RELEASE_NOTES=$BUNDLE_NAME
     fi
 
-    RELEASE_NOTES="$RELEASE_NOTES ($APP_VERSION"
+    RELEASE_NOTES="$RELEASE_NOTES (v$APP_VERSION"
 
     if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
       RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
@@ -322,9 +327,9 @@ construct_release_notes()
   BUILD_BRANCH="$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_BRANCH:0:1})${BUILD_BRANCH:1}"
 
   if [[ ! -z $BUILD_BRANCH ]]; then
-    RELEASE_NOTES=$RELEASE_NOTES' '$BUILD_BRANCH' automated build.'
+    RELEASE_NOTES=$RELEASE_NOTES' Automated Build (Branch: '$BUILD_BRANCH').'
   else
-    RELEASE_NOTES=$RELEASE_NOTES' automated build.'
+    RELEASE_NOTES=$RELEASE_NOTES' Automated Build.'
   fi
 
   #
@@ -344,7 +349,7 @@ construct_release_notes()
     done
   fi
 
-  return "$RELEASE_NOTES"
+  echo "$RELEASE_NOTES"
 }
 
 find_property_list()
