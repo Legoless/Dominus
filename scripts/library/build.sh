@@ -183,7 +183,7 @@ setup_bootstrap()
   if [[ -f $ENVIRONMENTS ]]; then
     BOOTSTRAP=$(dirname ${ENVIRONMENTS})
 
-    touch $BOOTSTRAP'/KZBootstrapUserMacros.h'
+    touch "$BOOTSTRAP/KZBootstrapUserMacros.h"
   fi
 }
 
