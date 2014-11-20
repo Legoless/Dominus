@@ -198,7 +198,7 @@ apple_provisioning_profile()
 
   IFS=$'\n'
 
-  PROFILES=$($CUPERTINO_PATH profiles:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv)
+  PROFILES=$($CUPERTINO_PATH profiles:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv --trace)
 
   PROFILE_INDEX=-1
 
