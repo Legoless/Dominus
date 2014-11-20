@@ -109,6 +109,8 @@ run_tests()
   #
 
   TEST_CLEAN_COMMAND=$TEST_COMMAND" clean"
+
+  setup_bootstrap
   
   execute_rake_test
   execute_test
