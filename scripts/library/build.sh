@@ -165,7 +165,26 @@ build()
 
   message "build" "Building project with xctool..." trace normal
 
+  setup_bootstrap
+
   execute_build
+}
+
+setup_bootstrap()
+{
+  #
+  # Check if KZBootstrap exists in project and generate own user
+  #
+
+  ENVIRONMENTS=`find . -iname KZBEnvironments.plist | head -n1`
+
+  IFS=$'\n'
+
+  if [[ -f $ENVIRONMENTS ]]; then
+    BOOTSTRAP=$(dirname ${ENVIRONMENTS})
+
+    touch $BOOTSTRAP'/KZBootstrapUserMacros.h'
+  fi
 }
 
 set_build_path()

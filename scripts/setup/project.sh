@@ -82,18 +82,13 @@ if [ "$TRAVIS_CONFIG" = true ]; then
   echo 'before_install:' >> .travis.yml
   echo '- chmod +x ./Dominus/dominus.sh' >> .travis.yml
   echo '- ./Dominus/dominus.sh update' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy init' >> .travis.yml
-  echo 'install:' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy pod' >> .travis.yml
-  echo 'before_script:' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy prepare' >> .travis.yml
   echo 'script:' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy build' >> .travis.yml
-  echo 'after_success:' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy send' >> .travis.yml
-  echo 'after_script:' >> .travis.yml
-  echo '- ./Dominus/dominus.sh deploy clean' >> .travis.yml
+  echo '- ./Dominus/dominus.sh integrate' >> .travis.yml
+  echo 'after_failure:' >> .travis.yml
+  echo '- ./Dominus/dominus.sh integrate report' >> .travis.yml
   echo 'env:' >> .travis.yml
+  echo '  matrix:' >> .travis.yml
+  echo '  - SDK=8.0 ACTION=deploy' >> .travis.yml
   echo '  global:' >> .travis.yml
 fi
 
@@ -109,8 +104,23 @@ if [ "$DOMINUS_CONFIG" = true ]; then
 fi
 
 #
-# Append Global Variables if found
+# -----------------------------------------------------------------------
 #
+
+#
+# Global variables
+#
+
+if [[ -z $PLATFORM ]]; then
+  echo '[PROJECT]: Enter platform for project (iphone): '
+  read PLATFORM
+fi
+
+if [[ ! -z $PLATFORM ]]; then
+  writecfg "PLATFORM" "$PLATFORM"
+else
+  writecfg "PLATFORM" "iphone"
+fi
 
 if [[ -z $LOG_LEVEL ]]; then
   echo '[PROJECT]: Enter notification log level [warn|info|debug]: '
@@ -119,65 +129,6 @@ fi
 
 if [[ ! -z $LOG_LEVEL ]]; then
   writecfg "LOG_LEVEL" "$LOG_LEVEL"
-fi
-
-#
-# Build SDK
-#
-
-if [[ -z $BUILD_SDK ]]; then
-  echo '[PROJECT]: Enter deployment build SDK (iphoneos7.1): '
-  read BUILD_SDK
-fi
-
-if [[ ! -z $BUILD_SDK ]]; then
-  writecfg "BUILD_SDK" "$BUILD_SDK"
-else
-  writecfg "BUILD_SDK" "iphoneos7.1"
-fi
-
-#
-# Warning builds
-#
-
-if [[ -z $ALLOWS_WARNING_BUILDS ]]; then
-  echo '[PROJECT]: Allow warning builds to be deployed (true/false): '
-  read ALLOWS_WARNING_BUILDS
-fi
-
-if [[ ! -z $ALLOWS_WARNING_BUILDS ]]; then
-  writecfg "ALLOWS_WARNING_BUILDS" "$ALLOWS_WARNING_BUILDS"
-else
-  writecfg "ALLOWS_WARNING_BUILDS" "false"
-fi
-
-#
-# Build number
-#
-
-if [[ -z $USE_BUILD_NUMBER ]]; then
-  echo '[PROJECT]: Use build number from (travis/project or empty): '
-  read USE_BUILD_NUMBER
-fi
-
-if [[ ! -z $USE_BUILD_NUMBER ]]; then
-  writecfg "USE_BUILD_NUMBER" "$USE_BUILD_NUMBER"
-fi
-
-
-#
-# Test SDK
-#
-
-if [[ -z $TEST_SDK ]]; then
-  echo '[PROJECT]: Enter deployment test SDK (iphonesimulator7.1): '
-  read TEST_SDK
-fi
-
-if [[ ! -z $TEST_SDK ]]; then
-  writecfg "TEST_SDK" "$TEST_SDK"
-else
-  writecfg "TEST_SDK" "iphonesimulator7.1"
 fi
 
 #
@@ -192,6 +143,112 @@ fi
 if [[ ! -z $DEPLOY_BRANCH ]]; then
   writecfg "DEPLOY_BRANCH" "$DEPLOY_BRANCH"
 fi
+
+#
+# Warning builds
+#
+
+if [[ -z $DEPLOY_ALLOW_WARNING_BUILDS ]]; then
+  echo '[PROJECT]: Allow warning builds to be deployed (true/false): '
+  read DEPLOY_ALLOW_WARNING_BUILDS
+fi
+
+if [[ ! -z $ALLOWS_WARNING_BUILDS ]]; then
+  writecfg "DEPLOY_ALLOW_WARNING_BUILDS" "$DEPLOY_ALLOW_WARNING_BUILDS"
+else
+  writecfg "DEPLOY_ALLOW_WARNING_BUILDS" "false"
+fi
+
+
+#
+# Build number
+#
+
+if [[ -z $USE_BUILD_NUMBER ]]; then
+  echo '[PROJECT]: Use build number from (travis/project or empty): '
+  read USE_BUILD_NUMBER
+fi
+
+if [[ ! -z $USE_BUILD_NUMBER ]]; then
+  writecfg "USE_BUILD_NUMBER" "$USE_BUILD_NUMBER"
+fi
+
+#
+# Updating devices
+#
+
+if [[ -z $DEPLOY_UPDATE_DEVICES ]]; then
+  echo '[PROJECT]: Should device UDIDs be updated from TestFlight (true/false)? '
+  read DEPLOY_UPDATE_DEVICES
+fi
+
+if [[ ! -z $DEPLOY_UPDATE_DEVICES ]]; then
+  writecfg "DEPLOY_UPDATE_DEVICES" "$DEPLOY_UPDATE_DEVICES"
+else
+  writecfg "DEPLOY_UPDATE_DEVICES" "false"
+fi
+
+#
+# -----------------------------------------------------------------------
+#
+
+if [[ -z $FAUXPAS_LICENSE_KEY ]]; then
+  echo '[PROJECT]: Would you like to prepare Faux Pas Quality Check tool (y/n)? '
+  read FAUXPAS_INSTALL
+
+  if [ "$FAUXPAS_INSTALL" = "y" ]; then
+    if [[ -z $FAUXPAS_LICENSE_TYPE ]]; then
+      echo '[PROJECT]: Faux Pas License Type (organization-seat/personal)? '
+      read FAUXPAS_LICENSE_TYPE
+    fi
+
+    if [[ -z $FAUXPAS_LICENSE_NAME ]]; then
+      echo '[PROJECT]: Faux Pas License Name: '
+      read FAUXPAS_LICENSE_TYPE
+    fi
+
+    if [[ -z $FAUXPAS_LICENSE_KEY ]]; then
+      echo '[PROJECT]: Faux Pas License Key: '
+      read FAUXPAS_LICENSE_KEY
+    fi
+  fi
+fi
+
+if [[ ! -z $FAUXPAS_LICENSE_TYPE ]]; then
+  writecfg "FAUXPAS_LICENSE_TYPE" "$FAUXPAS_LICENSE_TYPE"
+fi
+
+if [[ ! -z $FAUXPAS_LICENSE_NAME ]]; then
+  writecfg "FAUXPAS_LICENSE_NAME" "$FAUXPAS_LICENSE_NAME"
+fi
+
+#
+# -----------------------------------------------------------------------
+#
+
+if [[ -z $TESTFLIGHT_TEAM ]]; then
+  echo '[PROJECT]: Would you like to setup TestFlight Access (y/n)? '
+  read TESTFLIGHT_INSTALL
+
+  if [ "$TESTFLIGHT_INSTALL" = "y" ]; then
+    if [[ -z $FAUXPAS_LICENSE_TYPE ]]; then
+      echo '[PROJECT]: Faux Pas License Type (organization-seat/personal)? '
+      read FAUXPAS_LICENSE_TYPE
+    fi
+
+    if [[ -z $FAUXPAS_LICENSE_NAME ]]; then
+      echo '[PROJECT]: Faux Pas License Name: '
+      read FAUXPAS_LICENSE_TYPE
+    fi
+
+    if [[ -z $FAUXPAS_LICENSE_KEY ]]; then
+      echo '[PROJECT]: Faux Pas License Key: '
+      read FAUXPAS_LICENSE_KEY
+    fi
+  fi
+fi
+
+
 
 #
 # TestFlight Team
@@ -232,6 +289,35 @@ if [[ ! -z $TESTFLIGHT_DISTRIBUTION_LIST ]]; then
   writecfg "TESTFLIGHT_DISTRIBUTION_LIST" "$TESTFLIGHT_DISTRIBUTION_LIST" >> .travis.yml
 fi
 
+
+if [[ -z $TESTFLIGHT_API_TOKEN ]]; then
+  echo '[PROJECT]: Enter TestFlight API token: '
+  read TESTFLIGHT_API_TOKEN
+fi
+
+
+#
+# TestFlight Password
+#
+
+if [[ -z $TESTFLIGHT_PASSWORD ]]; then
+  echo '[PROJECT]: Enter TestFlight Password: '
+  read -s TESTFLIGHT_PASSWORD
+fi
+
+#
+# TestFlight Team Token
+#
+
+if [[ -z $TESTFLIGHT_TEAM_TOKEN ]]; then
+  echo '[PROJECT]: Enter TestFlight Team token: '
+  read TESTFLIGHT_TEAM_TOKEN
+fi
+
+#
+# -----------------------------------------------------------------------
+#
+
 #
 # Developer Team
 #
@@ -271,14 +357,6 @@ if [[ ! -z $DEVELOPER_PROVISIONING ]]; then
   writecfg "DEVELOPER_PROVISIONING" "$DEVELOPER_PROVISIONING"
 fi
 
-#
-# TestFlight Password
-#
-
-if [[ -z $TESTFLIGHT_PASSWORD ]]; then
-  echo '[PROJECT]: Enter TestFlight Password: '
-  read -s TESTFLIGHT_PASSWORD
-fi
 
 if [[ ! -z $TESTFLIGHT_PASSWORD ]]; then
   writecfg "TESTFLIGHT_PASSWORD" "$TESTFLIGHT_PASSWORD" "secure"
@@ -288,23 +366,11 @@ fi
 # TestFlight API Token
 #
 
-if [[ -z $TESTFLIGHT_API_TOKEN ]]; then
-  echo '[PROJECT]: Enter TestFlight API token: '
-  read TESTFLIGHT_API_TOKEN
-fi
 
 if [[ ! -z $TESTFLIGHT_API_TOKEN ]]; then
   writecfg "TESTFLIGHT_API_TOKEN" "$TESTFLIGHT_API_TOKEN" "secure"
 fi
 
-#
-# TestFlight Team Token
-#
-
-if [[ -z $TESTFLIGHT_TEAM_TOKEN ]]; then
-  echo '[PROJECT]: Enter TestFlight Team token: '
-  read TESTFLIGHT_TEAM_TOKEN
-fi
 
 if [[ ! -z $TESTFLIGHT_TEAM_TOKEN ]]; then
   writecfg "TESTFLIGHT_TEAM_TOKEN" "$TESTFLIGHT_TEAM_TOKEN" "secure"
@@ -361,3 +427,8 @@ fi
 if [[ ! -z $HIPCHAT_ROOM_ID ]]; then
   writecfg "HIPCHAT_ROOM_ID" "$HIPCHAT_ROOM_ID" "secure"
 fi
+
+if [[ ! -z $FAUXPAS_LICENSE_KEY ]]; then
+  writecfg "FAUXPAS_LICENSE_KEY" "$FAUXPAS_LICENSE_KEY" "secure"
+fi
+
