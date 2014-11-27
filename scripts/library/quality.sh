@@ -17,7 +17,7 @@ quality()
 
     message "quality" "Installing Faux Pas..." debug normal
 
-    brew cask install faux-pas
+    brew cask install fauxpas
 
     #
     # Need to take care of FauxPas CLI tools
