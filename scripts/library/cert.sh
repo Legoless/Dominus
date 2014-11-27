@@ -32,7 +32,7 @@ cert()
 
   message "cert" "Importing Developer certificate at: $DEVELOPER_CERT_PATH" debug normal
 
-  DEVELOPER_CERTIFICATE_IMPORT=$(keychain_certificate_import $DEVELOPER_CERT_PATH $DEVELOPER_IDENTITY_PASSWORD)
+  DEVELOPER_CERTIFICATE_IMPORT=$(keychain_certificate_import "$DEVELOPER_CERT_PATH" "$DEVELOPER_IDENTITY_PASSWORD")
 
   message "cert" "Developer certificate imported." trace normal
 
