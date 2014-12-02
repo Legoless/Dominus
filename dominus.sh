@@ -248,7 +248,7 @@ project_build()
 
 VARIABLE_PATH='./dominus.cfg'
 ATLANTIS_PATH='testflight'
-CUPERTINO_PATH='iospro'
+CUPERTINO_PATH='ios'
 
 #
 # Search for correct script path

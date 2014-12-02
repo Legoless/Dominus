@@ -25,9 +25,9 @@ init()
 
   brew_upgrade
 
-  message "init" "Installing CupertinoPro gem..." trace normal
+  message "init" "Installing Cupertino gem..." trace normal
 
-  gem_install "CupertinoPro"
+  gem_install "Cupertino"
 
   message "init" "Installing AtlantisPro gem..." trace normal
 
