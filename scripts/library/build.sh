@@ -78,7 +78,7 @@ build()
     BUILD_COMMAND="xctool -project $PROJECT"
   fi
 
-  BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG"
+  BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME $BUILD_CONFIG"
 
   #
   # If we are building for simulator, do not care about provisioning
