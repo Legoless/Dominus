@@ -204,6 +204,10 @@ set_build_path()
 
 search_scheme()
 {
+  if [[ ! -z $SCHEME ]]; then
+    return
+  fi
+
   # Bash to split by newline character
   IFS=$'\n'
 
