@@ -81,7 +81,7 @@ run_tests()
     TEST_COMMAND="xctool -project $PROJECT"
   fi
 
-  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME $BUILD_CONFIG -arch i386"
+  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG -arch i386"
 
   if [[ $TEST_SDK == *simulator* ]]; then
     TEST_COMMAND=$TEST_COMMAND" -arch i386"
