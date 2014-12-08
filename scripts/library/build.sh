@@ -239,12 +239,12 @@ select_scheme()
     if [[ ! -z $TARGET_SCHEME_FILE ]] && [ "$SCHEME_BASENAME" == "$TARGET_SCHEME_FILE"]; then
       SCHEME_FILE=$filename
 
-      break;
+      break
     else if [ "$SCHEME_BASENAME" != "Quality.xcscheme" ]; then
       SCHEME=$SCHEME_BASENAME
       SCHEME_FILE=$filename
 
-      break;
+      break
     fi
 
   done
