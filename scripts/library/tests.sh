@@ -49,14 +49,7 @@ run_tests()
 
   message "test" "Source path: $BUILD_PATH" trace normal
 
-
-  # Remember previous dir
-  CURRENT_DIR=$(pwd)
-  cd $BUILD_PATH
-
-  search_scheme
-
-  cd $CURRENT_DIR
+  select_scheme
 
   #
   # Check for scheme
@@ -66,6 +59,12 @@ run_tests()
     message "test" "No scheme found in project (did you set it as shared?). Aborting..." warn error
     exit 1
   fi
+
+  #
+  # Load config from scheme file on Test action
+  #
+
+  BUILD_CONFIG=$(find_config $SCHEME_FILE Test)
 
   #
   # Build and test paths need to go under build directory, which is usually under .gitignore
@@ -81,7 +80,20 @@ run_tests()
     TEST_COMMAND="xctool -project $PROJECT"
   fi
 
-  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME -configuration $BUILD_CONFIG -arch i386"
+  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME"
+
+  #
+  # Append build configuration
+  #
+
+  if [[ ! -z $BUILD_CONFIG ]]; then
+    message "test" "Using Test Action build config in scheme: $BUILD_CONFIG" debug normal
+
+    TEST_COMMAND=$TEST_COMMAND" -configuration $BUILD_CONFIG"
+  else
+    message "test" "Build configuration not detected, using xcodebuild..." info warning
+  fi
+
 
   if [[ $TEST_SDK == *simulator* ]]; then
     TEST_COMMAND=$TEST_COMMAND" -arch i386"

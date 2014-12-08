@@ -47,22 +47,22 @@ build()
 
   message "build" "Source path: $BUILD_PATH" debug normal
 
-  # Remember previous dir
-  CURRENT_DIR=$(pwd)
-  cd $BUILD_PATH
-
-  search_scheme
-
-  cd $CURRENT_DIR
+  select_scheme
 
   #
   # Check for scheme
   #
 
   if [[ -z $SCHEME ]]; then
-    message "build" "No scheme found in project (did you set it as shared?). Aborting..." warn error
+    message "build" "No scheme found in project (did you set at least one scheme as shared?). Aborting..." warn error
     exit 1
   fi
+
+  #
+  # Load config from scheme file on Launch action
+  #
+
+  BUILD_CONFIG=$(find_config $SCHEME_FILE Launch)
 
   #
   # Build and test paths need to go under build directory, which is usually under .gitignore
@@ -78,7 +78,19 @@ build()
     BUILD_COMMAND="xctool -project $PROJECT"
   fi
 
-  BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME $BUILD_CONFIG"
+  BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME"
+
+  #
+  # Append build configuration
+  #
+
+  if [[ ! -z $BUILD_CONFIG ]]; then
+    message "build" "Using Launch Action build config in scheme: $BUILD_CONFIG" debug normal
+
+    BUILD_COMMAND=$BUILD_COMMAND" -configuration $BUILD_CONFIG"
+  else
+    message "build" "Build configuration not detected, using xcodebuild..." info warning
+  fi
 
   #
   # If we are building for simulator, do not care about provisioning
@@ -139,6 +151,8 @@ build()
   #
 
   if [[ ! -z $BUILD_NUMBER ]]; then
+    find_target
+
     set_build_number $BUILD_NUMBER $ADD_BUILD_NUMBER_TO_PROJECT
   fi
 
@@ -187,6 +201,7 @@ setup_bootstrap()
   fi
 }
 
+
 set_build_path()
 {
   #
@@ -202,66 +217,36 @@ set_build_path()
   fi
 }
 
-search_scheme()
+select_scheme()
 {
+  #
+  # Search all schemes
+  #
+
   if [[ ! -z $SCHEME ]]; then
-    return
+    TARGET_SCHEME_FILE=$SCHEME
   fi
 
-  # Bash to split by newline character
-  IFS=$'\n'
-
-  SCHEMES=()
-  TARGETS=()
-  CONFIGURATIONS=()
-
-  PARSE_TYPE=0
-
-  for line in $(xcodebuild -list);
+  for filename in $(find . -iname "*.xcscheme" ! -iname "Pods*");
   do
     #
-    # First see what parsing mode are we in
+    # If we have a scheme set, we need to find scheme file
     #
-    if [[ $line == *Schemes:* ]]; then
-      PARSE_TYPE=1
-    elif [[ $line == *Targets:* ]]; then
-      PARSE_TYPE=2
-    elif [[ $line == *Configurations:* ]]; then
-    PARSE_TYPE=3
-  elif [ $(echo $line | grep 'build configuration') ]; then
-    PARSE_TYPE=0
-  elif [ "$PARSE_TYPE" != 0 ]; then
-    # Trim line
-    CURRENT_LINE=$(echo $line | tr -d '[[:space:]]')
 
-#echo $CURRENT_LINE
+    SCHEME_BASENAME=$(basename $filename)
+    SCHEME_BASENAME=${SCHEME_BASENAME%.*}
 
-    if [[ -z $CURRENT_LINE ]]; then
-#echo 'RESETTING...'
+    if [[ ! -z $TARGET_SCHEME_FILE ]] && [ "$SCHEME_BASENAME" == "$TARGET_SCHEME_FILE"]; then
+      SCHEME_FILE=$filename
 
-      PARSE_TYPE=0
-    elif [ "$PARSE_TYPE" = 1 ]; then
-#echo 'Scheme: '$CURRENT_LINE
+      break;
+    else if [ "$SCHEME_BASENAME" != "Quality.xcscheme" ]; then
+      SCHEME=$SCHEME_BASENAME
+      SCHEME_FILE=$filename
 
-      SCHEMES+=($CURRENT_LINE)
-
-      if [[ -z $SCHEME ]]; then
-        SCHEME=$CURRENT_LINE
-      fi
-    elif [ "$PARSE_TYPE" = 2 ]; then
-#echo 'Target: '$CURRENT_LINE
-
-      TARGETS+=($CURRENT_LINE)
-    elif [ "$PARSE_TYPE" = 3 ]; then
-#echo 'Configuration: '$CURRENT_LINE
-
-      CONFIGURATIONS+=($CURRENT_LINE)
-
-      if [[ -z $BUILD_CONFIG ]]; then
-        BUILD_CONFIG=$CURRENT_LINE
-      fi
+      break;
     fi
-  fi
+
   done
 }
 
@@ -273,7 +258,7 @@ set_build_number()
 
   IFS=$'\n'
 
-  for filename in $(find . -iname $SCHEME-Info.plist);
+  for filename in $(find . -iname "$TARGET-Info.plist");
   do
 
     #
@@ -425,6 +410,34 @@ find_project()
   done
 
   echo $PROJECT_FILE
+}
+
+find_config()
+{
+  SCHEME_ACTION=$2
+
+  if [[ ! -z $BUILD_ACTION ]]; then
+    SCHEME_ACTION='Launch'
+  fi
+
+  BUILD_CONFIG=$(xmllint $1 --xpath "string(//${SCHEME_ACTION}Action/@buildConfiguration)")
+
+  echo $BUILD_CONFIG
+}
+
+find_target()
+{
+  #
+  # If target is already specified, use it, otherwise look for one that is not a testing target
+  #
+  if [[ ! -z $TARGET ]]; then
+    return
+  fi
+
+  TARGET_EXECUTABLE=$(xmllint $1 --xpath "string(//BuildAction/*/*/BuildableReference/@BuildableName)")
+
+  # Remove .app if it is in target
+  TARGET=${TARGET_EXECUTABLE%.*}
 }
 
 create_report_path()
