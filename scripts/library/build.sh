@@ -240,7 +240,7 @@ select_scheme()
       SCHEME_FILE=$filename
 
       break
-    elif [ "$SCHEME_BASENAME" != "Quality.xcscheme" ] && [[ -z $SCHEME ]]; then
+    elif [ "$SCHEME_BASENAME" != "Quality" ] && [[ -z $SCHEME ]]; then
       SCHEME=$SCHEME_BASENAME
       SCHEME_FILE=$filename
 
