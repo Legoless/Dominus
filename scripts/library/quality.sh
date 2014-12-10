@@ -36,7 +36,7 @@ quality()
     search_targets
     set_build_path
 
-    select_scheme
+    #select_scheme
 
     #message "quality" "Setuping FauxPas CLI tools..." trace normal
 
@@ -70,7 +70,7 @@ quality()
       # Setup Bootstrap
       #
 
-      #setup_bootstrap
+      setup_bootstrap
 
       LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
 
