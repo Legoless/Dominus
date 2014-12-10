@@ -151,6 +151,8 @@ build()
   #
 
   if [[ ! -z $BUILD_NUMBER ]]; then
+    message "build" "Updating build number with CI: $BUILD_NUMBER" debug normal
+
     find_target
 
     set_build_number $BUILD_NUMBER $ADD_BUILD_NUMBER_TO_PROJECT
@@ -236,7 +238,7 @@ select_scheme()
     SCHEME_BASENAME=$(basename $filename)
     SCHEME_BASENAME=${SCHEME_BASENAME%.*}
 
-    if [[ ! -z $TARGET_SCHEME_FILE ]] && [ "$SCHEME_BASENAME" == "$TARGET_SCHEME_FILE"]; then
+    if [[ ! -z $TARGET_SCHEME_FILE ]] && [ "$SCHEME_BASENAME" == "$TARGET_SCHEME_FILE" ]; then
       SCHEME_FILE=$filename
 
       break
