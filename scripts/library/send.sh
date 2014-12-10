@@ -290,8 +290,6 @@ construct_release_notes()
   	PROPERTY_LIST=$(find_property_list)
   fi
 
-  message "send" "Using Info Property List: $PROPERTY_LIST" debug normal
-
   #
   # Append version and build to release notes
   #
