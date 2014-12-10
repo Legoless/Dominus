@@ -153,7 +153,7 @@ build()
   if [[ ! -z $BUILD_NUMBER ]]; then
     message "build" "Updating build number with CI: $BUILD_NUMBER" debug normal
 
-    find_target
+    find_target $SCHEME_FILE
 
     set_build_number $BUILD_NUMBER $ADD_BUILD_NUMBER_TO_PROJECT
   fi
