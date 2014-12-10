@@ -121,11 +121,7 @@ upload_prepare()
     # Construct correct report directory
     #
 
-    set +e 
-
-    ARTIFACTS_GEM=`gem list awscli -i`
-
-    set -e
+    ARTIFACTS_GEM=$(check_gem awscli)
 
     #
     # Check for awscli gem which is needed for 

@@ -66,6 +66,12 @@ quality()
 
     if [[ ! -z $FAUXPAS_COMMAND ]]; then
 
+      #
+      # Setup Bootstrap
+      #
+
+      #setup_bootstrap
+
       LOG_REPORT_PATH=$(create_report_path quality $BUILD_SDK)
 
       FAUXPAS_OUTPUT=`fauxpas_cli check $FAUXPAS_COMMAND -o json > './report/'$LOG_REPORT_PATH'_check.json' || true`

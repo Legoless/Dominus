@@ -8,6 +8,8 @@ def fauxPasParse (filename)
   errors = 0
   total = 0
 
+  puts filename
+
   if (File.exist?(filename))
     #file = File.load(filename, "r:UTF-8")
     report = JSON.parse(IO.read(filename))

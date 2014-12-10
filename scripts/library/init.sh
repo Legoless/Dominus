@@ -64,7 +64,11 @@ brew_upgrade()
 
 gem_install()
 {
-  GEM=$(echo $1 | tr '[:upper:]' '[:lower:]')
+  local GEM=$(echo $1 | tr '[:upper:]' '[:lower:]')
 
-  gem install $GEM --no-rdoc --no-ri --no-document --quiet
+  local GEM_CHECK=$(check_gem $GEM)
+
+  if [ "$GEM_CHECK" == "false" ]; then
+    gem install $GEM --no-rdoc --no-ri --no-document --quiet
+  fi
 }
