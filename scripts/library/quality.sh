@@ -36,12 +36,7 @@ quality()
     search_targets
     set_build_path
 
-    CURRENT_DIR=$(pwd)
-
-    cd $BUILD_PATH
-    search_scheme
-
-    cd $CURRENT_DIR
+    select_scheme
 
     #message "quality" "Setuping FauxPas CLI tools..." trace normal
 
@@ -104,7 +99,7 @@ quality()
       exit 1
     fi
   else
-  	message "quality" "Missing Faux Pas license information, aborting..." warn warning
+  	message "quality" "Missing Faux Pas license information, skipping..." warn warning
   fi
 }
 
