@@ -22,13 +22,13 @@ clean()
 delete_file()
 {
   if [ -f $1 ]; then
-    rm $1
+    rm ./$1
   fi
 }
 
 delete_dir()
 {
   if [ -d $1 ]; then
-    rm -rf $1
+    rm -rf ./$1
   fi
 }
