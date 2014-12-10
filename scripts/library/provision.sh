@@ -295,7 +295,7 @@ apple_download_profile()
 
   DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
 
-  message "provision" "$DOWNLOAD" trace normal
+  #message "provision" "$DOWNLOAD" trace normal
 
   PROFILE_NAME=`find . -type f -name "*.mobileprovision" | head -n1`
 }

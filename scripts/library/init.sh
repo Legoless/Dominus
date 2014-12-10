@@ -41,7 +41,13 @@ init()
 
   message "init" "Checking upload tools..." trace normal
 
-  upload_prepare
+  #
+  # Prepare upload scripts if reporting is true
+  #
+  
+  if [ "$REPORT" == true ]; then
+    upload_prepare
+  fi
 }
 
 #

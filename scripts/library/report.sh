@@ -2,7 +2,7 @@
 
 report()
 {
-  if [ "$REPORT" = true ] && [ -d './report' ]; then
+  if [ "$REPORT" == true ] && [ -d './report' ]; then
     message "report" "Collecting generated reports..." trace normal
 
     upload_prepare

@@ -290,6 +290,8 @@ construct_release_notes()
   	PROPERTY_LIST=$(find_property_list)
   fi
 
+  message "send" "Using Info Property List: $PROPERTY_LIST" debug normal
+
   #
   # Append version and build to release notes
   #
@@ -310,12 +312,8 @@ construct_release_notes()
 
     RELEASE_NOTES="$RELEASE_NOTES (v$APP_VERSION"
 
-    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-      RELEASE_NOTES=$RELEASE_NOTES'.'$TRAVIS_BUILD_NUMBER
-    else
-      PLIST_BUILD_NUMBER=$(read_property $PROPERTY_LIST CFBundleVersion)
-      RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
-    fi
+    PLIST_BUILD_NUMBER=$(read_property $PROPERTY_LIST CFBundleVersion)
+    RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
 
     RELEASE_NOTES=$RELEASE_NOTES')'
   fi
