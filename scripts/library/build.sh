@@ -260,7 +260,9 @@ set_build_number()
 
   IFS=$'\n'
 
-  for filename in $(find . -iname "$TARGET-Info.plist");
+  message "build" "Searching for target property list: $TARGET" debug normal
+
+  for filename in $(find . -iname "$TARGET*Info.plist" ! -iname "*Tests*");
   do
 
     #
