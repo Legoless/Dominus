@@ -369,7 +369,7 @@ find_property_list()
     TARGET_DIR=$1
   fi
 
-  for filename in $(find $TARGET_DIR -iname *Info.plist);
+  for filename in $(find $TARGET_DIR -iname *Info.plist -maxdepth 2);
   do
 
     #
