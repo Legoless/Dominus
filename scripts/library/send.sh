@@ -27,7 +27,6 @@ send()
   API_TOKEN=$TESTFLIGHT_API_TOKEN
   TEAM_TOKEN=$TESTFLIGHT_TEAM_TOKEN
   DISTRIBUTION_LISTS=$TESTFLIGHT_DISTRIBUTION_LIST
-  RELEASE_NOTES=$(construct_release_notes)
 
   message "send" "Sending build to distribution service..." debug normal
 
@@ -100,6 +99,8 @@ send()
     APP_NAME=$(basename $APP_PATH)
     APP_NAME=${APP_NAME%.*}
   fi
+
+  RELEASE_NOTES=$(construct_release_notes $APP_PATH)
 
   #
   # Search for all installed developer identities
@@ -279,8 +280,15 @@ construct_release_notes()
     RELEASE_NOTES="$PROJECT_NAME"
   fi
 
-  # Find a correct property list
-  PROPERTY_LIST=$(find_property_list)
+  #
+  # Find a correct property list, based on App Path, because we are looking for a compiled property list
+  #
+
+  if [[ ! -z $1 ]]; then
+    PROPERTY_LIST=$(find_property_list $1)
+  else
+  	PROPERTY_LIST=$(find_property_list)
+  fi
 
   #
   # Append version and build to release notes
@@ -357,7 +365,13 @@ find_property_list()
   # Find a correct property list
   PROPERTY_LIST=''
 
-  for filename in $(find . -iname *-Info.plist);
+  local TARGET_DIR='.'
+
+  if [[ ! -z $1 ]]; then
+    TARGET_DIR=$1
+  fi
+
+  for filename in $(find $TARGET_DIR -iname *Info.plist);
   do
 
     #
