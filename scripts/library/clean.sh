@@ -2,6 +2,8 @@
 
 clean()
 {
+  set +e
+
   message "clean" "Cleaning integration files..." debug normal
 
   #security delete-keychain ios-build.keychain
@@ -13,6 +15,8 @@ clean()
   delete_file $AWSCLI_CONFIG_FILENAME
 
   delete_file 'awscli_config.yml'
+
+  set -e
 }
 
 delete_file()
