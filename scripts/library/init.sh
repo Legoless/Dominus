@@ -23,7 +23,7 @@ init()
 
   message "init" "Updating xctool..." trace normal
 
-  brew_upgrade
+  brew_upgrade xctool
 
   message "init" "Installing Cupertino gem..." trace normal
 
@@ -57,8 +57,8 @@ brew_upgrade()
 {
   #brew upgrade > /dev/null
 
-  if brew outdated | grep -qx xctool; then
-  	brew upgrade xctool;
+  if brew outdated | grep -qx $1; then
+  	brew upgrade $1
   fi
 }
 
@@ -71,4 +71,18 @@ gem_install()
   if [ "$GEM_CHECK" == "false" ]; then
     gem install $GEM --no-rdoc --no-ri --no-document --quiet
   fi
+}
+
+#
+# Checks if Ruby gem is installed
+#
+check_gem()
+{
+  set +e
+
+  local RUBY_GEM_CHECK=$(gem list $1 -i)
+
+  set -e
+
+  echo $RUBY_GEM_CHECK
 }
