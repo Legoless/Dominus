@@ -189,6 +189,21 @@ else
 fi
 
 #
+# Deploy
+#
+
+if [[ -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]]; then
+  echo '[PROJECT]: Should deploy action wait for other jobs to complete (true/false)? '
+  read DEPLOY_WAIT_FOR_OTHER_JOBS
+fi
+
+if [[ ! -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]]; then
+  writecfg "DEPLOY_WAIT_FOR_OTHER_JOBS" "$DEPLOY_WAIT_FOR_OTHER_JOBS"
+else
+  writecfg "DEPLOY_WAIT_FOR_OTHER_JOBS" "true"
+fi
+
+#
 # -----------------------------------------------------------------------
 #
 

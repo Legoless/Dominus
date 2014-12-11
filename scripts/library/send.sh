@@ -228,11 +228,29 @@ send()
   fi
 
   #
-  # Upload to TestFlight
+  # Upload to some where
   #
 
   RESULT_PATH=$(create_result_path)
   RESULT_PATH=$RESULT_PATH'binary/'
+
+  #
+  # Check if we are to wait for other jobs to finish before deploying. This only works on CI.
+  # We need both the flag and GitHub Token and Travis Build ID and Repo Slug for this.
+  # Start ruby script if possible
+  #
+
+  if ([[ -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]] || [ "$DEPLOY_WAIT_FOR_OTHER_JOBS" == true ]) && [[ ! -z $GITHUB_TOKEN ]] && [[ ! -z $TRAVIS_BUILD_ID ]] && [[ ! -z $TRAVIS_REPO_SLUG ]]; then
+    WORKER_SCRIPT=$(worker_script)
+    WAIT_RESULT=$($WORKER_SCRIPT $TRAVIS_REPO_SLUG $TRAVIS_BUILD_ID $GITHUB_TOKEN)
+
+    message "send" "$WAIT_RESULT" debug normal
+
+    if [[ $WAIT_RESULT == *"Failed"* ]]; then
+      message "send" "One of the tests failed. Aborting deployment..." warn error
+      exit 1
+    fi
+  fi
 
   if [[ $BUILD_SDK != *simulator* ]]; then
     message "send" "Uploading package to TestFlight..." debug normal
@@ -246,12 +264,14 @@ send()
     -F notes="$RELEASE_NOTES" -v \
     -F notify="TRUE" -w "%{http_code}"`
 
-    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to <b>$DISTRIBUTION_LISTS</b>." warn success
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to TestFlight <b>$DISTRIBUTION_LISTS</b>." warn success
   
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
   else
-     upload_file $RESULT_PATH "$APP_PATH.zip"
+    message "send" "Deploy complete. <b>$APPNAME</b> was successfully uploaded." warn success
+
+    upload_file $RESULT_PATH "$APP_PATH.zip"
   fi
 }
 
@@ -388,4 +408,15 @@ read_property()
   PROPERTY=`/usr/libexec/plistbuddy -c Print:$2: $1`
 
   echo $PROPERTY
+
+
+worker_script()
+{
+  REPORTER_SCRIPT=`find . -name travis_wait.rb | head -n1`
+
+  IFS=$'\n'
+
+  if [[ -f $REPORTER_SCRIPT ]]; then
+    echo $REPORTER_SCRIPT
+  fi
 }
