@@ -408,7 +408,7 @@ read_property()
   PROPERTY=`/usr/libexec/plistbuddy -c Print:$2: $1`
 
   echo $PROPERTY
-
+}
 
 worker_script()
 {
