@@ -24,9 +24,6 @@ send()
   fi
 
   PROFILE=$DEVELOPER_PROVISIONING
-  API_TOKEN=$TESTFLIGHT_API_TOKEN
-  TEAM_TOKEN=$TESTFLIGHT_TEAM_TOKEN
-  DISTRIBUTION_LISTS=$TESTFLIGHT_DISTRIBUTION_LIST
 
   message "send" "Sending build to distribution service..." debug normal
 
@@ -252,26 +249,92 @@ send()
     fi
   fi
 
+  #
+  # Write release notes to a report file
+  #
+
+  RELEASE_NOTES_REPORT_PATH=$(write_release_notes)
+
   if [[ $BUILD_SDK != *simulator* ]]; then
     message "send" "Uploading package to TestFlight..." debug normal
 
-    TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
-    -F file="@$BUILD_PATH/$APP_NAME.ipa" \
-    -F dsym="@$APP_PATH.dSYM.zip" \
-    -F api_token="$API_TOKEN" \
-    -F team_token="$TEAM_TOKEN" \
-    -F distribution_lists="$DISTRIBUTION_LISTS" \
-    -F notes="$RELEASE_NOTES" -v \
-    -F notify="TRUE" -w "%{http_code}"`
+    upload_testflight
+    upload_crashlytics
 
-    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to TestFlight <b>$DISTRIBUTION_LISTS</b>." warn success
-  
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
   else
     message "send" "Deploy complete. <b>$APPNAME</b> was successfully uploaded." warn success
 
     upload_file $RESULT_PATH "$APP_PATH.zip"
+  fi
+}
+
+upload_testflight()
+{
+  if [[ ! -z $TESTFLIGHT_API_TOKEN ]] && [[ ! -z $TESTFLIGHT_TEAM_TOKEN ]]; then
+    TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
+    -F file="@$BUILD_PATH/$APP_NAME.ipa" \
+    -F dsym="@$APP_PATH.dSYM.zip" \
+    -F api_token="$TESTFLIGHT_API_TOKEN" \
+    -F team_token="$TESTFLIGHT_TEAM_TOKEN" \
+    -F distribution_lists="$TESTFLIGHT_DISTRIBUTION_LIST" \
+    -F notes="$RELEASE_NOTES" -v \
+    -F notify="TRUE" -w "%{http_code}"`
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to TestFlight <b>$TESTFLIGHT_DISTRIBUTION_LIST</b>." warn success
+  else
+    message "send" "Skipping TestFlight deployment, missing token information." debug warning
+  fi
+}
+
+upload_crashlytics()
+{
+  if [[ ! -z $CRASHLYTICS_API_TOKEN ]] && [[ ! -z $CRASHLYTICS_BUILD_TOKEN ]]; then
+    CRASHLYTICS_FRAMEWORK=$(find_dir Crashlytics.framework)
+
+    if [[ -z $CRASHLYTICS_FRAMEWORK ]]; then
+      message "send" "Cannot locate Crashlytics framework. Aborting." info error
+    fi
+
+    CRASHLYTICS_COMMAND=$CRASHLYTICS_FRAMEWORK'/submit '$CRASHLYTICS_API_TOKEN' '$CRASHLYTICS_BUILD_TOKEN' -ipaPath '$BUILD_PATH'/'$APP_NAME'.ipa'
+
+    #
+    # Check for release notes report path
+    #
+    
+    if [[ ! -z $RELEASE_NOTES_REPORT_PATH ]]; then
+      CRASHLYTICS_COMMAND=$CRASHLYTICS_COMMAND' -notesPath '$RELEASE_NOTES_REPORT_PATH
+    fi
+
+    #
+    # Check for group aliases
+    #
+
+    if [[ ! -z $CRASHLYTICS_DISTRIBUTION_LIST ]]; then
+      CRASHLYTICS_COMMAND=$CRASHLYTICS_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
+    fi
+
+    CRASHLYTICS_OUTPUT=`eval $CRASHLYTICS_COMMAND`
+
+    message "send" "$CRASHLYTICS_OUTPUT" trace normal
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to Crashlytics <b>$CRASHLYTICS_DISTRIBUTION_LIST</b>." warn success
+  else
+    message "send" "Skipping Crashlytics deployment, missing token information." debug warning
+  fi
+}
+
+write_release_notes()
+{
+  if [[ ! -z $RELEASE_NOTES ]]; then
+    RELEASE_NOTES_REPORT_PATH=$(create_report_path)
+
+    RELEASE_NOTES_REPORT_PATH='./report/'$RELEASE_NOTES_REPORT_PATH'_release_notes.txt'
+
+    echo "$RELEASE_NOTES" > "$RELEASE_NOTES_REPORT_PATH"
+
+    echo $RELEASE_NOTES_REPORT_PATH
   fi
 }
 

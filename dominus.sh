@@ -88,6 +88,8 @@ setup()
 
 integrate()
 {
+  echo '[DOMINUS]: Integration started. Script version:' $SCRIPT_VERSION
+
   #
   # Store action as global
   #
@@ -247,7 +249,7 @@ project_build()
 #
 
 VARIABLE_PATH='./dominus.cfg'
-ATLANTIS_PATH='testflight'
+ATLANTIS_PATH='distribution'
 CUPERTINO_PATH='ios'
 
 #
@@ -257,7 +259,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.7.1'
+SCRIPT_VERSION='0.8.0'
 
 #
 # Load all utility functions
