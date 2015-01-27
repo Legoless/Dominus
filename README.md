@@ -68,6 +68,8 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Multiple scheme and target support on Travis
 - Apple TestFlight support
 - HockeyApp support
+- Xcode archive support
+- Build unsigned .IPA
 
 Contact
 ======
