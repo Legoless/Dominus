@@ -65,8 +65,9 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Disable recreation of Provisioning Profiles
 - Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
-- Deploy only when all jobs are finished
 - Multiple scheme and target support on Travis
+- Apple TestFlight support
+- HockeyApp support
 
 Contact
 ======
