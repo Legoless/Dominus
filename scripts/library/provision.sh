@@ -17,20 +17,41 @@ provision()
     return 0
   fi
 
+  #
+  # Install Cupertino gem only if we are not on Simulator
+  #
+
+  message "provision" "Installing Cupertino gem..." trace normal
+
+  gem_install "Cupertino"
+
+  #
+  # If deploy update devices is set to true, then we install the gem
+  #
+
+  NEW_DEVICES=()
+  NEW_DEVICES_COUNT=0
+
   if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ]; then
-    message "" "Loading devices from TestFlight and Apple developer portal..." debug normal
-
-    message "provision" "Loading devices in TestFlight list: $TESTFLIGHT_DISTRIBUTION_LIST" trace normal
-
-    testflight_devices
-
-    message "provision" "Loading devices in team: $DEVELOPER_TEAM"
+    message "provision" "Loading devices in Apple Developer team: $DEVELOPER_TEAM" debug normal
 
     apple_devices
 
-    message "provision" "Searching for new device IDs..." debug normal
+    message "provision" "Installing AtlantisPro to connect to distribution services..." trace normal
 
-    new_devices
+    gem_install "AtlantisPro"
+
+    message "provision" "Loading devices from TestFlight app..." trace normal
+
+    testflight_devices
+
+    message "provision" "Loading devices from Crashlytics Beta..." trace normal
+
+    crashlytics_devices
+
+    message "provision" "Found $NEW_DEVICES_COUNT new devices..." debug normal
+
+    apple_add_devices
   fi
 
   apple_provisioning_profile
@@ -44,15 +65,15 @@ provision()
   if [[ ! -z $FOUND_UUID ]]; then
     message "provision" "Using profile: $FOUND_UUID <b>($DEVELOPER_PROVISIONING)</b>" info success
   else
-    message "provision" "Provisioning profile not found ($FOUND_UUID). Aborting..." warn error
+    message "provision" "Provisioning profile not found ($DEVELOPER_PROVISIONING). Aborting..." warn error
     exit 1
   fi
 
   #
-  # If the action is deploy
+  # If the action is deploy, we are updating devices and have at least 1 new device
   #
 
-  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ]; then
+  if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ] && [ "$NEW_DEVICES_COUNT" != 0 ]; then
     apple_add_to_provisioning
   fi
 
@@ -61,8 +82,6 @@ provision()
   message "provision" "Downloading provisioning profile..." debug normal
 
   apple_download_profile
-
-  #PROFILE_NAME=$(apple_download_profile)
 
   if [[ ! -f $PROFILE_NAME ]]; then
     message "provision" "Could not download provisioning profile. Aborting..." warn error
@@ -90,9 +109,36 @@ provision()
 
 testflight_devices()
 {
-  IFS=$'\n'
+  IFS=$''
 
-  DEVICES=$($ATLANTIS_PATH devices $TESTFLIGHT_DISTRIBUTION_LIST --team $TESTFLIGHT_TEAM --username $TESTFLIGHT_USERNAME --password $TESTFLIGHT_PASSWORD --format csv --trace)
+  if [[ ! -z $TESTFLIGHT_TEAM ]] && [[ ! -z $TESTFLIGHT_USERNAME ]] && [[ ! -z $TESTFLIGHT_PASSWORD ]]; then
+    local TESTFLIGHT_COMMAND="$ATLANTIS_PATH devices --team $TESTFLIGHT_TEAM --username $TESTFLIGHT_USERNAME --password $TESTFLIGHT_PASSWORD --format csv --trace --service TestFlight"
+
+    if [[ ! -z $TESTFLIGHT_DISTRIBUTION_LIST ]]; then
+      TESTFLIGHT_COMMAND=$TESTFLIGHT_COMMAND" --group $TESTFLIGHT_DISTRIBUTION_LIST"
+    fi
+
+    local DEVICES=`eval $TESTFLIGHT_COMMAND`
+
+    new_devices $DEVICES
+  fi
+}
+
+crashlytics_devices()
+{
+  IFS=$''
+
+  if [[ ! -z $CRASHLYTICS_ORGANIZATION ]] && [[ ! -z $CRASHLYTICS_USERNAME ]] && [[ ! -z $CRASHLYTICS_PASSWORD ]]; then
+    local CRASHLYTICS_COMMAND="$ATLANTIS_PATH devices --team $CRASHLYTICS_ORGANIZATION --username $CRASHLYTICS_USERNAME --password $CRASHLYTICS_PASSWORD --format csv --trace --service Crashlytics"
+
+    if [[ ! -z $CRASHLYTICS_DISTRIBUTION_LIST ]]; then
+      CRASHLYTICS_COMMAND=$CRASHLYTICS_COMMAND" --group $CRASHLYTICS_DISTRIBUTION_LIST"
+    fi
+
+    local DEVICES=`eval $CRASHLYTICS_COMMAND`
+
+    new_devices $DEVICES
+  fi
 }
 
 apple_devices()
@@ -102,22 +148,22 @@ apple_devices()
   ADDED_DEVICES=$($CUPERTINO_PATH devices:list --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --format csv --trace)
 }
 
+#
+# Call this method with parameter data from AtlantisPro gem, it will add to 
+#
+
 new_devices()
 {
+  IFS=$'\n'
   #
   # Find all new devices
   #
 
-  NEW_DEVICES=()
-
   DEVICE_INDEX=-1
 
-  FOUND=false
-
-  for device in $DEVICES;
+  for device in $1;
   do
     DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
-    FOUND=false
 
     #
     # Skip first line, which is only a descriptor
@@ -135,57 +181,56 @@ new_devices()
     UDID="${data[1]}"
 
     #
-    # Find UDID in existing
+    # Use UDID only if it is not on portal or in new device array
     #
 
-    IFS=$'\n'
+    local DEVICE_ON_PORTAL=$(find_device $UDID "${ADDED_DEVICES[@]}")
+    local DEVICE_IN_ARRAY=$(find_device $UDID "${NEW_DEVICES[@]}")
 
-    ADDED_INDEX=-1
-
-    for old_device in $ADDED_DEVICES;
-    do
-      ADDED_INDEX=$(( ADDED_INDEX+1 ))
-
-      if (($ADDED_INDEX == 0)); then
-        continue
-      fi
-
-      IFS=',' read -a device_data <<< "$old_device"
-
-      EXISTING_UDID="${device_data[1]}"
-
-      if [ "$UDID" == "$EXISTING_UDID" ]; then
-        FOUND=true
-        break;
-      fi
-    done
-
-    if [ "$FOUND" != true ]; then
+    if [ "$DEVICE_ON_PORTAL" == "false" ] && [ "$DEVICE_IN_ARRAY" == "false" ]; then
       NEW_DEVICES+=($device)
+      NEW_DEVICES_COUNT=$((NEW_DEVICES_COUNT + 1))
     fi
   done
 }
 
-apple_add_devices()
-{
+#
+# Function finds UDID in devices
+# - $1 = UDID
+# - $2 = device array
+#
 
-  #
-  # Add new devices to the portal
-  #
+find_device()
+{
+  local FOUND='false'
 
   IFS=$'\n'
 
-  for device in ${NEW_DEVICES[@]};
+  #
+  # Skip first line
+  #
+  
+  ADDED_INDEX=-1
+
+  for old_device in $2;
   do
-    IFS=',' read -a data <<< "$device"
+    ADDED_INDEX=$(( ADDED_INDEX+1 ))
 
-    UDID="${data[1]}"
-    NAME="${data[0]}"
+    if (($ADDED_INDEX == 0)); then
+      continue
+    fi
 
-    message "provision" "Adding $NAME device to Apple Developer Portal..." info success
+    IFS=',' read -a device_data <<< "$old_device"
 
-    $($CUPERTINO_PATH devices:add \"$NAME\"=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD > /dev/null)
+    EXISTING_UDID="${device_data[1]}"
+
+    if [ "$1" == "$EXISTING_UDID" ]; then
+      FOUND='true'
+      break;
+    fi
   done
+
+  echo $FOUND
 }
 
 apple_provisioning_profile()
@@ -233,9 +278,9 @@ apple_provisioning_profile()
 parse_profile_uuid()
 {
   if [ "$1" != "" ]; then
-    CURRENT_PROFILE=$1
-    FOUND_UUID=${CURRENT_PROFILE%,*}
-    FOUND_UUID=${FOUND_UUID##*,}
+    IFS=',' read -a data <<< "$1"
+
+    FOUND_UUID="${data[2]}"
   fi
 
   echo "$FOUND_UUID"
@@ -247,33 +292,51 @@ parse_profile_uuid()
 
 apple_add_to_provisioning()
 {
-  DEVICE_INDEX=-1
+  if [ "$NEW_DEVICES_COUNT" != 0 ]; then
+    message "provision" "Updating provisioning profile ($PROFILE_NAME) on Apple Developer portal..." debug normal
 
-  for device in $DEVICES;
-  do
-    DEVICE_INDEX=$(( DEVICE_INDEX+1 ))
+    IFS=$''
+
+    for device in ${NEW_DEVICES[@]};
+    do
+      IFS=',' read -a data <<< "$device"
+
+      UDID="${data[1]}"
+      NAME="${data[0]}"
+
+      message "provision" "Adding $NAME to $PROFILE_NAME" debug normal
+
+      ADD_OUTPUT=$($CUPERTINO_PATH profiles:devices:add $PROFILE_NAME $NAME=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
+
+      message "provision" "$ADD_OUTPUT" trace normal
+    done
+  fi
+}
+
+apple_add_devices()
+{
+  if [ "$NEW_DEVICES_COUNT" != 0 ]; then
+
+    message "provision" "New devices found ($NEW_DEVICES_COUNT), adding to Apple Developer portal..." debug normal
 
     #
-    # Skip first line, which is only a descriptor
+    # Add new devices to the portal
     #
 
-    if (($DEVICE_INDEX == 0)); then
-      continue;
-    fi
+    IFS=$''
 
-    IFS=',' read -a data <<< "$device"
+    for device in ${NEW_DEVICES[@]};
+    do
+      IFS=',' read -a data <<< "$device"
 
-    UDID="${data[1]}"
-    NAME="${data[0]}"
+      UDID="${data[1]}"
+      NAME="${data[0]}"
 
-    message "provision" "Adding $NAME ($UDID) to $PROFILE_NAME" trace normal
+      message "provision" "Adding $NAME ($UDID) device to Apple Developer Portal..." info success
 
-    message "provision" "Adding $NAME to profile: $PROFILE_NAME" debug normal
-
-    ADD_OUTPUT=$($CUPERTINO_PATH profiles:devices:add $PROFILE_NAME $NAME=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD)
-
-    message "provision" "$ADD_OUTPUT" trace normal
-  done
+      $($CUPERTINO_PATH devices:add \"$NAME\"=$UDID --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD > /dev/null)
+    done
+  fi
 }
 
 #

@@ -20,6 +20,10 @@ library()
   #
 
   if [[ ! -z $PODFILE_PATH ]]; then
+    message "init" "Installing CocoaPods gem..." debug normal
+
+    gem_install "CocoaPods"
+
     message "library" "Installing pods: $PODFILE_PATH" debug normal
 
     CURRENT_DIR=$(pwd)

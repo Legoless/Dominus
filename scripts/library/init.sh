@@ -25,20 +25,6 @@ init()
 
   brew_upgrade xctool
 
-  message "init" "Installing Cupertino gem..." trace normal
-
-  gem_install "Cupertino"
-
-  message "init" "Installing AtlantisPro gem..." trace normal
-
-  gem_install "AtlantisPro"
-
-  message "init" "Installing CocoaPods gem..." trace normal
-
-  gem_install "CocoaPods"
-
-  message "init" "Gems installed." debug normal
-
   message "init" "Checking upload tools..." trace normal
 
   #

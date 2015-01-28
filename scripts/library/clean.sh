@@ -8,11 +8,11 @@ clean()
 
   #security delete-keychain ios-build.keychain
   #rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*
-  delete_dir ./build
+  delete_dir './build'
 
-  delete_dir ./report
+  delete_dir './report'
 
-  delete_file $AWSCLI_CONFIG_FILENAME
+  delete_file '$AWSCLI_CONFIG_FILENAME'
 
   delete_file 'awscli_config.yml'
 
