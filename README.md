@@ -62,10 +62,8 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 - Code formatting checker (Obj-Clean or some code formatter)
 - Push notification support (Shenzhen)
-- Disable recreation of Provisioning Profiles
 - Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
-- Multiple scheme and target support on Travis
 - Apple TestFlight support
 - HockeyApp support
 - Xcode archive support
