@@ -68,6 +68,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - HockeyApp support
 - Xcode archive support
 - Build unsigned .IPA
+- Documentation & Wiki
 
 Contact
 ======
