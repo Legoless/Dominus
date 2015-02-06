@@ -138,20 +138,12 @@ build()
   #
   BUILD_COMMAND=$BUILD_COMMAND" CONFIGURATION_BUILD_DIR=$BUILD_PATH"
 
-  REPORTER=$(reporter);
-
-  if [[ ! -z $REPORTER ]]; then
-    BUILD_COMMAND_REPORTER=$BUILD_COMMAND" -reporter $REPORTER"
-  else
-    BUILD_COMMAND_REPORTER=$BUILD_COMMAND
-  fi
-
   #
   # Build number
   #
 
   if [[ ! -z $BUILD_NUMBER ]]; then
-    message "build" "Updating build number with CI: $BUILD_NUMBER" debug normal
+    message "build" "Updating build number with: $BUILD_NUMBER" debug normal
 
     find_target $SCHEME_FILE
 
@@ -176,8 +168,12 @@ build()
   # Run build command
   #
 
-  BUILD_COMMAND=$BUILD_COMMAND" build -sdk $BUILD_SDK"
-  BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" build -sdk $BUILD_SDK"
+  if [[ ! -z $BUILD_SDK ]]; then
+    BUILD_COMMAND=$BUILD_COMMAND" -sdk $BUILD_SDK"
+  fi
+
+  BUILD_COMMAND=$BUILD_COMMAND" build"
+  ARCHIVE_COMMAND=$BUILD_COMMAND" archive"
 
   message "build" "Building project with xctool..." trace normal
 
@@ -186,10 +182,25 @@ build()
   execute_build
 }
 
+#
+# Sets reporter command
+#
+
+set_reporter_command()
+{
+  REPORTER=$(reporter);
+
+  if [[ ! -z $REPORTER ]]; then
+    BUILD_COMMAND_REPORTER=$BUILD_COMMAND" -reporter $REPORTER"
+  else
+    BUILD_COMMAND_REPORTER=$BUILD_COMMAND
+  fi
+}
+
 setup_bootstrap()
 {
   #
-  # Check if KZBootstrap exists in project and generate own user
+  # Check if KZBootstrap exists in project and generate own user macros
   #
 
   ENVIRONMENTS=`find . -iname KZBEnvironments.plist | head -n1`
@@ -199,7 +210,9 @@ setup_bootstrap()
   if [[ -f $ENVIRONMENTS ]]; then
     BOOTSTRAP=$(dirname ${ENVIRONMENTS})
 
-    touch "$BOOTSTRAP/KZBootstrapUserMacros.h"
+    if [[ ! -f "$BOOTSTRAP/KZBootstrapUserMacros.h" ]]; then
+      touch "$BOOTSTRAP/KZBootstrapUserMacros.h"
+    fi
   fi
 }
 

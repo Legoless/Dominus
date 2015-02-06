@@ -234,7 +234,7 @@ send()
   #
   # Check if we are to wait for other jobs to finish before deploying. This only works on CI.
   # We need both the flag and GitHub Token and Travis Build ID and Repo Slug for this.
-  # Start ruby script if possible
+  # Start ruby script if possible.
   #
 
   if ([[ -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]] || [ "$DEPLOY_WAIT_FOR_OTHER_JOBS" == true ]) && [[ ! -z $GITHUB_TOKEN ]] && [[ ! -z $TRAVIS_BUILD_ID ]] && [[ ! -z $TRAVIS_REPO_SLUG ]]; then
@@ -259,6 +259,10 @@ send()
     message "send" "Uploading package to TestFlight..." debug normal
 
     upload_testflight
+    upload_hockeyapp
+    upload_deploygate
+    upload_fir
+    upload_itunes
     upload_crashlytics
 
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
@@ -270,17 +274,108 @@ send()
   fi
 }
 
+upload_hockeyapp()
+{
+  if [[ ! -z $HOCKEY_API_TOKEN ]]; then
+    gem_install "shenzhen"
+
+    local DISTRIBUTE_COMMAND="ipa distribute:hockeyapp -a $HOCKEY_API_TOKEN -f $BUILD_PATH/$APP_NAME.ipa -d $APP_PATH.dSYM.zip"
+
+    if [[ ! -z $RELEASE_NOTES ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND` -m "$RELEASE_NOTES"`
+    fi
+
+    if [[ ! -z $HOCKEY_DISTRIBUTION_LIST ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND" --tags $HOCKEY_DISTRIBUTION_LIST"
+    fi
+
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
+
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to HockeyApp <b>$HOCKEY_DISTRIBUTION_LIST</b>." warn success
+  else
+    message "send" "Skipping HockeyApp deployment, missing token information." debug warning
+  fi
+}
+
+upload_deploygate()
+{
+  if [[ ! -z $DEPLOYGATE_API_TOKEN ]] && [[ ! -z $DEPLOYGATE_USERNAME ]]; then
+    gem_install "shenzhen"
+
+    local DISTRIBUTE_COMMAND="ipa distribute:deploygate -a $DEPLOYGATE_API_TOKEN -u $DEPLOYGATE_USERNAME -f $BUILD_PATH/$APP_NAME.ipa -d"
+
+    if [[ ! -z $RELEASE_NOTES ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND` -m "$RELEASE_NOTES"`
+    fi
+
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
+
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to DeployGate <b>$HOCKEY_DISTRIBUTION_LIST</b>." warn success
+  else
+    message "send" "Skipping DeployGate deployment, missing account information." debug warning
+  fi
+}
+
+upload_fir()
+{
+  if [[ ! -z $FIR_USER_TOKEN ]] && [[ ! -z $FIR_APP_ID ]]; then
+    gem_install "shenzhen"
+
+    local DISTRIBUTE_COMMAND="ipa distribute:fir -a $FIR_APP_ID -u $FIR_USER_TOKEN -f $BUILD_PATH/$APP_NAME.ipa"
+
+    if [[ ! -z $RELEASE_NOTES ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND` -n "$RELEASE_NOTES"`
+    fi
+
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
+
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to Fly It Remotely." warn success
+  else
+    message "send" "Skipping Fly It Remotely deployment, missing account information." debug warning
+  fi
+}
+
+upload_itunes()
+{
+  if [[ ! -z $ITUNES_USERNAME ]] && [[ ! -z $ITUNES_PASSWORD ]] && [[ ! -z $ITUNES_APP_ID ]]; then
+    gem_install "shenzhen"
+
+    local DISTRIBUTE_COMMAND="ipa distribute:itunesconnect -a $ITUNES_USERNAME -p $ITUNES_PASSWORD -i $ITUNES_APP_ID -f $BUILD_PATH/$APP_NAME.ipa"
+
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
+
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
+
+    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to iTunes Connect." warn success
+  else
+    message "send" "Skipping iTunes Connect deployment, missing account information." debug warning
+  fi
+}
+
 upload_testflight()
 {
   if [[ ! -z $TESTFLIGHT_API_TOKEN ]] && [[ ! -z $TESTFLIGHT_TEAM_TOKEN ]]; then
-    TESTFLIGHT_OUTPUT=`curl http://testflightapp.com/api/builds.json \
-    -F file="@$BUILD_PATH/$APP_NAME.ipa" \
-    -F dsym="@$APP_PATH.dSYM.zip" \
-    -F api_token="$TESTFLIGHT_API_TOKEN" \
-    -F team_token="$TESTFLIGHT_TEAM_TOKEN" \
-    -F distribution_lists="$TESTFLIGHT_DISTRIBUTION_LIST" \
-    -F notes="$RELEASE_NOTES" -v \
-    -F notify="TRUE" -w "%{http_code}"`
+    gem_install "shenzhen"
+
+    local DISTRIBUTE_COMMAND="ipa distribute:testflight -a $TESTFLIGHT_API_TOKEN -T $TESTFLIGHT_TEAM_TOKEN -f $BUILD_PATH/$APP_NAME.ipa -d $APP_PATH.dSYM.zip"
+
+    if [[ ! -z $RELEASE_NOTES ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND` -m "$RELEASE_NOTES"`
+    fi
+
+    if [[ ! -z $TESTFLIGHT_DISTRIBUTION_LIST ]]; then
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND" -l $TESTFLIGHT_DISTRIBUTION_LIST"
+    fi
+
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
+
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
 
     message "send" "Deploy complete. <b>$APPNAME</b> was distributed to TestFlight <b>$TESTFLIGHT_DISTRIBUTION_LIST</b>." warn success
   else
@@ -297,14 +392,14 @@ upload_crashlytics()
       message "send" "Cannot locate Crashlytics framework. Aborting." info error
     fi
 
-    CRASHLYTICS_COMMAND=$CRASHLYTICS_FRAMEWORK'/submit '$CRASHLYTICS_API_TOKEN' '$CRASHLYTICS_BUILD_TOKEN' -ipaPath '$BUILD_PATH'/'$APP_NAME'.ipa'
+    local DISTRIBUTE_COMMAND=$CRASHLYTICS_FRAMEWORK'/submit '$CRASHLYTICS_API_TOKEN' '$CRASHLYTICS_BUILD_TOKEN' -ipaPath '$BUILD_PATH'/'$APP_NAME'.ipa'
 
     #
     # Check for release notes report path
     #
     
     if [[ ! -z $RELEASE_NOTES_REPORT_PATH ]]; then
-      CRASHLYTICS_COMMAND=$CRASHLYTICS_COMMAND' -notesPath '$RELEASE_NOTES_REPORT_PATH
+      DISTRIBUTE_COMMAND=$CRASHLYTICS_COMMAND' -notesPath '$RELEASE_NOTES_REPORT_PATH
     fi
 
     #
@@ -312,12 +407,12 @@ upload_crashlytics()
     #
 
     if [[ ! -z $CRASHLYTICS_DISTRIBUTION_LIST ]]; then
-      CRASHLYTICS_COMMAND=$CRASHLYTICS_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
     fi
 
-    CRASHLYTICS_OUTPUT=`eval $CRASHLYTICS_COMMAND`
+    local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
 
-    message "send" "$CRASHLYTICS_OUTPUT" trace normal
+    message "send" "$DISTRIBUTE_OUTPUT" trace normal
 
     message "send" "Deploy complete. <b>$APPNAME</b> was distributed to Crashlytics <b>$CRASHLYTICS_DISTRIBUTION_LIST</b>." warn success
   else
