@@ -128,7 +128,7 @@ build()
   if [[ ! -z $CODE_SIGN ]] && [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "Using developer identity: <b>$CODE_SIGN</b>" info success
 
-    BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=$CODE_SIGN"
+    BUILD_COMMAND=$BUILD_COMMAND" CODE_SIGN_IDENTITY=\"$CODE_SIGN\""
   elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "No code signing identity found. Building with default..." warn warning
   fi
@@ -159,8 +159,9 @@ build()
   if [[ -d $BUILD_PATH ]]; then
     message "build" "Build already exists. Cleaning..." trace normal
 
-    eval $BUILD_CLEAN_COMMAND > /dev/null
+    rm -rf $BUILD_PATH
 
+    eval $BUILD_CLEAN_COMMAND > /dev/null
     message "build" "Build clean finished." trace success
   fi
 
@@ -172,29 +173,37 @@ build()
     BUILD_COMMAND=$BUILD_COMMAND" -sdk $BUILD_SDK"
   fi
 
-  BUILD_COMMAND=$BUILD_COMMAND" build"
-  ARCHIVE_COMMAND=$BUILD_COMMAND" archive"
+  setup_bootstrap
 
   message "build" "Building project with xctool..." trace normal
 
-  setup_bootstrap
+  execute_command "$BUILD_COMMAND build"
 
-  execute_build
+  #
+  # Find built .app file, check for successful build
+  #
+
+  APP_PATH=$(find_dir '*.app')
+  
+  if [[ $BUILD_SDK != *simulator* ]] && [ "$BUILD_ARCHIVE" = true ]; then
+    message "build" "Archiving project with xctool..." trace normal
+
+    ARCHIVE_NAME=$(archive_name $SCHEME)
+    ARCHIVE_COMMAND=$BUILD_COMMAND" archive -archivePath \"$BUILD_PATH/$ARCHIVE_NAME.xcarchive\""
+
+    execute_command "$ARCHIVE_COMMAND"
+
+    ARCHIVE_PATH=$(find_dir '*.xcarchive')
+  fi
 }
 
-#
-# Sets reporter command
-#
-
-set_reporter_command()
+archive_name()
 {
-  REPORTER=$(reporter);
+  local ARCHIVE_TIME=$(date +"%d-%m-%y %H.%M")
 
-  if [[ ! -z $REPORTER ]]; then
-    BUILD_COMMAND_REPORTER=$BUILD_COMMAND" -reporter $REPORTER"
-  else
-    BUILD_COMMAND_REPORTER=$BUILD_COMMAND
-  fi
+  local ARCHIVE_NAME=$1" "$ARCHIVE_TIME
+
+  echo $ARCHIVE_NAME
 }
 
 setup_bootstrap()
@@ -208,9 +217,12 @@ setup_bootstrap()
   IFS=$'\n'
 
   if [[ -f $ENVIRONMENTS ]]; then
+
     BOOTSTRAP=$(dirname ${ENVIRONMENTS})
 
     if [[ ! -f "$BOOTSTRAP/KZBootstrapUserMacros.h" ]]; then
+      message "build" "Creating KZBootstrapUserMacros.h before building..." trace normal
+
       touch "$BOOTSTRAP/KZBootstrapUserMacros.h"
     fi
   fi
@@ -302,17 +314,19 @@ set_build_number()
   done
 }
 
-execute_build()
+execute_command()
 {
 
   #
   # Allow the subshell to exit, as we are manually checking for errors
   #
 
-  message "build" "Build command: $BUILD_COMMAND" trace normal
+  REPORTER_COMMAND=$(reporter_command $1)
 
-  BUILD_EXECUTE=`eval $BUILD_COMMAND_REPORTER || true`
-  #echo $BUILD_COMMAND_REPORTER
+  message "build" "Build command: $1" trace normal
+  message "build" "Build reporter command: $REPORTER_COMMAND" trace normal
+
+  BUILD_EXECUTE=`eval $REPORTER_COMMAND || true`
 
   message "build" "Building complete." trace normal
 
@@ -324,17 +338,7 @@ execute_build()
   NO_WARNINGS=`echo $BUILD_EXECUTE | grep ' 0 warnings' | head -1`
 
   BUILD_EXECUTE=`echo $BUILD_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
-
-  #
-  # Find built .app file, check for successful build
-  #
-
-  APP_PATH=$(find_dir '*.app')
-
-  if [[ -z $APP_PATH ]]; then
-    NO_ERRORS=''
-    NO_WARNINGS=''
-  fi
+  BUILD_EXECUTE=$(trim $BUILD_EXECUTE)
 
   #
   # Build succeeded if there are no warnings or we allow warnings
@@ -345,6 +349,7 @@ execute_build()
     else
       message "build" "Build completed with warnings (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" info warning
     fi
+
   else
     if [[ ! -z $NO_ERRORS ]] && [ "$DEPLOY_ALLOW_WARNING_BUILDS" = false ]; then
       message "build" "Build failed - <b>warnings not allowed</b> (<b>$BUILD_SDK</b>): <b>$SCHEME</b> ($BUILD_EXECUTE)" warn error
@@ -361,7 +366,7 @@ execute_build()
 
     LOG_REPORT_PATH=$(create_report_path build $BUILD_SDK)
 
-    `eval $BUILD_COMMAND -reporter plain:"./report/"$LOG_REPORT_PATH"_build_xcode.log" || true`
+    `eval $1 -reporter plain:"./report/"$LOG_REPORT_PATH"_build_xcode.log" || true`
 
     cat './report/'$LOG_REPORT_PATH'_build_xcode.log'
 
@@ -382,6 +387,23 @@ reporter()
   if [[ -f $REPORTER_SCRIPT ]]; then
     echo $REPORTER_SCRIPT
   fi
+}
+
+#
+# Sets reporter command
+#
+
+reporter_command()
+{
+  REPORTER=$(reporter);
+
+  local BUILD_COMMAND_REPORTER=$1
+
+  if [[ ! -z $REPORTER ]]; then
+    BUILD_COMMAND_REPORTER=$BUILD_COMMAND_REPORTER" -reporter $REPORTER"
+  fi
+
+  echo $BUILD_COMMAND_REPORTER
 }
 
 search_targets()

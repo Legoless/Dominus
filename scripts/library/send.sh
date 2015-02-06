@@ -197,17 +197,28 @@ send()
 
     message "send" "Found developer identity:' $IDENTITY" trace normal
 
+
     #
-    # Sign and package
+    # TODO CHECK IF APP PATH EXIST!
     #
 
-    message "send" "Signing $APP_NAME with $IDENTITY..." debug normal
+    if [ -f $APP_PATH ]; then
 
-    xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
+      #
+      # Sign and package
+      #
 
-    message "send" "Creating dSYM symbol ZIP package..." trace normal
+      message "send" "Building $APP_NAME.ipa with $IDENTITY..." debug normal
+      xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
-    package "$APP_PATH.dSYM"
+      message "send" "Creating dSYM symbol ZIP package..." trace normal
+
+      package "$APP_PATH.dSYM"
+    else
+      message "send" "Could not find $APP_PATH, aborting..." warn error
+
+      exit 1
+    fi
   else
     message "send" "Creating iOS Simulator ZIP package..." trace normal
 
