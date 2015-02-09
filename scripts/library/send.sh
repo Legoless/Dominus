@@ -91,6 +91,7 @@ send()
   #
 
   APP_PATH=$(find_dir '*.app')
+  ARCHIVE_PATH=$(find_dir '*.xcarchive')
 
   if [[ ! -z $APP_PATH ]]; then
     APP_NAME=$(basename $APP_PATH)
@@ -197,11 +198,6 @@ send()
 
     message "send" "Found developer identity:' $IDENTITY" trace normal
 
-
-    #
-    # TODO CHECK IF APP PATH EXIST!
-    #
-
     if [ -f $APP_PATH ]; then
 
       #
@@ -278,6 +274,7 @@ send()
 
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
+    upload_file $RESULT_PATH "$ARCHIVE_PATH"
   else
     message "send" "Deploy complete. <b>$APPNAME</b> was successfully uploaded." warn success
 

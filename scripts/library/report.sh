@@ -103,11 +103,15 @@ upload_amazon()
   if [[ ! -z $ARTIFACTS_S3_BUCKET ]] && [[ ! -z $ARTIFACTS_AWS_ACCESS_KEY_ID ]] && [[ ! -z $ARTIFACTS_AWS_SECRET_ACCESS_KEY ]]; then
     #travis-artifacts upload --target-path $1 --path $2
 
+    set +e
+
     if [[ ! -z $ARTIFACTS_S3_REGION ]]; then
       awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1 --region $ARTIFACTS_S3_REGION
     else
       awscli s3 files put -b $ARTIFACTS_S3_BUCKET -p $2 -d $1
     fi
+
+    set -e
     
   fi
 }

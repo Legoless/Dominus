@@ -192,8 +192,6 @@ build()
     ARCHIVE_COMMAND=$BUILD_COMMAND" archive -archivePath \"$BUILD_PATH/$ARCHIVE_NAME.xcarchive\""
 
     execute_command "$ARCHIVE_COMMAND"
-
-    ARCHIVE_PATH=$(find_dir '*.xcarchive')
   fi
 }
 
