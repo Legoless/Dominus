@@ -96,9 +96,9 @@ send()
   if [[ ! -z $APP_PATH ]]; then
     APP_NAME=$(basename $APP_PATH)
     APP_NAME=${APP_NAME%.*}
-
-    message "send" "Using .app at: $APP_PATH, name: $APP_NAME" trace normal
   fi
+
+  message "send" "Using .app at: $APP_PATH, name: $APP_NAME" trace normal
 
   if [[ ! -z $ARCHIVE_PATH ]]; then
     message "send" "Using Archive at $ARCHIVE_PATH" trace normal
