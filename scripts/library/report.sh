@@ -55,7 +55,7 @@ create_result_path()
   #
 
   if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-    REPO_SLUG=$(clean_sender_name $TRAVIS_REPO_SLUG)
+    REPO_SLUG=$(clean_repository_name $TRAVIS_REPO_SLUG)
     RESULT_PATH="$REPO_SLUG/"
   fi
 

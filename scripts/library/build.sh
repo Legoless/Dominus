@@ -495,3 +495,23 @@ create_report_path()
 
   echo $LOG_REPORT_PATH
 }
+
+clean_repository_name()
+{
+  local REPOSITORY_NAME=$1
+
+  #
+  # Cut away organization from repo slug
+  #
+  REPOSITORY_NAME=${REPOSITORY_NAME#*/}
+
+  #
+  # Cut away App on the end and iOS
+  #
+
+  REPOSITORY_NAME=${REPOSITORY_NAME%App}
+  REPOSITORY_NAME=${REPOSITORY_NAME%-iOS}
+  REPOSITORY_NAME=${REPOSITORY_NAME%iOS}
+  
+  echo $REPOSITORY_NAME
+}
