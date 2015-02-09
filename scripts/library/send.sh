@@ -482,6 +482,8 @@ construct_release_notes()
   	PROPERTY_LIST=$(find_property_list)
   fi
 
+  echo "TEST: $PROPERTY_LIST"
+
   #
   # Append version and build to release notes
   #
