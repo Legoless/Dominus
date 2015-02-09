@@ -48,7 +48,18 @@ collect_reports()
 
 create_result_path()
 {
-  RESULT_PATH='iOS/'
+  RESULT_PATH=''
+
+  #
+  # Project name
+  #
+
+  if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
+    REPO_SLUG=$(clean_sender_name $TRAVIS_REPO_SLUG)
+    RESULT_PATH="$REPO_SLUG/"
+  fi
+
+  RESULT_PATH=$RESULT_PATH"iOS/"
 
   if [[ ! -z $TRAVIS_BRANCH ]]; then
   	RESULT_PATH=$RESULT_PATH"$TRAVIS_BRANCH/"
