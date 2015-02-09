@@ -204,7 +204,7 @@ send()
 
     message "send" "Found developer identity:' $IDENTITY" trace normal
 
-    if [ -f $APP_PATH ]; then
+    if [ -d $APP_PATH ]; then
 
       #
       # Sign and package
