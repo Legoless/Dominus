@@ -133,8 +133,8 @@ if [[ ! -z $PREFIX ]]; then
 
   LOG_FILENAME="$ACTION_NAME"
 
-  if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
-    LOG_FILENAME=$TRAVIS_JOB_NUMBER"_$ACTION_NAME"
+  if [[ ! -z $CI_JOB_NUMBER ]]; then
+    LOG_FILENAME=$CI_JOB_NUMBER"_$ACTION_NAME"
   fi
 
   if [[ ! -z $BUILD_SDK ]] && [ "$ACTION_NAME" == "build" ]; then
@@ -161,15 +161,15 @@ if [ $NUM_GLOBAL_LEVEL -lt $NUM_MSG_LEVEL ]; then
 fi
 
 #
-# Add Travis to message
+# Add CI message
 #
 
 SENDER_NAME=''
 
-if [[ ! -z $TRAVIS_COMMIT ]]; then
-  SENDER_NAME=$(clean_sender_name $TRAVIS_REPO_SLUG)
+if [[ ! -z $CI_REPOSITORY ]]; then
+  SENDER_NAME=$(clean_sender_name $CI_REPOSITORY)
 
-  MESSAGE='[Build <b>#'$TRAVIS_JOB_NUMBER'</b>]: '$MESSAGE
+  MESSAGE='[Build <b>#'$CI_JOB_NUMBER'</b>]: '$MESSAGE
 fi
 
 if [[ -z $SENDER_NAME ]]; then

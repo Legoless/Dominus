@@ -54,15 +54,15 @@ create_result_path()
   # Project name
   #
 
-  if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-    REPO_SLUG=$(clean_repository_name $TRAVIS_REPO_SLUG)
+  if [[ ! -z $CI_REPOSITORY ]]; then
+    REPO_SLUG=$(clean_repository_name $CI_REPOSITORY)
     RESULT_PATH="$REPO_SLUG/"
   fi
 
   RESULT_PATH=$RESULT_PATH"iOS/"
 
-  if [[ ! -z $TRAVIS_BRANCH ]]; then
-  	RESULT_PATH=$RESULT_PATH"$TRAVIS_BRANCH/"
+  if [[ ! -z $CI_BRANCH ]]; then
+  	RESULT_PATH=$RESULT_PATH"$CI_BRANCH/"
   fi
 
   PROPERTY_LIST=$(find_property_list)
@@ -85,16 +85,16 @@ create_result_path()
 
   RESULT_PATH=$RESULT_PATH"$CURRENT_DATE/"
 
-  if [[ ! -z $TRAVIS_COMMIT ]]; then
+  if [[ ! -z $CI_COMMIT ]]; then
     #
-    # Travis Build Number
+    # CI Build Number
     #
 
-    if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-      RESULT_PATH=$RESULT_PATH'Build_'$TRAVIS_BUILD_NUMBER
+    if [[ ! -z $CI_BUILD_NUMBER ]]; then
+      RESULT_PATH=$RESULT_PATH'Build_'$CI_BUILD_NUMBER
     fi
 
-    COMMIT_HASH=${TRAVIS_COMMIT:0:8}
+    COMMIT_HASH=${CI_COMMIT:0:8}
 
   	RESULT_PATH=$RESULT_PATH'_'$COMMIT_HASH
 
@@ -106,13 +106,14 @@ create_result_path()
 
 upload_file()
 {
-  upload_amazon $1 $2
+  if [ -f $2 ]; then
+    upload_amazon $1 $2
+  fi
 }
 
 upload_amazon()
 {
   if [[ ! -z $ARTIFACTS_S3_BUCKET ]] && [[ ! -z $ARTIFACTS_AWS_ACCESS_KEY_ID ]] && [[ ! -z $ARTIFACTS_AWS_SECRET_ACCESS_KEY ]]; then
-    #travis-artifacts upload --target-path $1 --path $2
 
     set +e
 

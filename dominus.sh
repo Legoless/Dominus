@@ -21,6 +21,11 @@ load()
   do
     source $filename
   done
+
+  for filename in $(find . -iname '*.sh' -path "*/integration/*");
+  do
+    source $filename
+  done
 }
 
 #
@@ -229,15 +234,15 @@ certificate()
 project_build()
 {
     #
-    # Add Travis CI build number to building
+    # Add CI build number to building
     #
 
     PROFILE=$DEVELOPER_PROVISIONING
 
-    if [ "$DEPLOY_USE_BUILD_NUMBER" == "travis" ] && [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-      BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
-    elif [ "$DEPLOY_USE_BUILD_NUMBER" == "project" ] && [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
-      BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
+    if [ "$DEPLOY_USE_BUILD_NUMBER" == "ci" ] && [[ ! -z $CI_BUILD_NUMBER ]]; then
+      BUILD_NUMBER=$CI_BUILD_NUMBER
+    elif [ "$DEPLOY_USE_BUILD_NUMBER" == "project" ] && [[ ! -z $CI_BUILD_NUMBER ]]; then
+      BUILD_NUMBER=$CI_BUILD_NUMBER
       ADD_BUILD_NUMBER_TO_PROJECT=true
     fi
 
@@ -259,13 +264,14 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.8.1'
+SCRIPT_VERSION='0.9.0'
 
 #
-# Load all utility functions
+# Load all utility functions and CI environment
 #
 
 load
+load_ci_environment
 
 #
 # Load environment variables from file, if it exists, otherwise they should be loaded

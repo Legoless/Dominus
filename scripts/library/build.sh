@@ -489,8 +489,8 @@ create_report_path()
     LOG_REPORT_PATH=$LOG_REPORT_PATH'_'"$2"
   fi
 
-  if [[ ! -z $TRAVIS_JOB_NUMBER ]]; then
-    LOG_REPORT_PATH=$TRAVIS_JOB_NUMBER'_'$LOG_REPORT_PATH
+  if [[ ! -z $CI_JOB_NUMBER ]]; then
+    LOG_REPORT_PATH=$CI_JOB_NUMBER'_'$LOG_REPORT_PATH
   fi
 
   echo $LOG_REPORT_PATH

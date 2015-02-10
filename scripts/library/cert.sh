@@ -25,7 +25,7 @@ cert()
     #CURRENT_KEYCHAIN=$(keychain_create $LOGINED_USER)
   fi
 
-  if [[ ! -z $TRAVIS_BUILD_NUMBER ]]; then
+  if [[ ! -z $CI_REPOSITORY ]]; then
     security -v set-keychain-settings -lut 7200 $CURRENT_KEYCHAIN
   fi  
 

@@ -9,8 +9,8 @@ send()
   # Check if we should deploy
   #
   
-  if [[ $TRAVIS_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $TRAVIS_BRANCH ]] && [[ ! -z $DEPLOY_BRANCH ]]; then
-    message "send" "Skipping deployment: $TRAVIS_BRANCH branch not deployed (requires: $DEPLOY_BRANCH)." debug warning
+  if [[ $CI_BRANCH != $DEPLOY_BRANCH ]] && [[ ! -z $CI_BRANCH ]] && [[ ! -z $DEPLOY_BRANCH ]]; then
+    message "send" "Skipping deployment: $CI_BRANCH branch not deployed (requires: $DEPLOY_BRANCH)." debug warning
 
     return
   fi
@@ -248,13 +248,13 @@ send()
 
   #
   # Check if we are to wait for other jobs to finish before deploying. This only works on CI.
-  # We need both the flag and GitHub Token and Travis Build ID and Repo Slug for this.
+  # We need both the flag and GitHub Token and CI Build ID and Repo Slug for this.
   # Start ruby script if possible.
   #
 
-  if ([[ -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]] || [ "$DEPLOY_WAIT_FOR_OTHER_JOBS" == true ]) && [[ ! -z $GITHUB_TOKEN ]] && [[ ! -z $TRAVIS_BUILD_ID ]] && [[ ! -z $TRAVIS_REPO_SLUG ]]; then
+  if ([[ -z $DEPLOY_WAIT_FOR_OTHER_JOBS ]] || [ "$DEPLOY_WAIT_FOR_OTHER_JOBS" == true ]) && [[ ! -z $GITHUB_TOKEN ]] && [[ ! -z $CI_BUILD_ID ]] && [[ ! -z $CI_REPOSITORY ]]; then
     WORKER_SCRIPT=$(worker_script)
-    WAIT_RESULT=$($WORKER_SCRIPT $TRAVIS_REPO_SLUG $TRAVIS_BUILD_ID $GITHUB_TOKEN)
+    WAIT_RESULT=$($WORKER_SCRIPT $CI_REPOSITORY $CI_BUILD_ID $GITHUB_TOKEN)
 
     message "send" "$WAIT_RESULT" debug normal
 
@@ -434,7 +434,11 @@ upload_crashlytics()
 
     message "send" "$DISTRIBUTE_OUTPUT" trace normal
 
-    message "send" "Deploy complete. <b>$APPNAME</b> was distributed to Crashlytics <b>$CRASHLYTICS_DISTRIBUTION_LIST</b>." warn success
+    if [[ ! -z $CRASHLYTICS_DISTRIBUTION_LIST ]]; then
+      message "send" "Deploy complete. <b>$APP_NAME</b> was distributed to Crashlytics <b>$CRASHLYTICS_DISTRIBUTION_LIST</b>." warn success
+    else
+      message "send" "Deploy complete. <b>$APP_NAME</b> was distributed to Crashlytics." warn success
+    fi
   else
     message "send" "Skipping Crashlytics deployment, missing token information." debug warning
   fi
@@ -522,8 +526,8 @@ construct_release_notes()
 
   BUILD_BRANCH=''
 
-  if [[ ! -z $TRAVIS_BRANCH ]]; then
-    BUILD_BRANCH=$TRAVIS_BRANCH
+  if [[ ! -z $CI_BRANCH ]]; then
+    BUILD_BRANCH=$CI_BRANCH
   else
     BUILD_BRANCH=`git rev-parse --abbrev-ref HEAD`
   fi
@@ -537,13 +541,13 @@ construct_release_notes()
   fi
 
   #
-  # Check for Travis CI history
+  # Check for commit range, to build history
   #
 
-  if [[ ! -z $TRAVIS_COMMIT_RANGE ]]; then
+  if [[ ! -z $CI_COMMIT_RANGE ]]; then
     RELEASE_NOTES=$RELEASE_NOTES' Changes from last version:\n'
 
-    GIT_HISTORY=`git log $TRAVIS_COMMIT_RANGE --no-merges --format="%s"`
+    GIT_HISTORY=`git log $CI_COMMIT_RANGE --no-merges --format="%s"`
 
     IFS=$'\n'
 

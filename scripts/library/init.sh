@@ -8,8 +8,8 @@ set -e
 
 init()
 {
-  if [[ ! -z $TRAVIS_REPO_SLUG ]]; then
-    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$TRAVIS_BRANCH</b>." warn warning
+  if [[ ! -z $CI_REPOSITORY ]]; then
+    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$CI_BRANCH</b>." warn warning
   else
     CURRENT_DIR=$(pwd)
     CURRENT_DIR=$(basename $CURRENT_DIR)
