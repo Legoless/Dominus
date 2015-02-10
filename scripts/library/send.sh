@@ -217,6 +217,8 @@ send()
 
       message "send" "Creating dSYM symbol ZIP package..." trace normal
 
+      ls -l $APP_PATH
+
       package "$APP_PATH.dSYM"
     else
       message "send" "Could not find $APP_PATH, aborting..." warn error
