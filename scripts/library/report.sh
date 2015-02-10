@@ -56,6 +56,7 @@ create_result_path()
 
   if [[ ! -z $CI_REPOSITORY ]]; then
     REPO_SLUG=$(clean_repository_name $CI_REPOSITORY)
+    REPO_SLUG=$(echo $REPO_SLUG | tr '[:upper:]' '[:lower:]')
     RESULT_PATH="$REPO_SLUG/"
   fi
 
