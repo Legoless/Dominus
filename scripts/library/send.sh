@@ -101,7 +101,9 @@ send()
   message "send" "Using .app at: $APP_PATH, name: $APP_NAME" trace normal
 
   if [[ ! -z $ARCHIVE_PATH ]]; then
-    message "send" "Using Archive at $ARCHIVE_PATH" trace normal
+    message "send" "Packaging Archive at $ARCHIVE_PATH" trace normal
+
+    package "$ARCHIVE_PATH"
   fi
 
   RELEASE_NOTES=$(construct_release_notes $APP_PATH)
@@ -280,7 +282,7 @@ send()
 
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
-    upload_file $RESULT_PATH "$ARCHIVE_PATH"
+    upload_file $RESULT_PATH "$ARCHIVE_PATH.zip"
   else
     message "send" "Deploy complete. <b>$APPNAME</b> was successfully uploaded." warn success
 
