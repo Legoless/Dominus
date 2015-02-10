@@ -273,6 +273,9 @@ SCRIPT_VERSION='0.9.0'
 load
 load_ci_environment
 
+check_excluded_branch
+check_included_branch
+
 #
 # Load environment variables from file, if it exists, otherwise they should be loaded
 # in environment by CI itself, to make it secure.
