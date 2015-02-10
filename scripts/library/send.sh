@@ -404,6 +404,8 @@ upload_crashlytics()
 
     if [[ -z $CRASHLYTICS_FRAMEWORK ]]; then
       message "send" "Cannot locate Crashlytics framework. Aborting." info error
+
+      exit 1
     fi
 
     local DISTRIBUTE_COMMAND=$CRASHLYTICS_FRAMEWORK'/submit '$CRASHLYTICS_API_TOKEN' '$CRASHLYTICS_BUILD_TOKEN' -ipaPath '$BUILD_PATH'/'$APP_NAME'.ipa'
@@ -413,7 +415,7 @@ upload_crashlytics()
     #
     
     if [[ ! -z $RELEASE_NOTES_REPORT_PATH ]]; then
-      DISTRIBUTE_COMMAND=$CRASHLYTICS_COMMAND' -notesPath '$RELEASE_NOTES_REPORT_PATH
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -notesPath '$RELEASE_NOTES_REPORT_PATH
     fi
 
     #
@@ -424,7 +426,7 @@ upload_crashlytics()
       DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
     fi
 
-    message "send" "Distribute: $DISTRIBUTE_COMMAND"
+    message "send" "Crashlytics: $DISTRIBUTE_COMMAND"
 
     local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
 
@@ -441,7 +443,7 @@ write_release_notes()
   if [[ ! -z $RELEASE_NOTES ]]; then
     RELEASE_NOTES_REPORT_PATH=$(create_report_path)
 
-    RELEASE_NOTES_REPORT_PATH='./report/'$RELEASE_NOTES_REPORT_PATH'_release_notes.txt'
+    RELEASE_NOTES_REPORT_PATH='./report/'$RELEASE_NOTES_REPORT_PATH'release_notes.txt'
 
     echo "$RELEASE_NOTES" > "$RELEASE_NOTES_REPORT_PATH"
 
