@@ -492,8 +492,6 @@ construct_release_notes()
   	PROPERTY_LIST=$(find_property_list)
   fi
 
-  echo "TEST: $PROPERTY_LIST"
-
   #
   # Append version and build to release notes
   #
@@ -512,12 +510,14 @@ construct_release_notes()
       RELEASE_NOTES=$BUNDLE_NAME
     fi
 
-    RELEASE_NOTES="$RELEASE_NOTES (v$APP_VERSION"
+    if [[ ! -z $APP_VERSION ]]; then
+      RELEASE_NOTES="$RELEASE_NOTES (v$APP_VERSION"
 
-    PLIST_BUILD_NUMBER=$(read_property $PROPERTY_LIST CFBundleVersion)
-    RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
+      PLIST_BUILD_NUMBER=$(read_property $PROPERTY_LIST CFBundleVersion)
+      RELEASE_NOTES=$RELEASE_NOTES'.'$PLIST_BUILD_NUMBER
 
-    RELEASE_NOTES=$RELEASE_NOTES')'
+      RELEASE_NOTES=$RELEASE_NOTES')'
+    fi
   fi
 
   #
@@ -578,7 +578,7 @@ find_property_list()
     # Select property list if it does not contain Tests or Pods
     #
 
-    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]]; then
+    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]] && [[ ! $filename == *.storyboard* ]]; then
       PROPERTY_LIST=$filename
       break
     fi
