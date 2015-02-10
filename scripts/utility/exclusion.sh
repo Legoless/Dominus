@@ -5,7 +5,7 @@
 #
 check_excluded_branch()
 {
-  if [ -z $CI_BRANCH ] || [[ ! -z $CI_PULL_REQUEST ]] || [ -z $EXCLUDED_BRANCHES ]; then
+  if [ -z $CI_BRANCH ] || [[ ! -z $CI_PULL_REQUEST ]] || [ -z $EXCLUDED_BRANCHES ] || [ "$CI_CHECK_BRANCHES" = false ]; then
     return 0
   fi
 
@@ -19,7 +19,7 @@ check_excluded_branch()
 
 check_included_branch()
 {
-  if [ -z $CI_BRANCH ] || [[ ! -z $CI_PULL_REQUEST ]] || [ -z $INCLUDED_BRANCHES ]; then
+  if [ -z $CI_BRANCH ] || [[ ! -z $CI_PULL_REQUEST ]] || [ -z $INCLUDED_BRANCHES ] || [ "$CI_CHECK_BRANCHES" = false ]; then
     return 0
   fi
 
