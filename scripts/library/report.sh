@@ -60,7 +60,7 @@ create_result_path()
     RESULT_PATH="$REPO_SLUG/"
   fi
 
-  RESULT_PATH=$RESULT_PATH"iOS/"
+  RESULT_PATH=$RESULT_PATH"ios/"
 
   if [[ ! -z $CI_BRANCH ]]; then
   	RESULT_PATH=$RESULT_PATH"$CI_BRANCH/"
