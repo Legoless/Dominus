@@ -424,6 +424,8 @@ upload_crashlytics()
       DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
     fi
 
+    message "send" "Distribute: $DISTRIBUTE_COMMAND"
+
     local DISTRIBUTE_OUTPUT=`eval $DISTRIBUTE_COMMAND`
 
     message "send" "$DISTRIBUTE_OUTPUT" trace normal
