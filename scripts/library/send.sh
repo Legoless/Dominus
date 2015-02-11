@@ -431,7 +431,7 @@ upload_crashlytics()
     #
 
     if [[ ! -z $CRASHLYTICS_DISTRIBUTION_LIST ]]; then
-      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -groupAliases "'$CRASHLYTICS_DISTRIBUTION_LIST'"'
+      DISTRIBUTE_COMMAND=$DISTRIBUTE_COMMAND' -groupAliases '$CRASHLYTICS_DISTRIBUTION_LIST
     fi
 
     message "send" "Crashlytics: $DISTRIBUTE_COMMAND"
