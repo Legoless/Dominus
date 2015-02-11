@@ -216,7 +216,7 @@ send()
       xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
       if [ "$BUILD_UNSIGNED" = true ]; then
-        message "send" "Building unsigned $APP_NAME-unsigned.ipa..." debug normal
+        message "send" "Building unsigned IPA: $APP_NAME-unsigned.ipa" debug normal
         xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME-unsigned.ipa"
       fi
 
@@ -286,6 +286,7 @@ send()
     upload_crashlytics
 
     upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME.ipa"
+    upload_file $RESULT_PATH "$BUILD_PATH/$APP_NAME-unsigned.ipa"
     upload_file $RESULT_PATH "$APP_PATH.dSYM.zip"
     upload_file $RESULT_PATH "$ARCHIVE_PATH.zip"
   else
