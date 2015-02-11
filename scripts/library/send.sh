@@ -90,7 +90,7 @@ send()
   # Find built .app file
   #
 
-  APP_PATH=$(find_dir '*.app')
+  APP_PATH=$(find_app)
   ARCHIVE_PATH=$(find_dir '*.xcarchive')
 
   if [[ ! -z $APP_PATH ]]; then
@@ -216,8 +216,6 @@ send()
       xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
       message "send" "Creating dSYM symbol ZIP package..." trace normal
-
-      ls -l $APP_PATH
 
       package "$APP_PATH.dSYM"
     else

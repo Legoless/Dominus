@@ -189,7 +189,7 @@ build()
     message "build" "Archiving project with xctool..." trace normal
 
     ARCHIVE_NAME=$(archive_name $SCHEME)
-    ARCHIVE_COMMAND=$BUILD_COMMAND" archive -archivePath \"$BUILD_PATH/$ARCHIVE_NAME.xcarchive\""
+    ARCHIVE_COMMAND=$BUILD_COMMAND" archive -archivePath \"$BUILD_PATH$ARCHIVE_NAME.xcarchive\""
 
     execute_command "$ARCHIVE_COMMAND"
   fi
