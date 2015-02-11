@@ -216,7 +216,8 @@ send()
       xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME.ipa" -sign "$IDENTITY" -embed "$PROFILE_FILE"
 
       if [ "$BUILD_UNSIGNED" = true ]; then
-        xcrun -sdk iphone PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME-unsigned.ipa"
+        message "send" "Building unsigned $APP_NAME-unsigned.ipa..." debug normal
+        xcrun -sdk iphoneos PackageApplication "$APP_PATH" -o "$BUILD_PATH/$APP_NAME-unsigned.ipa"
       fi
 
       message "send" "Creating dSYM symbol ZIP package..." trace normal
