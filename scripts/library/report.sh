@@ -57,7 +57,10 @@ create_result_path()
   if [[ ! -z $CI_REPOSITORY ]] && [ "$REPORT_USE_REPOSITORY_NAME" != false ]; then
     REPO_SLUG=$(clean_repository_name $CI_REPOSITORY)
     REPO_SLUG=$(echo $REPO_SLUG | tr '[:upper:]' '[:lower:]')
-    RESULT_PATH="$REPO_SLUG/"
+
+    if [[ ! -z $REPO_SLUG ]]; then
+      RESULT_PATH="$REPO_SLUG/"
+    fi
   fi
 
   RESULT_PATH=$RESULT_PATH"ios/"
