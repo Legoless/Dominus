@@ -64,10 +64,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Push notification support (Shenzhen)
 - Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
-- Apple TestFlight support
-- HockeyApp support
-- Xcode archive support
-- Build unsigned .IPA
+- Build unsigned .IPA (without certificate)
 - Documentation & Wiki
 
 Contact
