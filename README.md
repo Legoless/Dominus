@@ -28,7 +28,7 @@ Dominus is a world class command line tool to improve workflow with developing i
 
 # Installation
 
-The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. Dominus has an automatic updating mechanism, that will always bring the script up to date.
+The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present). To make Dominus work, you also need to ste correct environment variables.
 
 # Configuration file
 
