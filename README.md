@@ -66,7 +66,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Action mapping per branch (using Thalion gem)
 - Build unsigned .IPA (without certificate)
 - Documentation & Wiki
-- Custom script support
+- Custom shell script support
 
 Contact
 ======
