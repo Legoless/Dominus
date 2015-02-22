@@ -7,7 +7,7 @@ Dominus is a world class command line tool to improve workflow with developing i
 
 - Building iOS Projects
   - Multiple targets or schemes
-  - Different SDK's
+  - Different SDK's, including simulator
   - Automatic build process
 - Testing iOS Projects
   - Using different iOS Simulators or real devices
