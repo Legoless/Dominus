@@ -93,8 +93,6 @@ setup()
 
 integrate()
 {
-  echo '[DOMINUS]: Integration started. Script version:' $SCRIPT_VERSION
-
   #
   # Store action as global
   #
@@ -265,6 +263,8 @@ SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
 SCRIPT_VERSION='0.9.0'
+
+echo '[DOMINUS]: System started. Script version:' $SCRIPT_VERSION
 
 #
 # Load all utility functions and CI environment

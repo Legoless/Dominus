@@ -105,7 +105,7 @@ run_tests()
   TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
 
   if [[ $TEST_SDK == *simulator* ]]; then
-    TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='armv6 armv7 i386'"
+    TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
   fi
 
   REPORTER=$(reporter);
@@ -167,9 +167,9 @@ execute_test()
 
     TEST_EXECUTE=`echo $TEST_EXECUTE | sed -e 's/^ *//' -e 's/ *$//'`
 
-    #if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
+    if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
       #message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn success
-    #else
+    else
       message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
 
       #echo $TEST_COMMAND
@@ -185,7 +185,7 @@ execute_test()
       cat './report/'$LOG_REPORT_PATH'_test_xcode.log'
       
       exit 1
-    #fi
+    fi
   fi
 }
 

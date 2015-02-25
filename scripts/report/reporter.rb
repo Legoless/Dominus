@@ -43,12 +43,14 @@ ARGF.each do |line|
     # Skip events that are not end build targets
     #
     
-    if (xcodeEvent['event'] != 'end-build-target')
+    #if (xcodeEvent['event'] != 'end-build-target')
         #next
-    end
+    #end
     
-    unless xcodeEvent['totalNumberOfErrors'].nil?
+    if xcodeEvent.include? 'totalNumberOfErrors'
         errors += xcodeEvent['totalNumberOfErrors']
+    elsif xcodeEvent['succeeded'] == false
+        errors += 1
     end
     
     unless xcodeEvent['totalNumberOfWarnings'].nil?
