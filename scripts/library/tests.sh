@@ -102,7 +102,7 @@ run_tests()
   #
   # Prepare commands
   #
-  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH VALID_ARCHS='armv6 armv7 i386'"
+  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
 
   if [[ $TEST_SDK == *simulator* ]]; then
     TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='armv6 armv7 i386'"
@@ -151,10 +151,6 @@ execute_test()
       TEST_COMMAND=$TEST_COMMAND" test -sdk $BUILD_SDK"
       TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $BUILD_SDK"
     fi
-
-    #
-    # Check for Rakefile, run rake test command, otherwise run xctool test
-    #
 
     message "test" "Test command: $TEST_COMMAND" trace normal
 
