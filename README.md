@@ -7,7 +7,7 @@ Dominus is a world class command line tool to improve workflow with developing i
 
 - Building iOS Projects
   - Multiple targets or schemes
-  - Different SDK's
+  - Different SDK's, including simulator
   - Automatic build process
 - Testing iOS Projects
   - Using different iOS Simulators or real devices
@@ -23,12 +23,12 @@ Dominus is a world class command line tool to improve workflow with developing i
   - Release notes from Git history (on Travis CI only)
   - Configure which branches should deploy
 - Detailed notification system (HipChat)
-- Travis CI Full Support, including project configuration
+- Travis CI Full Integration Support, including project configuration
 - Dashboard Reporting Panel and Ad-Hoc distribution
 
 # Installation
 
-The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. Dominus has an automatic updating mechanism, that will always bring the script up to date.
+The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present). To make Dominus work, you also need to ste correct environment variables.
 
 # Configuration file
 
@@ -66,6 +66,7 @@ This command will generate `.travis.yml` file which is then easily commited to y
 - Action mapping per branch (using Thalion gem)
 - Build unsigned .IPA (without certificate)
 - Documentation & Wiki
+- Custom shell script support
 
 Contact
 ======
