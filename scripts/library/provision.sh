@@ -11,9 +11,10 @@ provision()
 {
   #
   # If we are building for simulator, no provisioning profiles needed
+  # If provisioning profile is not defined, no profiles needed as well
   #
 
-  if [[ $BUILD_SDK == *simulator* ]] && [ ! -z $DEVELOPER_PROVISIONING ]; then
+  if [[ $BUILD_SDK == *simulator* ]]; then
     return 0
   fi
 

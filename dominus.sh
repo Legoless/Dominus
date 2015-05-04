@@ -122,6 +122,15 @@ integrate()
         BUILD_SDK=$BUILD_SDK"$SDK"
       fi
 
+      #
+      # If no developer provisioning is defined, we will set Build SDK to be the simulator
+      #
+
+      if [[ -z $DEVELOPER_PROVISIONING ]]; then
+        BUILD_SDK=$PLATFORM'simulator'
+        BUILD_SDK=$BUILD_SDK"$SDK"
+      fi
+
       TEST_SDK=$PLATFORM'simulator'$SDK
     else
       BUILD_SDK=$PLATFORM"$SDK"
