@@ -14,8 +14,12 @@ build()
     DIR_PATH=$(pwd)
   fi
 
-  if [[ -z BUILD_CONFIG ]]; then
+  if [[ -z $BUILD_CONFIG ]]; then
     BUILD_CONFIG='Release'
+  fi
+
+  if [[ -z $DEPLOY_ALLOW_WARNING_BUILDS ]]; then
+    DEPLOY_ALLOW_WARNING_BUILDS=false
   fi
 
   #
