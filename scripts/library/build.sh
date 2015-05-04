@@ -19,7 +19,7 @@ build()
   fi
 
   if [[ -z $DEPLOY_ALLOW_WARNING_BUILDS ]]; then
-    DEPLOY_ALLOW_WARNING_BUILDS=false
+    DEPLOY_ALLOW_WARNING_BUILDS=true
   fi
 
   #
