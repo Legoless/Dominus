@@ -76,10 +76,11 @@ This command will generate `.travis.yml` file which is then easily commited to y
 
 ## Sample .travis.yml
 
-1. Using a submodule:
+### Using a submodule:
 
 ```
 language: objective-c
+sudo: false
 before_install:
 - chmod +x ./Dominus/dominus.sh
 - "./Dominus/dominus.sh update"
@@ -94,10 +95,11 @@ env:
   - PLATFORM='iphone'
 ```
 
-2. Using the install script:
+### Using the install script:
 
 ```
 language: objective-c
+sudo: false
 script:
 - curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh | sh
 env:
