@@ -74,7 +74,40 @@ To integrate with Travis CI run the next command:
 
 This command will generate `.travis.yml` file which is then easily commited to your repository. Enter the variables, which are then encrypted using Travis CI private keys. It will also configure running of Dominus according to your input. If there is a `dominus.cfg` present in the same directory, it will generate `.travis.yml` from the configuration file present.
 
+## Sample .travis.yml
 
+1. Using a submodule:
+
+```
+language: objective-c
+before_install:
+- chmod +x ./Dominus/dominus.sh
+- "./Dominus/dominus.sh update"
+script:
+- "./Dominus/dominus.sh integrate"
+env:
+  matrix:
+  - ACTION=build
+  - ACTION=test
+  global:
+  - SDK=8.1
+  - PLATFORM='iphone'
+```
+
+2. Using the install script:
+
+```
+language: objective-c
+script:
+- curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh | sh
+env:
+  matrix:
+  - ACTION=build
+  - ACTION=test
+  global:
+  - SDK=8.1
+  - PLATFORM='iphone'
+```
 
 # TODO
 
