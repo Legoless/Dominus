@@ -5,6 +5,8 @@ Dominus is a simple command line tool to integrate workflow with developing iOS 
 
 In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has less features and it is easier to integrate.
 
+**Dominus has only one specific goal: Easy integration.** As much information as possible should be read from project file instead of asking developer to set it configuration file.
+
 # Features
 
 - Building iOS Projects
