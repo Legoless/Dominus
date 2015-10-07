@@ -410,13 +410,7 @@ reporter_command()
 
 search_targets()
 {
-  if [[ -z $1 ]]; then
-    SEARCH_PATH=$DIR_PATH
-  fi
-
-  if [[ -z $SEARCH_PATH ]]; then
-    SEARCH_PATH='.'
-  fi
+  SEARCH_PATH=$(get_search_path $1)
 
   WORKSPACE=$(find_workspace $SEARCH_PATH)
 
@@ -429,9 +423,26 @@ search_targets()
   fi
 }
 
+get_search_path ()
+{
+  local SEARCH_PATH=$1
+
+  if [[ -z $SEARCH_PATH ]]; then
+    SEARCH_PATH=$DIR_PATH
+  fi
+
+  if [[ -z $SEARCH_PATH ]]; then
+    SEARCH_PATH='.'
+  fi
+
+  echo $SEARCH_PATH
+}
+
 find_workspace()
 {
-  for f in $(find $1 -iname *.xcworkspace);
+  local SEARCH_PATH=$(get_search_path $1)
+
+  for f in $(find $SEARCH_PATH -iname *.xcworkspace);
   do
     if [[ -d $f ]] && [[ $f != */project.xcworkspace ]]; then
       PROJECT_WORKSPACE=$f
@@ -443,7 +454,9 @@ find_workspace()
 
 find_project()
 {
-  for f in $(find $1 -iname *.xcodeproj -maxdepth 2);
+  local SEARCH_PATH=$(get_search_path $1)
+
+  for f in $(find $SEARCH_PATH -iname *.xcodeproj -maxdepth 2);
   do
     if [[ -d $f ]] && [[ $f != *Pods* ]] && [[ $f != *pods* ]]; then
       PROJECT_FILE=$f

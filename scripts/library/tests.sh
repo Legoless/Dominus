@@ -238,7 +238,7 @@ generate_code_coverage()
 
     gem_install "slather"
 
-    message "test" "Detected Slather file, Running  for code coverage upload..." trace normal
+    message "test" "Detected Slather file, running code coverage upload..." trace normal
 
     slather
 
