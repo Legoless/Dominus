@@ -161,7 +161,7 @@ execute_test()
     fi
 
     if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
-      message "test" "Setuping project for Code Coverage using Slather..." info normal
+      message "test" "Setuping project for Code Coverage: $PROJECT" info normal
 
       gem_install "slather"
 
@@ -248,7 +248,7 @@ generate_code_coverage()
   if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
     gem_install "slather"
 
-    message "test" "Generating Code Coverage report with Slather..." trace normal
+    message "test" "Generating Code Coverage for: $PROJECT" trace normal
 
     slather coverage --html $PROJECT
 
