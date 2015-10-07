@@ -13,13 +13,15 @@ library()
   # Search for podfile
   #
 
-  PODFILE_PATH=$(find_file 'podfile')
+  PODFILE_PATH=$(find_file 'Podfile')
+
+  PODS_DIRECTORY=$(find_dir 'Pods')
 
   #
   # If found, install pods
   #
 
-  if [[ ! -z $PODFILE_PATH ]]; then
+  if [[ ! -z $PODFILE_PATH ]] && [[ -z $PODS_DIRECTORY ]]; then
     message "init" "Installing CocoaPods gem..." debug normal
 
     gem_install "CocoaPods"
