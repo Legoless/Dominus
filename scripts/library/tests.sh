@@ -152,15 +152,29 @@ execute_test()
       TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $BUILD_SDK"
     fi
 
+    #
+    # Code Coverage requires link to the project, try to find it
+    #
+
+    if [[ -z $PROJECT ]]; then
+      PROJECT=$(find_project)
+    fi
+
+    if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
+      message "test" "Setuping project for Code Coverage using Slather..." info normal
+
+      gem_install "slather"
+
+      slather setup $PROJECT
+    fi
+
     message "test" "Test command: $TEST_COMMAND" trace normal
 
     TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
 
-    #echo $TEST_EXECUTE
-
-    #eval $TEST_COMMAND
-
-    #message "test" "$TEXT_EXECUTE" trace normal
+    #
+    # Parsing Test Result
+    #
 
     NO_FAILURES=`echo $TEST_EXECUTE | grep ' 0 errored' | head -1`
     NO_ERRORS=`echo $TEST_EXECUTE | grep ' 0 failed' | head -1`
@@ -170,9 +184,12 @@ execute_test()
     if [[ ! -z $NO_FAILURES ]] && [[ ! -z $NO_ERRORS ]]; then
       message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn success
 
-      # Slather integration
+      generate_code_coverage
+
     else
       message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
+
+      generate_code_coverage
 
       #echo $TEST_COMMAND
 
@@ -211,5 +228,30 @@ execute_rake_test()
 
 generate_code_coverage()
 {
-  
+  #
+  # Slather knows how to upload to certain services, but only if configuration file is defined.
+  #
+
+  SLATHER_FILE=$(find_file '.slather.yml')
+
+  if [[ ! -z $SLATHER_FILE ]]; then
+
+    gem_install "slather"
+
+    message "test" "Detected Slather file, Running  for code coverage upload..." trace normal
+
+    slather
+
+    message "test" "Slather upload finished." info success
+  fi
+
+  if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
+    gem_install "slather"
+
+    message "test" "Generating Code Coverage report with Slather..." trace normal
+
+    slather coverage --html $PROJECT
+
+    message "test" "Code Coverage report generated." info success
+  fi
 }
