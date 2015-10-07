@@ -117,7 +117,6 @@ env:
 
 - Code formatting checker (Obj-Clean or some code formatter)
 - Push notification support (Shenzhen)
-- Code coverage generation and upload
 - Action mapping per branch (using Thalion gem)
 - Build unsigned .IPA (without certificate)
 - Documentation & Wiki
