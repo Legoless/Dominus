@@ -112,6 +112,10 @@ integrate()
   #
   # Create build and test SDK's if both sdk and platform are specified
   #
+
+  if [[ -z $PLATFORM ]]; then
+    PLATFORM='iphone'
+  fi
   
   if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then
     
