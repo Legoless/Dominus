@@ -234,6 +234,8 @@ generate_code_coverage()
 
   SLATHER_FILE=$(find_file '.slather.yml')
 
+  set +e
+
   if [[ ! -z $SLATHER_FILE ]]; then
 
     gem_install "slather"
@@ -254,4 +256,6 @@ generate_code_coverage()
 
     message "test" "Code Coverage report generated." info success
   fi
+
+  set -e
 }
