@@ -211,3 +211,13 @@ if [[ ! -z $HIPCHAT_TOKEN ]] && [[ ! -z $HIPCHAT_ROOM_ID ]]; then
     OUTPUT=$($HIPCHAT_SCRIPT -t $HIPCHAT_TOKEN -r "$HIPCHAT_ROOM_ID" -f $SENDER_NAME -c $COLOR -i "$MESSAGE")
   fi
 fi
+
+#
+# Read Slack stuff from environment and post a message
+#
+
+
+if [[ ! -z $SLACK_WEBHOOK ]]; then
+  
+fi
+
