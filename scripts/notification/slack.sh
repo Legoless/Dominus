@@ -80,5 +80,5 @@ SLACK_PAYLOAD=$SLACK_PAYLOAD"\"text\":\"$SLACK_MESSAGE\"}"
 
 # Post to Slack and print the Slack API output to standard error.
 #echo curl -X POST --data-urlencode "'payload=$SLACK_PAYLOAD'" $SLACK_WEBHOOK_URL 
-curl -X POST --data-urlencode "payload=$SLACK_PAYLOAD" $SLACK_WEBHOOK_URL
+curl -X POST --data-urlencode "payload=$SLACK_PAYLOAD" $SLACK_WEBHOOK_URL --silent > /dev/null
 #curl -X POST --data-urlencode "payload=$SLACK_PAYLOAD" $SLACK_WEBHOOK_URL --verbose

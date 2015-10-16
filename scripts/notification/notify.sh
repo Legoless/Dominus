@@ -228,7 +228,7 @@ if [[ ! -z $SLACK_WEBHOOK ]]; then
 
   	#echo 'SLACK CMD: '$SLACK_COMMAND
 
-    `eval $SLACK_COMMAND`
+    `eval $SLACK_COMMAND || true`
 
     #OUTPUT=$($SLACK_COMMAND)
 
