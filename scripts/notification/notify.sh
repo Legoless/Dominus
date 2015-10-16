@@ -226,9 +226,11 @@ if [[ ! -z $SLACK_WEBHOOK ]]; then
   	  SLACK_COMMAND=$SLACK_COMMAND' --channel="'$SLACK_CHANNEL'"'
   	fi
 
-  	echo 'SLACK CMD: '$SLACK_COMMAND
+  	#echo 'SLACK CMD: '$SLACK_COMMAND
 
     OUTPUT=$($SLACK_COMMAND)
+
+    echo 'SLACK CMD: '$SLACK_COMMAND
   fi
 fi
 
