@@ -220,7 +220,7 @@ if [[ ! -z $SLACK_WEBHOOK ]]; then
   SLACK_SCRIPT=`find . -name slack.sh | head -n1`
 
   if [[ -f $SLACK_SCRIPT ]]; then
-  	SLACK_COMMAND=$SLACK_SCRIPT' --webhook="'$SLACK_WEBHOOK'" --message="'$MESSAGE'" --user="'$SENDER_NAME'"'
+  	SLACK_COMMAND=$SLACK_SCRIPT' --webhook='$SLACK_WEBHOOK' --message='$MESSAGE'" --user='$SENDER_NAME
 
   	if [[ ! -z $SLACK_CHANNEL ]]; then
   	  SLACK_COMMAND=$SLACK_COMMAND' --channel="'$SLACK_CHANNEL'"'
@@ -228,7 +228,7 @@ if [[ ! -z $SLACK_WEBHOOK ]]; then
 
   	#echo 'SLACK CMD: '$SLACK_COMMAND
 
-    #`eval $SLACK_COMMAND`
+    `eval $SLACK_COMMAND`
 
     OUTPUT=$($SLACK_COMMAND)
 
