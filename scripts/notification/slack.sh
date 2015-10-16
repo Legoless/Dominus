@@ -21,7 +21,7 @@ usage() {
     exit "$1"
 }
 
-SLACK_CHANNEL="null"
+SLACK_CHANNEL=""
 SLACK_WEBHOOK_URL=""
 SLACK_USERNAME=""
 SLACK_MESSAGE=""
@@ -61,9 +61,25 @@ SLACK_MESSAGE=$(echo "$SLACK_MESSAGE" | sed -e 's/^"//'  -e 's/"$//' | jsonify)
 SLACK_USERNAME=$(echo "$SLACK_USERNAME" | sed -e 's/^"//'  -e 's/"$//')
 SLACK_WEBHOOK_URL=$(echo "$SLACK_WEBHOOK_URL" | sed -e 's/^"//'  -e 's/"$//')
 
-SLACK_PAYLOAD="{\"channel\":\"$SLACK_CHANNEL\",\"text\":\"$SLACK_MESSAGE\",\"username\":\"$SLACK_USERNAME\"}"
+SLACK_MESSAGE="${SLACK_MESSAGE//<b>/*}"
+SLACK_MESSAGE="${SLACK_MESSAGE//<\/b>/*}"
+SLACK_MESSAGE="${SLACK_MESSAGE//<i>/_}"
+SLACK_MESSAGE="${SLACK_MESSAGE//<\/i>/_}"
+
+SLACK_PAYLOAD="{"
+
+if [[ $SLACK_CHANNEL = *[!\ ]* ]]; then
+  SLACK_PAYLOAD=$SLACK_PAYLOAD'"channel":"'$SLACK_CHANNEL'",'
+fi
+
+if [[ $SLACK_USERNAME = *[!\ ]* ]]; then
+  SLACK_PAYLOAD=$SLACK_PAYLOAD'"username":"'$SLACK_USERNAME'",'
+fi
+
+SLACK_PAYLOAD=$SLACK_PAYLOAD"\"text\":\"$SLACK_MESSAGE\"}"
 
 
 # Post to Slack and print the Slack API output to standard error.
 #echo curl -X POST --data-urlencode "'payload="$SLACK_PAYLOAD"'" $SLACK_WEBHOOK_URL 
-curl -X POST --data-urlencode 'payload='$SLACK_PAYLOAD $SLACK_WEBHOOK_URL --silent > /dev/null
+curl -X POST --data-urlencode "'payload="$SLACK_PAYLOAD"'" $SLACK_WEBHOOK_URL --silent > /dev/null
+#curl -X POST --data-urlencode "'payload="$SLACK_PAYLOAD"'" $SLACK_WEBHOOK_URL --verbose

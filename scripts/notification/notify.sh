@@ -216,7 +216,6 @@ fi
 # Read Slack stuff from environment and post a message
 #
 
-
 if [[ ! -z $SLACK_WEBHOOK ]]; then
   SLACK_SCRIPT=`find . -name slack.sh | head -n1`
 
