@@ -244,7 +244,7 @@ generate_code_coverage()
 
     slather
 
-    message "test" "Slather upload finished." info success
+    message "test" "Slather upload finished." debug success
   fi
 
   if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
@@ -254,7 +254,7 @@ generate_code_coverage()
 
     slather coverage --html $PROJECT
 
-    message "test" "Code Coverage report generated." info success
+    message "test" "Code Coverage report generated." debug success
   fi
 
   set -e
