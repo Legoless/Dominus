@@ -9,7 +9,7 @@ report()
 
     collect_reports
   else
-    message "report" "Skipping report collection." info warning
+    message "report" "Skipping report collection." debug warning
   fi
 }
 

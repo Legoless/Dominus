@@ -275,7 +275,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.9.1'
+SCRIPT_VERSION='0.9.2'
 
 echo '[DOMINUS]: System started. Script version:' $SCRIPT_VERSION
 

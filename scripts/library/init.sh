@@ -9,7 +9,7 @@ set -e
 init()
 {
   if [[ ! -z $CI_REPOSITORY ]]; then
-    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$CI_BRANCH</b>." info warning
+    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$CI_BRANCH</b>." debug warning
   else
     CURRENT_DIR=$(pwd)
     CURRENT_DIR=$(basename $CURRENT_DIR)
