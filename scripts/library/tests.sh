@@ -236,7 +236,8 @@ install_slather ()
 
     if [ "$SPECIFIC_INSTALL_GEM" == "false" ]; then
       gem_install "specific_install"
-	  gem specific_install -l https://github.com/mattdelves/slather -b feature-profdata
+	  #gem specific_install -l https://github.com/mattdelves/slather -b feature-profdata
+	  gem specific_install -l https://github.com/viteinfinite/slather -b feature-profdata
     fi
 }
 
@@ -256,7 +257,7 @@ generate_code_coverage()
 
     message "test" "Detected Slather file, running code coverage upload..." trace normal
 
-    slather
+    slather --input-format profdata --scheme $SCHEME
 
     message "test" "Slather upload finished." debug success
   fi
