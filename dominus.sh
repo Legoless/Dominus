@@ -278,6 +278,7 @@ SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 SCRIPT_VERSION='0.9.2'
 
 echo '[DOMINUS]: System started. Script version:' $SCRIPT_VERSION
+echo '[DOMINUS]: Integration by Dal Rupnik <legoless@gmail.com>'
 
 #
 # Load all utility functions and CI environment
