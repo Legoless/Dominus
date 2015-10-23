@@ -257,7 +257,7 @@ generate_code_coverage()
 
     message "test" "Detected Slather file, running code coverage upload..." trace normal
 
-    slather --input-format profdata --scheme $SCHEME
+    slather --build-directory $TEST_PATH
 
     message "test" "Slather upload finished." debug success
   fi
