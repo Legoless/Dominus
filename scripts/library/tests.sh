@@ -226,6 +226,20 @@ execute_rake_test()
   fi
 }
 
+install_slather ()
+{
+	SPECIFIC_INSTALL_GEM=$(check_gem specific_install)
+
+    #
+    # Check for awscli gem which is needed for 
+    #
+
+    if [ "$SPECIFIC_INSTALL_GEM" == "false" ]; then
+      gem_install "specific_install"
+	  gem specific_install -l https://github.com/mattdelves/slather -b feature-profdata
+    fi
+}
+
 generate_code_coverage()
 {
   #
@@ -237,8 +251,8 @@ generate_code_coverage()
   set +e
 
   if [[ ! -z $SLATHER_FILE ]]; then
-
-    gem_install "slather"
+    
+    install_slather
 
     message "test" "Detected Slather file, running code coverage upload..." trace normal
 

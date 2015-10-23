@@ -64,7 +64,7 @@ gem_install()
   local GEM_CHECK=$(check_gem $GEM)
 
   if [ "$GEM_CHECK" == "false" ]; then
-    gem install $GEM --no-rdoc --no-ri --no-document --quiet
+    gem install $@ --no-rdoc --no-ri --no-document --quiet
   fi
 }
 
