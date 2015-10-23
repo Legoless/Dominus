@@ -256,7 +256,10 @@ generate_code_coverage()
     
     install_slather
 
+    echo '\n' >> $SLATHER_FILE
     echo 'build_directory: '$TEST_PATH >> $SLATHER_FILE
+
+    find . -iname "*.profdata"
 
     cat $SLATHER_FILE
 
