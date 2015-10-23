@@ -256,9 +256,7 @@ generate_code_coverage()
     
     install_slather
 
-    echo 'SLATHER: '$TEST_PATH
-
-    slather --build-directory "$TEST_PATH"
+    slather -b "$TEST_PATH"
 
     message "test" "Slather upload finished." debug success
   fi
