@@ -102,7 +102,7 @@ run_tests()
   #
   # Prepare commands
   #
-  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
+  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH --enableCodeCoverage"
 
   if [[ $TEST_SDK == *simulator* ]]; then
     TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
