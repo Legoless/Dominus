@@ -252,12 +252,13 @@ generate_code_coverage()
   set +e
 
   if [[ ! -z $SLATHER_FILE ]]; then
+    message "test" "Detected Slather file, running code coverage upload..." trace normal
     
     install_slather
 
-    message "test" "Detected Slather file, running code coverage upload..." trace normal
+    echo 'SLATHER: '$TEST_PATH
 
-    slather --build-directory $TEST_PATH
+    slather --build-directory "$TEST_PATH"
 
     message "test" "Slather upload finished." debug success
   fi
