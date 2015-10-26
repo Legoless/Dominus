@@ -160,9 +160,7 @@ execute_test()
 
     message "test" "Test command: $TEST_COMMAND" trace normal
 
-    TEST_EXECUTE=`eval $TEST_COMMAND`
-
-    echo $TEST_EXECUTE
+    `eval $TEST_COMMAND`
 
     exit 1
 
