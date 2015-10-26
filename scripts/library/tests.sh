@@ -121,7 +121,7 @@ execute_test()
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" --sdk $TEST_SDK"
+    TEST_COMMAND=$TEST_COMMAND" --sdk $TEST_SDK --verbose"
 
     #if [[ ! -z $BUILD_SDK ]]; then
     #  TEST_COMMAND=$TEST_COMMAND" --sdk $BUILD_SDK"
