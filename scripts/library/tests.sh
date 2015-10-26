@@ -210,12 +210,12 @@ test_report()
 	local TESTS_FAILED=$(xmllint --noblanks --xpath "string(//testsuites/@failures)" $TEST_REPORT_FILE)
 
     if [ "$TESTS_FAILED" == "0" ]; then
-      message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn success
+      message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> (Run: <b>$TESTS_RUN</b> Failed: <b>$TESTS_FAILED</b>)" warn success
 
       generate_code_coverage
 
     else
-      message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> ($TEST_EXECUTE)" warn error
+      message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> (Run: <b>$TESTS_RUN</b> Failed: <b>$TESTS_FAILED</b>)" warn error
 
       generate_code_coverage
 
