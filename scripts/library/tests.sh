@@ -67,6 +67,12 @@ run_tests()
   BUILD_CONFIG=$(find_config $SCHEME_FILE Test)
 
   #
+  # Install Scan
+  #
+
+  gem_install "scan"
+
+  #
   # Build and test paths need to go under build directory, which is usually under .gitignore
   #
 
@@ -75,9 +81,9 @@ run_tests()
   TEST_COMMAND=""
 
   if [[ ! -z $WORKSPACE ]]; then
-    TEST_COMMAND="xctool -workspace $WORKSPACE"
+    TEST_COMMAND="scan --workspace $WORKSPACE"
   elif [[ ! -z $PROJECT ]]; then
-    TEST_COMMAND="xctool -project $PROJECT"
+    TEST_COMMAND="scan --project $PROJECT"
   fi
 
   TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME"
@@ -89,38 +95,10 @@ run_tests()
   if [[ ! -z $BUILD_CONFIG ]]; then
     message "test" "Using Test Action build config in scheme: $BUILD_CONFIG" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" -configuration $BUILD_CONFIG"
+    TEST_COMMAND=$TEST_COMMAND" --configuration $BUILD_CONFIG"
   else
     message "test" "Build configuration not detected, using xcodebuild..." info warning
   fi
-
-
-  if [[ $TEST_SDK == *simulator* ]]; then
-    TEST_COMMAND=$TEST_COMMAND" -arch i386"
-  fi
-
-  #
-  # Prepare commands
-  #
-  TEST_COMMAND=$TEST_COMMAND" CONFIGURATION_BUILD_DIR=$TEST_PATH"
-
-  if [[ $TEST_SDK == *simulator* ]]; then
-    TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
-  fi
-
-  REPORTER=$(reporter);
-
-  if [[ ! -z $REPORTER ]]; then
-    TEST_COMMAND_REPORTER=$TEST_COMMAND" -reporter $REPORTER"
-  else
-    TEST_COMMAND_REPORTER=$TEST_COMMAND
-  fi
-
-  #
-  # Check if we need to clean
-  #
-
-  TEST_CLEAN_COMMAND=$TEST_COMMAND" clean"
 
   setup_bootstrap
   
@@ -137,20 +115,33 @@ execute_test()
   if [[ ! -z $TEST_SDK ]]; then
 
     if [[ -d $TEST_PATH ]]; then
-      message "test" "Test build already exists. Cleaning..." debug normal
+      message "test" "Test build already exists. Adding clean parameter..." debug normal
 
-      eval $TEST_CLEAN_COMMAND > /dev/null
+      TEXT_COMMAND=$TEST_COMMAND" --clean"
     fi
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" test -test-sdk $TEST_SDK"
-    TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -test-sdk $TEST_SDK"
+    TEST_COMMAND=$TEST_COMMAND" --sdk $TEST_SDK"
 
-    if [[ ! -z $BUILD_SDK ]]; then
-      TEST_COMMAND=$TEST_COMMAND" test -sdk $BUILD_SDK"
-      TEST_COMMAND_REPORTER=$TEST_COMMAND_REPORTER" test -sdk $BUILD_SDK"
-    fi
+    #if [[ ! -z $BUILD_SDK ]]; then
+    #  TEST_COMMAND=$TEST_COMMAND" --sdk $BUILD_SDK"
+    #fi
+
+
+
+	#if [[ $TEST_SDK == *simulator* ]]; then
+	#  TEST_COMMAND=$TEST_COMMAND" -arch i386"
+	#fi
+
+	#
+	# Prepare commands
+	#
+	TEST_COMMAND=$TEST_COMMAND"--xcargs CONFIGURATION_BUILD_DIR=\"$TEST_PATH\""
+
+	#if [[ $TEST_SDK == *simulator* ]]; then
+	#  TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
+	#fi
 
     #
     # Code Coverage requires link to the project, try to find it
@@ -170,7 +161,11 @@ execute_test()
 
     message "test" "Test command: $TEST_COMMAND" trace normal
 
-    TEST_EXECUTE=`eval $TEST_COMMAND_REPORTER || true`
+    TEST_EXECUTE=`eval $TEST_COMMAND`
+
+    echo $TEST_EXECUTE
+
+    exit 1
 
     #
     # Parsing Test Result
@@ -256,12 +251,12 @@ generate_code_coverage()
     
     install_slather
 
-    echo '\n' >> $SLATHER_FILE
-    echo 'build_directory: '$TEST_PATH >> $SLATHER_FILE
+    #echo '\n' >> $SLATHER_FILE
+    #echo 'build_directory: '$TEST_PATH >> $SLATHER_FILE
 
     find . -iname "*.profdata"
 
-    cat $SLATHER_FILE
+    #cat $SLATHER_FILE
 
     slather
 
