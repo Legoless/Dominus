@@ -30,7 +30,13 @@ run_tests()
   if [[ ! -z $SCAN_FILE ]]; then
   	gem_install "scan"
 
+  	set +e
+
   	`scan`
+
+	set -e
+
+	test_report
 
   	return
   fi
@@ -178,7 +184,11 @@ execute_test()
     # Run tests
     #
 
+    set +e
+
     eval $TEST_COMMAND
+
+    set -e
 
     test_report
   fi
