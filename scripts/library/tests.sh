@@ -102,7 +102,6 @@ run_tests()
 
   setup_bootstrap
   
-  execute_rake_test
   execute_test
 }
 
