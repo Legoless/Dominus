@@ -86,7 +86,7 @@ run_tests()
     TEST_COMMAND="scan --project $PROJECT"
   fi
 
-  TEST_COMMAND=$TEST_COMMAND" -scheme $SCHEME"
+  TEST_COMMAND=$TEST_COMMAND" --scheme $SCHEME"
 
   #
   # Append build configuration
@@ -137,7 +137,7 @@ execute_test()
 	#
 	# Prepare commands
 	#
-	TEST_COMMAND=$TEST_COMMAND"--xcargs CONFIGURATION_BUILD_DIR=\"$TEST_PATH\""
+	TEST_COMMAND=$TEST_COMMAND" --xcargs CONFIGURATION_BUILD_DIR=\"$TEST_PATH\""
 
 	#if [[ $TEST_SDK == *simulator* ]]; then
 	#  TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
@@ -200,24 +200,6 @@ execute_test()
       
       exit 1
     fi
-  fi
-}
-
-execute_rake_test()
-{
-  #
-  # Testing, always run rake script, no matter the situation
-  #
-
-  RAKE_SCRIPT=`find . -name Rakefile | head -n1`
-
-  if [[ -f $RAKE_SCRIPT ]]; then
-
-    message "test" "Running Rake script..." debug normal
-
-    $($RAKE_SCRIPT test)
-
-    message "test" "Rake testing finished." trace normal
   fi
 }
 
