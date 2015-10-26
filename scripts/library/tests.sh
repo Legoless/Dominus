@@ -160,7 +160,7 @@ execute_test()
 
     message "test" "Test command: $TEST_COMMAND" trace normal
 
-    `$TEST_COMMAND`
+    $($TEST_COMMAND)
 
     exit 1
 
