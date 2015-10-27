@@ -109,7 +109,7 @@ run_tests()
   TEST_COMMAND=$TEST_COMMAND" --scheme $SCHEME"
 
   if [[ ! -z $TEST_DEVICE ]]; then
-  	TEST_COMMAND=$TEST_COMMAND=" --device $TEST_DEVICE"
+  	TEST_COMMAND=$TEST_COMMAND" --device '$TEST_DEVICE'"
   fi
 
   #
