@@ -300,7 +300,7 @@ generate_code_coverage()
 
     #cat $SLATHER_FILE
 
-    slather coverage -s YesGraph/YesGraphSDK/YesGraphSDK.xcodeproj
+    slather coverage -s YesGraph/YesGraphSDK/YesGraphSDK.xcodeproj --input-format profdata
 
     message "test" "Slather upload finished." debug success
   fi
