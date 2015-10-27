@@ -237,6 +237,9 @@ test_report()
       
       exit 1
     fi
+  else
+  	message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> (Errored)" warn success
+  	exit 1
   fi
 }
 
