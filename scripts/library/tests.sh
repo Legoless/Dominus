@@ -25,7 +25,7 @@ run_tests()
   # If scan file exists, we run it and run the report
   #
 
-  local SCAN_FILE=$(find_file 'report.junit')
+  local SCAN_FILE=$(find_file 'Scanfile')
 
   if [[ ! -z $SCAN_FILE ]]; then
   	install_scan
@@ -110,6 +110,10 @@ run_tests()
 
   if [[ ! -z $TEST_DEVICE ]]; then
   	TEST_COMMAND=$TEST_COMMAND" --device '$TEST_DEVICE'"
+  fi
+
+  if [ "$GENERATE_CODE_COVERAGE" == true ]; then
+  	TEST_COMMAND=$TEST_COMMAND" --code_coverage"
   fi
 
   #
@@ -290,27 +294,17 @@ generate_code_coverage()
     
     install_slather
 
-    #echo '\n' >> $SLATHER_FILE
-    #echo 'build_directory: '$TEST_PATH >> $SLATHER_FILE
-    #find /users/travis -iname "*.profdata" 
-
-	#find /users/travis -iname "*.profdata" -exec cat {} +
-
-	#find /users/travis -iname "*.gcno"
-
-    #cat $SLATHER_FILE
-
     slather
 
     message "test" "Slather upload finished." debug success
   fi
 
   if [ "$GENERATE_CODE_COVERAGE" == true ] && [[ ! -z $PROJECT ]]; then
-    gem_install "slather"
+    install_slather
 
     message "test" "Generating Code Coverage for: $PROJECT" trace normal
 
-    slather coverage --html $PROJECT
+    slather coverage -s $PROJECT
 
     message "test" "Code Coverage report generated." debug success
   fi
