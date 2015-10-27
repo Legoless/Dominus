@@ -257,7 +257,7 @@ install_slather ()
 	  #gem specific_install -l https://github.com/viteinfinite/slather -b feature-profdata
     fi
 
-    gem specific_install -l https://github.com/mattdelves/slather -b feature-profdata
+    gem specific_install -l https://github.com/legoless/slather -b feature-profdata
 }
 
 install_scan ()
