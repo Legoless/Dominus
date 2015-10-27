@@ -160,7 +160,7 @@ execute_test()
 	#
 	# Prepare commands
 	#
-	#TEST_COMMAND=$TEST_COMMAND" --xcargs CONFIGURATION_BUILD_DIR=\"$TEST_PATH\""
+	TEST_COMMAND=$TEST_COMMAND" --xcargs CONFIGURATION_BUILD_DIR=\"$TEST_PATH\""
 
 	#if [[ $TEST_SDK == *simulator* ]]; then
 	#  TEST_COMMAND=$TEST_COMMAND" VALID_ARCHS='i386'"
