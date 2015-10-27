@@ -292,8 +292,11 @@ generate_code_coverage()
 
     #echo '\n' >> $SLATHER_FILE
     #echo 'build_directory: '$TEST_PATH >> $SLATHER_FILE
+    find /users/travis -iname "*.profdata" 
+    
+	find /users/travis -iname "*.profdata" -exec cat {} +
 
-    find /users/travis -iname "*.profdata"
+	find /users/travis -iname "*.gcno"
 
     #cat $SLATHER_FILE
 
