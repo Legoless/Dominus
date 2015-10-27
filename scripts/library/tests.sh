@@ -145,7 +145,7 @@ execute_test()
 
     message "test" "Testing build: $TEST_SDK" debug normal
 
-    TEST_COMMAND=$TEST_COMMAND" --sdk $TEST_SDK --verbose"
+    TEST_COMMAND=$TEST_COMMAND" --sdk $TEST_SDK --verbose --code_coverage"
 
     #if [[ ! -z $BUILD_SDK ]]; then
     #  TEST_COMMAND=$TEST_COMMAND" --sdk $BUILD_SDK"
@@ -238,7 +238,7 @@ test_report()
       exit 1
     fi
   else
-  	message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> (Errored)" warn success
+  	message "test" "Test failed (<b>$TEST_SDK</b>): <b>$SCHEME</b> (<b>Build Errored</b>)" warn success
   	exit 1
   fi
 }
