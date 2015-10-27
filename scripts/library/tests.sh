@@ -28,7 +28,7 @@ run_tests()
   local SCAN_FILE=$(find_file 'report.junit')
 
   if [[ ! -z $SCAN_FILE ]]; then
-  	gem_install "scan"
+  	install_scan
 
   	set +e
 
@@ -90,7 +90,7 @@ run_tests()
   # Install Scan
   #
 
-  gem_install "scan"
+  install_scan
 
   #
   # Build and test paths need to go under build directory, which is usually under .gitignore
@@ -252,6 +252,20 @@ install_slather ()
       gem_install "specific_install"
 	  gem specific_install -l https://github.com/mattdelves/slather -b feature-profdata
 	  #gem specific_install -l https://github.com/viteinfinite/slather -b feature-profdata
+    fi
+}
+
+install_scan ()
+{
+	SPECIFIC_INSTALL_GEM=$(check_gem specific_install)
+
+    #
+    # Check for awscli gem which is needed for 
+    #
+
+    if [ "$SPECIFIC_INSTALL_GEM" == "false" ]; then
+      gem_install "specific_install"
+	  gem specific_install -l https://github.com/legoless/scan
     fi
 }
 
