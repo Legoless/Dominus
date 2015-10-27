@@ -297,7 +297,7 @@ generate_code_coverage()
 
     #cat $SLATHER_FILE
 
-    slather
+    slather --input-format profdata
 
     message "test" "Slather upload finished." debug success
   fi
