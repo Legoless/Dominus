@@ -276,7 +276,7 @@ install_scan ()
       gem_install "specific_install"
     fi
 
-    gem specific_install -l https://github.com/legoless/scan
+    gem_install "scan"
 }
 
 generate_code_coverage()
