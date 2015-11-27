@@ -42,10 +42,6 @@ provision()
 
     gem_install "AtlantisPro"
 
-    message "provision" "Loading devices from TestFlight app..." trace normal
-
-    testflight_devices
-
     message "provision" "Loading devices from Crashlytics Beta..." trace normal
 
     crashlytics_devices
@@ -107,23 +103,6 @@ provision()
 #
 # Private functions
 #
-
-testflight_devices()
-{
-  IFS=$''
-
-  if [[ ! -z $TESTFLIGHT_TEAM ]] && [[ ! -z $TESTFLIGHT_USERNAME ]] && [[ ! -z $TESTFLIGHT_PASSWORD ]]; then
-    local TESTFLIGHT_COMMAND="$ATLANTIS_PATH devices --team $TESTFLIGHT_TEAM --username $TESTFLIGHT_USERNAME --password $TESTFLIGHT_PASSWORD --format csv --trace --service TestFlight"
-
-    if [[ ! -z $TESTFLIGHT_DISTRIBUTION_LIST ]]; then
-      TESTFLIGHT_COMMAND=$TESTFLIGHT_COMMAND" --group $TESTFLIGHT_DISTRIBUTION_LIST"
-    fi
-
-    local DEVICES=`eval $TESTFLIGHT_COMMAND`
-
-    new_devices $DEVICES
-  fi
-}
 
 crashlytics_devices()
 {
