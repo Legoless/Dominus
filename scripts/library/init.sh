@@ -19,11 +19,11 @@ init()
 
   message "init" "Updating Homebrew..." trace normal
 
-  brew_update
+  #brew_update
 
   message "init" "Updating xctool..." trace normal
 
-  brew_upgrade xctool
+  #brew_upgrade xctool
 
   message "init" "Checking upload tools..." trace normal
 
