@@ -77,12 +77,12 @@ build()
   BUILD_COMMAND=""
 
   if [[ ! -z $WORKSPACE ]]; then
-    BUILD_COMMAND="xctool -workspace $WORKSPACE"
+    BUILD_COMMAND="gym --workspace $WORKSPACE"
   elif [[ ! -z $PROJECT ]]; then
-    BUILD_COMMAND="xctool -project $PROJECT"
+    BUILD_COMMAND="gym --project $PROJECT"
   fi
 
-  BUILD_COMMAND=$BUILD_COMMAND" -scheme $SCHEME"
+  BUILD_COMMAND=$BUILD_COMMAND" --scheme $SCHEME --clean"
 
   #
   # Append build configuration
@@ -91,9 +91,9 @@ build()
   if [[ ! -z $BUILD_CONFIG ]]; then
     message "build" "Using Launch Action build config in scheme: $BUILD_CONFIG" debug normal
 
-    BUILD_COMMAND=$BUILD_COMMAND" -configuration $BUILD_CONFIG"
+    BUILD_COMMAND=$BUILD_COMMAND" --configuration $BUILD_CONFIG"
   else
-    message "build" "Build configuration not detected, using xcodebuild..." info warning
+    message "build" "Build configuration not detected, using default for scheme..." info warning
   fi
 
   #
@@ -111,7 +111,7 @@ build()
   if [[ ! -z $PROFILE_UUID ]]; then
     message "build" "Searching profile UUID: $PROFILE_UUID" debug normal
 
-    BUILD_COMMAND=$BUILD_COMMAND" PROVISIONING_PROFILE=$PROFILE_UUID"
+    BUILD_COMMAND=$BUILD_COMMAND" --xcargs PROVISIONING_PROFILE=$PROFILE_UUID"
   elif [[ $BUILD_SDK != *simulator* ]]; then
     message "build" "Could not find provisioning profile, continuing with default setting..." info warning
   fi
@@ -174,14 +174,14 @@ build()
   #
 
   if [[ ! -z $BUILD_SDK ]]; then
-    BUILD_COMMAND=$BUILD_COMMAND" -sdk $BUILD_SDK"
+    BUILD_COMMAND=$BUILD_COMMAND" --sdk $BUILD_SDK"
   fi
 
   setup_bootstrap
 
-  message "build" "Building project with xctool..." trace normal
+  message "build" "Building project with gym..." trace normal
 
-  execute_command "$BUILD_COMMAND build"
+  execute_command "$BUILD_COMMAND"
 
   #
   # Find built .app file, check for successful build
