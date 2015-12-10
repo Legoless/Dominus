@@ -18,13 +18,14 @@ provision()
     return 0
   fi
 
-  #
-  # Install Cupertino gem only if we are not on Simulator
-  #
 
-  message "provision" "Installing Cupertino gem..." trace normal
+  message "provision" "Installing Fastlane gem..." trace normal
 
-  gem_install "Cupertino"
+  #gem_install "fastlane"
+
+  message "provision" "Installing Sigh gem..." trace normal
+
+  gem_install "sigh"
 
   #
   # If deploy update devices is set to true, then we install the gem
@@ -36,22 +37,22 @@ provision()
   if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ]; then
     message "provision" "Loading devices in Apple Developer team: $DEVELOPER_TEAM" debug normal
 
-    apple_devices
+    #apple_devices
 
-    message "provision" "Installing AtlantisPro to connect to distribution services..." trace normal
+    message "provision" "Installing Atlantis to connect to distribution services..." trace normal
 
-    gem_install "AtlantisPro"
+    #gem_install "AtlantisPro"
 
     message "provision" "Loading devices from Crashlytics Beta..." trace normal
 
-    crashlytics_devices
+    #crashlytics_devices
 
     message "provision" "Found $NEW_DEVICES_COUNT new devices..." debug normal
 
-    apple_add_devices
+    #apple_add_devices
   fi
 
-  apple_provisioning_profile
+  #apple_provisioning_profile
 
   FOUND_UUID=$(parse_profile_uuid $FOUND_PROFILE)
 
@@ -71,7 +72,7 @@ provision()
   #
 
   if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ] && [ "$NEW_DEVICES_COUNT" != 0 ]; then
-    apple_add_to_provisioning
+    #apple_add_to_provisioning
   fi
 
   clean_provisioning
@@ -336,7 +337,7 @@ apple_download_profile()
 {
   rm -f *.mobileprovision*
 
-  DOWNLOAD=$($CUPERTINO_PATH profiles:download $PROFILE_NAME --team $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --trace)
+  DOWNLOAD=$(sigh --provisioning_name $PROFILE_NAME --team_name $DEVELOPER_TEAM --username $DEVELOPER_USERNAME --password $DEVELOPER_PASSWORD --force)
 
   #message "provision" "$DOWNLOAD" trace normal
 

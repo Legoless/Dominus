@@ -266,7 +266,6 @@ project_build()
 
 VARIABLE_PATH='./dominus.cfg'
 ATLANTIS_PATH='distribution'
-CUPERTINO_PATH='ios'
 
 #
 # Search for correct script path
@@ -275,7 +274,7 @@ SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
 
-SCRIPT_VERSION='0.9.2'
+SCRIPT_VERSION='2.0.0-alpha1'
 
 echo '[DOMINUS]: System started. Script version:' $SCRIPT_VERSION
 echo '[DOMINUS]: Integration by Dal Rupnik <legoless@gmail.com>'
