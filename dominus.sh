@@ -156,6 +156,14 @@ integrate()
   fi
 
   #
+  # Version 2.x.x Creates a Fastlane integration
+  #
+
+  fastlane_integrate
+
+  exit 0
+
+  #
   # Define actions
   #
 

@@ -215,7 +215,7 @@ test_report()
     #local TEST_RESULT=`cat $TEST_REPORT_FILE | grep "<testsuites tests=" | head -1`
 
     local TESTS_RUN=$(xmllint --noblanks --xpath "string(//testsuites/@tests)" $TEST_REPORT_FILE)
-	local TESTS_FAILED=$(xmllint --noblanks --xpath "string(//testsuites/@failures)" $TEST_REPORT_FILE)
+	  local TESTS_FAILED=$(xmllint --noblanks --xpath "string(//testsuites/@failures)" $TEST_REPORT_FILE)
 
     if [ "$TESTS_FAILED" == "0" ]; then
       message "test" "Test complete (<b>$TEST_SDK</b>): <b>$SCHEME</b> (Run: <b>$TESTS_RUN</b> Failed: <b>$TESTS_FAILED</b>)" warn success
@@ -257,11 +257,9 @@ install_slather ()
 
     if [ "$SPECIFIC_INSTALL_GEM" == "false" ]; then
       gem_install "specific_install"
-	  
-	  #gem specific_install -l https://github.com/viteinfinite/slather -b feature-profdata
     fi
 
-    gem specific_install -l https://github.com/legoless/slather -b feature-profdata
+    gem_install_specific https://github.com/legoless/slather feature-profdata
 }
 
 install_scan ()

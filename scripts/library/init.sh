@@ -17,15 +17,15 @@ init()
     message "init" "Initializing repository: $CURRENT_DIR" warn warning
   fi
 
-  message "init" "Updating Homebrew..." trace normal
+  #
+  # Install fastlane gem, which also installs all required gems
+  #
 
-  #brew_update
+  message "init" "Checking environment and fastlane..." trace normal
 
-  message "init" "Updating xctool..." trace normal
+  gem_install "fastlane"
 
-  #brew_upgrade xctool
-
-  message "init" "Checking upload tools..." trace normal
+  check_variables
 
   #
   # Prepare upload scripts if reporting is true
@@ -81,3 +81,21 @@ check_gem()
 
   echo $RUBY_GEM_CHECK
 }
+
+#
+# Method checks all variables and attempts to find those that are missing.
+#
+
+check_variables()
+{
+  #
+  # Check Bundle identifier, search for it, if it is missing
+  #
+  if [[ -z $BUNDLE_IDENTIFIER ]]; then
+    BUNDLE_IDENTIFIER=$(find_bundle_identifier)
+
+    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$CI_BRANCH</b>." debug warning
+  fi
+
+}
+
