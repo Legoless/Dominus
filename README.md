@@ -56,9 +56,11 @@ Dominus is configured with several environment variables which:
 
 # Usage
 
-To see all commands available, just run the help command:
+To run Dominus just start it with:
 
-`dominus.sh help`
+`dominus.sh integrate`
+
+And Dominus will do the rest.
 
 # Architecture
 
