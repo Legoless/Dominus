@@ -9,26 +9,7 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 
 # Features
 
-- Building iOS Projects
-  - Multiple targets or schemes
-  - Different SDK's, including simulator
-  - Automatic build process
-- Testing iOS Projects
-  - Using different iOS Simulators or real devices
-  - Test report coverage
-  - Automatic test process
-- Updating Provisioning Profiles
-  - Loading new devices from TestFlight / Crashlytics Beta to Apple Developer Portal
-  - Regenerating provisioning profiles on demand
-- Quality control
-  - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
-- Deployment to TestFlight, Crashlytics Beta
-  - Automatic build project increase (on Travis CI only)
-  - Release notes from Git history (on Travis CI only)
-  - Configure which branches should deploy
-- Detailed notification system (HipChat)
-- Travis CI Full Integration Support, including project configuration
-- Dashboard Reporting Panel and Ad-Hoc distribution
+- Building iOS projects
 
 # Installation
 
