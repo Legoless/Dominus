@@ -1,34 +1,15 @@
 Dominus
 =======
 
-Dominus is an easy to use bootstrap command line tool for Continuous Integration. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely by specific build branches. Dominus also helps with increasing the quality of your projects, by integrating different tools into one larger development tool.
+Dominus is an easy to use bootstrap command line tool for Continuous Integration. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely by specific build branches. Dominus also helps with increasing the quality of your projects, by integrating different tools into one streamlined development workflow.
 
-In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has less features and it is easier to integrate. In fact is uses Fastlane under the hood.
+In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has less features and it is easier to integrate. In fact is uses Fastlane under the hood to keep compatible.
 
-**Dominus has only one specific goal: Easy integration.** As much information as possible should be read from project file instead of asking developer to set things in configuration file.
+**Dominus has only one specific goal: Easy integration.** As much information as possible should be read from project file instead of asking developer to set things in configuration file. Dominus generates Fastlane file and runs fastlane with prepared configuration.
 
 # Features
 
-- Building iOS Projects
-  - Multiple targets or schemes
-  - Different SDK's, including simulator
-  - Automatic build process
-- Testing iOS Projects
-  - Using different iOS Simulators or real devices
-  - Test report coverage
-  - Automatic test process
-- Updating Provisioning Profiles
-  - Loading new devices from TestFlight / Crashlytics Beta to Apple Developer Portal
-  - Regenerating provisioning profiles on demand
-- Quality control
-  - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
-- Deployment to TestFlight, Crashlytics Beta
-  - Automatic build project increase (on Travis CI only)
-  - Release notes from Git history (on Travis CI only)
-  - Configure which branches should deploy
-- Detailed notification system (HipChat)
-- Travis CI Full Integration Support, including project configuration
-- Dashboard Reporting Panel and Ad-Hoc distribution
+- Building iOS projects
 
 # Installation
 
@@ -56,9 +37,11 @@ Dominus is configured with several environment variables which:
 
 # Usage
 
-To see all commands available, just run the help command:
+To run Dominus just start it with:
 
-`dominus.sh help`
+`dominus.sh integrate`
+
+And Dominus will do the rest.
 
 # Architecture
 
