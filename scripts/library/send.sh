@@ -566,40 +566,6 @@ construct_release_notes()
   echo "$RELEASE_NOTES"
 }
 
-find_property_list()
-{
-  # Find a correct property list
-  PROPERTY_LIST=''
-
-  local TARGET_DIR='.'
-
-  if [[ ! -z $1 ]]; then
-    TARGET_DIR=$1
-  fi
-
-  for filename in $(find $TARGET_DIR -iname *Info.plist -maxdepth 2);
-  do
-
-    #
-    # Select property list if it does not contain Tests or Pods
-    #
-
-    if [[ ! $filename == *Tests* ]] && [[ ! $filename == *Pods* ]] && [[ ! $filename == *.storyboard* ]]; then
-      PROPERTY_LIST=$filename
-      break
-    fi
-  done
-
-  echo $PROPERTY_LIST
-}
-
-read_property()
-{
-  PROPERTY=`/usr/libexec/plistbuddy -c Print:$2: $1`
-
-  echo $PROPERTY
-}
-
 worker_script()
 {
   REPORTER_SCRIPT=`find . -name travis_wait.rb | head -n1`

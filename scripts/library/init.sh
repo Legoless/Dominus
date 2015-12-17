@@ -89,26 +89,11 @@ check_gem()
 
 load_variables()
 {
-  echo 'fuck you'
-
-  find_property_list
-
-  echo 'come on'
-
-  #
-  # Check Bundle identifier, search for it, if it is missing
-  #
-  #if [[ -z $BUNDLE_IDENTIFIER ]]; then
-    #BUNDLE_IDENTIFIER=$(find_bundle_identifier)
-
-    #message "init" "Loaded bundle identifier: $BUNDLE_IDENTIFIER" debug warning
-  #fi
-
   #
   # Load project and workspace
   #
 
-  search_targets
+  find_xcode_targets
 
   if [[ ! -z $WORKSPACE ]]; then
     message "init" "Located Xcode workspace: $WORKSPACE" debug normal
@@ -116,6 +101,15 @@ load_variables()
 
   if [[ ! -z $PROJECT ]]; then
     message "init" "Located Xcode project: $PROJECT" debug normal
+  fi
+
+  #
+  # Check Bundle identifier, search for it, if it is missing
+  #
+  if [[ -z $BUNDLE_IDENTIFIER ]]; then
+    BUNDLE_IDENTIFIER=$(find_bundle_identifier)
+
+    message "init" "Loaded bundle identifier: $BUNDLE_IDENTIFIER" debug warning
   fi
 }
 
@@ -156,10 +150,10 @@ load_platform()
   fi
 
   #
-  # We need build platform
+  # We need build platform for Fastlane
   #
 
-  if [[ ! -z $BUILD_PLATFORM ]]; then
+  if [[ -z $BUILD_PLATFORM ]]; then
     BUILD_PLATFORM='ios'
   fi
 

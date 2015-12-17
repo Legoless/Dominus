@@ -40,23 +40,6 @@ set_build_number()
   done
 }
 
-find_bundle_identifier()
-{
-  TARGET_PROPERTY_LIST=$(find_property_list)
-
-  echo 'test'$TARGET_PROPERTY_LIST
-
-  return
-
-  if [[ ! -z $TARGET_PROPERTY_LIST ]]; then
-    echo 'LOOOL '$TARGET_PROPERTY_LIST
-
-    local READ_BUNDLE_IDENTIFIER=$(read_property $TARGET_PROPERTY_LIST CFBundleIdentifier)
-
-    echo $READ_BUNDLE_IDENTIFIER
-  fi
-}
-
 find_property_list()
 {
   # Find a correct property list
