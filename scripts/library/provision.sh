@@ -18,6 +18,8 @@ provision()
     return 0
   fi
 
+  return 0
+
 
   message "provision" "Installing Fastlane gem..." trace normal
 
@@ -72,7 +74,7 @@ provision()
   #
 
   if [ "$ACTION" == "deploy" ] && [ "$DEPLOY_UPDATE_DEVICES" = true ] && [ "$NEW_DEVICES_COUNT" != 0 ]; then
-    #apple_add_to_provisioning
+    apple_add_to_provisioning
   fi
 
   clean_provisioning

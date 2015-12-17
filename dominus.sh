@@ -158,7 +158,8 @@ integrate()
   #
   # Version 2.x.x Creates a Fastlane integration
   #
-
+  
+  init
   fastlane_integrate
 
   exit 0
