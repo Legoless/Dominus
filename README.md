@@ -9,7 +9,7 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 
 # Features
 
-- Building iOS projects
+- Building iOS projects using Fastlane
 
 # Installation
 
