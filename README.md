@@ -3,7 +3,7 @@ Dominus
 
 Dominus is an easy to use bootstrap command line tool for Continuous Integration. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely by specific build branches. Dominus also helps with increasing the quality of your projects, by integrating different tools into one streamlined development workflow.
 
-In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has less features and it is easier to integrate. In fact is uses Fastlane under the hood to keep compatible.
+In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has far less features and it is easier to integrate. In fact is uses Fastlane under the hood to keep compatible.
 
 **Dominus has only one specific goal: Easy integration.** As much information as possible should be read from project file instead of asking developer to set things in configuration file. Dominus generates a basic Fastlane file and runs fastlane with prepared configuration.
 
