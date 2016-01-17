@@ -15,19 +15,19 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 
 # Installation
 
-The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).
-
-```
-git submodule add https://github.com/Legoless/Dominus.git
-```
-
-Alternatively you can run Dominus directly with:
+The preferred way to run Dominus is to use the script below. It will always use the latest version.
 
 ```
 curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh | sh
 ```
 
 This script will install and run Dominus script and can be used on Continuous Integration servers without any submodules or repository changes.
+
+Alternative is to add Dominus to a project as a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).
+
+```
+git submodule add https://github.com/Legoless/Dominus.git
+```
 
 # Configuration
 
