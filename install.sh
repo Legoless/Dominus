@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "[DOMINUS]: Loading Dominus Scripts..."
+echo "[DOMINUS]: Loading Dominus..."
 
 DOWNLOAD_URI='https://github.com/Legoless/Dominus/archive/master.zip'
 TARGET_DIR="."
