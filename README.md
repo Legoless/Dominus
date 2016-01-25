@@ -23,7 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh 
 
 This script will install and run Dominus script and can be used on Continuous Integration servers without any submodules or repository changes.
 
-Alternative is to add Dominus to a project as a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).
+*Alternative is to add Dominus to a project as a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).*
 
 ```
 git submodule add https://github.com/Legoless/Dominus.git
