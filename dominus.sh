@@ -3,7 +3,7 @@
 # UTF-8
 export LANG=en_US.UTF-8
 
-# exit on failure
+# Exit on failure
 set -e
 
 #
