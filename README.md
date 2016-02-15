@@ -11,7 +11,7 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 
 - Building iOS project using Fastlane ([gym](https://github.com/fastlane/gym))
 - Testing iOS project using Fastlane ([scan](https://github.com/fastlane/scan))
-- Deploying iOS project using Fastlane ([deliver]())
+- Deploying iOS project using Fastlane ([deliver](https://github.com/fastlane/deliver))
 
 # Installation
 
