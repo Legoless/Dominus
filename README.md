@@ -15,7 +15,7 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 
 # Installation
 
-The preferred way to run Dominus is to use the script below. It will always use the latest version.
+The preferred way to run Dominus is run use the script below on integration. It will always use the latest version.
 
 ```
 curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh | sh
