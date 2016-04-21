@@ -13,7 +13,7 @@ In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlan
 - Testing iOS project using Fastlane ([scan](https://github.com/fastlane/scan))
 - Deploying iOS project using Fastlane ([deliver](https://github.com/fastlane/deliver))
 
-# Installation
+# Running
 
 The preferred way to run Dominus is run use the script below on integration. It will always use the latest version.
 
