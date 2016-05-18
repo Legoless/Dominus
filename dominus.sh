@@ -279,6 +279,7 @@ ATLANTIS_PATH='distribution'
 #
 # Search for correct script path
 #
+
 SCRIPT_PATH=`find . -name dominus.sh | head -n1`
 SCRIPT_PATH=$(dirname ${SCRIPT_PATH})
 SCRIPT_PATH=$SCRIPT_PATH'/scripts/'
