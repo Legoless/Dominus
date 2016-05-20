@@ -9,9 +9,9 @@ In many ways it is similar to [**Fastlane**](https://github.com/KrauseFx/fastlan
 
 # Features
 
-- Building iOS project using Fastlane ([gym](https://github.com/fastlane/gym))
-- Testing iOS project using Fastlane ([scan](https://github.com/fastlane/scan))
-- Deploying iOS project using Fastlane ([deliver](https://github.com/fastlane/deliver))
+- Building iOS application using Fastlane ([gym](https://github.com/fastlane/gym))
+- Testing iOS application using Fastlane ([scan](https://github.com/fastlane/scan))
+- Deploying iOS application using Fastlane ([deliver](https://github.com/fastlane/deliver))
 
 # Running
 
