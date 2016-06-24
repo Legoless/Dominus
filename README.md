@@ -9,12 +9,12 @@ In many ways it is similar to [**Fastlane**](https://github.com/KrauseFx/fastlan
 
 # Features
 
-- Running Fastlane if the script exists.
+- Executes Fastlane if fastlane file exists.
 - Building iOS application using Fastlane ([gym](https://github.com/fastlane/gym))
 - Testing iOS application using Fastlane ([scan](https://github.com/fastlane/scan))
 - Deploying iOS application using Fastlane ([deliver](https://github.com/fastlane/deliver))
 
-# Running
+# Setup
 
 The preferred way to run Dominus is run use the script below on integration. It will always use the latest version.
 
