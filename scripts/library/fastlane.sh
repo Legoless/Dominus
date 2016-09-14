@@ -286,7 +286,7 @@ fastlane_scan()
     fi
 
     if [[ ! -z $TEST_SDK ]]; then
-      astlane_env_variable 'SCAN_SDK' $TEST_SDK $1
+      fastlane_env_variable 'SCAN_SDK' $TEST_SDK $1
     fi
 
     if [ "$GENERATE_CODE_COVERAGE" == true ]; then
