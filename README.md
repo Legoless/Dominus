@@ -5,7 +5,7 @@ Dominus is an easy to use bootstrap command line tool for Continuous Integration
 
 In many ways it is similar to [**Fastlane**](https://github.com/KrauseFx/fastlane), but it has far less features and it is easier to integrate. In fact it generates Fastfile under the hood to keep everything compatible.
 
-**Dominus has only one specific goal: Simple integration.** As much information as possible should be read from project files instead of asking developer to set things in configuration file. Dominus generates a simple Fastlane file and runs fastlane with prepared configuration.
+**Dominus has only one specific goal: Fast integration.** As much information as possible should be read from project files instead of asking developer to set things in configuration file. Dominus generates a simple Fastlane file and runs fastlane with prepared configuration.
 
 # Features
 
