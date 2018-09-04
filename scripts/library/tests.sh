@@ -34,9 +34,9 @@ run_tests()
 
   	`scan`
 
-	set -e
+	  set -e
 
-	test_report
+	  test_report
 
   	return
   fi
