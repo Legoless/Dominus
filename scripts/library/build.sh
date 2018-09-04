@@ -246,38 +246,7 @@ set_build_path()
   fi
 }
 
-select_scheme()
-{
-  #
-  # Search all schemes
-  #
 
-  if [[ ! -z $SCHEME ]]; then
-    TARGET_SCHEME_FILE=$SCHEME
-  fi
-
-  for filename in $(find . -iname "*.xcscheme" ! -iname "Pods*");
-  do
-    #
-    # If we have a scheme set, we need to find scheme file
-    #
-
-    SCHEME_BASENAME=$(basename $filename)
-    SCHEME_BASENAME=${SCHEME_BASENAME%.*}
-
-    if [[ ! -z $TARGET_SCHEME_FILE ]] && [ "$SCHEME_BASENAME" == "$TARGET_SCHEME_FILE" ]; then
-      SCHEME_FILE=$filename
-
-      break
-    elif [ "$SCHEME_BASENAME" != "Quality" ] && [[ -z $SCHEME ]]; then
-      SCHEME=$SCHEME_BASENAME
-      SCHEME_FILE=$filename
-
-      break
-    fi
-
-  done
-}
 
 set_build_number()
 {
@@ -406,92 +375,6 @@ reporter_command()
   fi
 
   echo $BUILD_COMMAND_REPORTER
-}
-
-search_targets()
-{
-  SEARCH_PATH=$(get_search_path $1)
-
-  WORKSPACE=$(find_workspace $SEARCH_PATH)
-
-  #
-  # Search for project, but only if no workspace was found
-  #
-
-  if [[ -z $WORKSPACE ]]; then
-    PROJECT=$(find_project $SEARCH_PATH)
-  fi
-}
-
-get_search_path ()
-{
-  local SEARCH_PATH=$1
-
-  if [[ -z $SEARCH_PATH ]]; then
-    SEARCH_PATH=$DIR_PATH
-  fi
-
-  if [[ -z $SEARCH_PATH ]]; then
-    SEARCH_PATH='.'
-  fi
-
-  echo $SEARCH_PATH
-}
-
-find_workspace()
-{
-  local SEARCH_PATH=$(get_search_path $1)
-
-  for f in $(find $SEARCH_PATH -iname *.xcworkspace);
-  do
-    if [[ -d $f ]] && [[ $f != */project.xcworkspace ]]; then
-      PROJECT_WORKSPACE=$f
-    fi
-  done
-
-  echo $PROJECT_WORKSPACE
-}
-
-find_project()
-{
-  local SEARCH_PATH=$(get_search_path $1)
-
-  for f in $(find $SEARCH_PATH -iname *.xcodeproj -maxdepth 2);
-  do
-    if [[ -d $f ]] && [[ $f != *Pods* ]] && [[ $f != *pods* ]]; then
-      PROJECT_FILE=$f
-    fi
-  done
-
-  echo $PROJECT_FILE
-}
-
-find_config()
-{
-  SCHEME_ACTION=$2
-
-  if [[ ! -z $BUILD_ACTION ]]; then
-    SCHEME_ACTION='Launch'
-  fi
-
-  BUILD_CONFIG=$(xmllint $1 --xpath "string(//${SCHEME_ACTION}Action/@buildConfiguration)")
-
-  echo $BUILD_CONFIG
-}
-
-find_target()
-{
-  #
-  # If target is already specified, use it, otherwise look for one that is not a testing target
-  #
-  if [[ ! -z $TARGET ]]; then
-    return
-  fi
-
-  TARGET_EXECUTABLE=$(xmllint $1 --xpath "string(//BuildAction/*/*/BuildableReference/@BuildableName)")
-
-  # Remove .app if it is in target
-  TARGET=${TARGET_EXECUTABLE%.*}
 }
 
 create_report_path()

@@ -25,7 +25,8 @@ init()
 
   gem_install "fastlane"
 
-  check_variables
+  load_variables
+  load_platform
 
   #
   # Prepare upload scripts if reporting is true
@@ -86,16 +87,77 @@ check_gem()
 # Method checks all variables and attempts to find those that are missing.
 #
 
-check_variables()
+load_variables()
 {
+  #
+  # Load project and workspace
+  #
+
+  find_xcode_targets
+
+  if [[ ! -z $WORKSPACE ]]; then
+    message "init" "Located Xcode workspace: $WORKSPACE" debug normal
+  fi
+
+  if [[ ! -z $PROJECT ]]; then
+    message "init" "Located Xcode project: $PROJECT" debug normal
+  fi
+
   #
   # Check Bundle identifier, search for it, if it is missing
   #
   if [[ -z $BUNDLE_IDENTIFIER ]]; then
     BUNDLE_IDENTIFIER=$(find_bundle_identifier)
 
-    message "init" "Integration (<b>$ACTION</b>) on branch: <b>$CI_BRANCH</b>." debug warning
+    message "init" "Loaded bundle identifier: $BUNDLE_IDENTIFIER" debug warning
+  fi
+}
+
+load_platform()
+{
+
+  #
+  # Create build and test SDK's if both sdk and platform are specified
+  #
+
+  if [[ -z $PLATFORM ]]; then
+    PLATFORM='iphone'
+  fi
+  
+  if [[ ! -z $SDK ]] && [[ ! -z $PLATFORM ]]; then
+    
+    if [ "$PLATFORM" == "iphone" ]; then
+
+      if [ "$ACTION" != "run_tests" ]; then
+        BUILD_SDK=$PLATFORM'os'
+        BUILD_SDK=$BUILD_SDK"$SDK"
+      fi
+
+      #
+      # If no developer provisioning is defined, we will set Build SDK to be the simulator
+      #
+
+      if [[ -z $DEVELOPER_PROVISIONING ]]; then
+        BUILD_SDK=$PLATFORM'simulator'
+        BUILD_SDK=$BUILD_SDK"$SDK"
+      fi
+
+      TEST_SDK=$PLATFORM'simulator'$SDK
+    else
+      BUILD_SDK=$PLATFORM"$SDK"
+      TEST_SDK=$PLATFORM"$SDK"
+    fi
   fi
 
+  #
+  # We need build platform for Fastlane
+  #
+
+  if [[ -z $BUILD_PLATFORM ]]; then
+    BUILD_PLATFORM='ios'
+  fi
+
+  export BUILD_SDK=$BUILD_SDK
+  export TEST_SDK=$TEST_SDK
 }
 

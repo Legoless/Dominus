@@ -1,50 +1,34 @@
 Dominus
 =======
 
-Dominus is an easy to use bootstrap command line tool for Continuous Integration. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely by specific build branches. Dominus also helps with increasing the quality of your projects, by integrating different tools into one larger development tool.
+Dominus is an easy to use bootstrap command line tool for Continuous Integration. It allows completely automated deployment from console and/or [Travis CI](https://travis-ci.com), which can be triggered remotely by specific build branches. Dominus also helps with increasing the quality of your projects, by integrating different tools into one streamlined development workflow.
 
-In many ways it is similar to [**FastLane**](https://github.com/KrauseFx/fastlane), but it has less features and it is easier to integrate. In fact is uses Fastlane under the hood.
+In many ways it is similar to [**Fastlane**](https://github.com/KrauseFx/fastlane), but it has far less features and it is easier to integrate. In fact it generates Fastfile under the hood to keep everything compatible.
 
-**Dominus has only one specific goal: Easy integration.** As much information as possible should be read from project file instead of asking developer to set things in configuration file.
+**Dominus has only one specific goal: Fast integration.** As much information as possible should be read from project files instead of asking developer to set things in configuration file. Dominus generates a simple Fastlane file and runs fastlane with prepared configuration.
 
 # Features
 
-- Building iOS Projects
-  - Multiple targets or schemes
-  - Different SDK's, including simulator
-  - Automatic build process
-- Testing iOS Projects
-  - Using different iOS Simulators or real devices
-  - Test report coverage
-  - Automatic test process
-- Updating Provisioning Profiles
-  - Loading new devices from TestFlight / Crashlytics Beta to Apple Developer Portal
-  - Regenerating provisioning profiles on demand
-- Quality control
-  - Code static analysis with [Faux Pas](http://fauxpasapp.com/)
-- Deployment to TestFlight, Crashlytics Beta
-  - Automatic build project increase (on Travis CI only)
-  - Release notes from Git history (on Travis CI only)
-  - Configure which branches should deploy
-- Detailed notification system (HipChat)
-- Travis CI Full Integration Support, including project configuration
-- Dashboard Reporting Panel and Ad-Hoc distribution
+- Executes Fastlane if fastlane file exists.
+- Building iOS application using Fastlane ([gym](https://github.com/fastlane/gym))
+- Testing iOS application using Fastlane ([scan](https://github.com/fastlane/scan))
+- Deploying iOS application using Fastlane ([deliver](https://github.com/fastlane/deliver))
 
-# Installation
+# Setup
 
-The easiest way to add Dominus to a project just add a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).
-
-```
-git submodule add https://github.com/Legoless/Dominus.git
-```
-
-Alternatively you can run Dominus directly with:
+The preferred way to run Dominus is run use the script below on integration. It will always use the latest version.
 
 ```
 curl -fsSL https://raw.githubusercontent.com/legoless/Dominus/master/install.sh | sh
 ```
 
 This script will install and run Dominus script and can be used on Continuous Integration servers without any submodules or repository changes.
+
+*Alternative is to add Dominus to a project as a Git submodule. Make sure you update it before launching. When integration command is ran, it will automatically update the submodule (if present).*
+
+```
+git submodule add https://github.com/Legoless/Dominus.git
+```
 
 # Configuration
 
@@ -56,9 +40,11 @@ Dominus is configured with several environment variables which:
 
 # Usage
 
-To see all commands available, just run the help command:
+To run Dominus just start it with:
 
-`dominus.sh help`
+`dominus.sh integrate`
+
+And Dominus will do the rest.
 
 # Architecture
 
@@ -129,7 +115,6 @@ Dal Rupnik
 
 - [legoless](https://github.com/legoless) on **GitHub**
 - [@thelegoless](https://twitter.com/thelegoless) on **Twitter**
-- [legoless@arvystate.net](mailto:legoless@arvystate.net)
 
 License
 ======

@@ -40,17 +40,6 @@ set_build_number()
   done
 }
 
-find_bundle_identifier()
-{
-  TARGET_PROPERTY_LIST=$(find_property_list)
-
-  if [[ ! -z $TARGET_PROPERTY_LIST ]]; then
-    local READ_BUNDLE_IDENTIFIER=$read_property $TARGET_PROPERTY_LIST CFBundleIdentifier)
-
-    echo $READ_BUNDLE_IDENTIFIER
-  fi
-}
-
 find_property_list()
 {
   # Find a correct property list
@@ -62,7 +51,7 @@ find_property_list()
     TARGET_DIR=$1
   fi
 
-  for filename in $(find $TARGET_DIR -iname *Info.plist -maxdepth 2);
+  for filename in $(find $TARGET_DIR -iname "*Info.plist" -maxdepth 5);
   do
 
     #
